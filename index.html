@@ -908,31 +908,51 @@
   #scroll-cat.toppling .sparkle:nth-child(4)  { animation-delay: 0.05s; }
   #scroll-cat.toppling .sparkle:nth-child(5)  { animation-delay: 0.25s; }
 
-  /* Little "!" thought bubble that pops on topple */
+  /* Speech bubble (dynamic text, triggered by JS) */
   .cat-bubble {
     position: absolute;
-    top: -22px; right: -8px;
-    width: 22px; height: 22px;
-    display: grid; place-items: center;
+    top: -26px; right: -14px;
+    min-width: 26px;
+    height: 24px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: var(--surface-2);
     border: 1px solid var(--gold);
-    border-radius: 50%;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    border-radius: 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
     font-weight: 600;
+    line-height: 1;
     color: var(--gold);
     opacity: 0;
     transform: scale(0.4);
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   }
-  #scroll-cat.toppling .cat-bubble {
-    animation: bubblePop 1.4s ease-out;
-  }
+  .cat-bubble.show { animation: bubblePop 1.4s ease-out; }
   @keyframes bubblePop {
     0%   { opacity: 0; transform: scale(0.4) translateY(0); }
     15%  { opacity: 1; transform: scale(1.1) translateY(-4px); }
     75%  { opacity: 1; transform: scale(1) translateY(-4px); }
     100% { opacity: 0; transform: scale(0.9) translateY(-8px); }
   }
+
+  /* Make the cat clickable only on its painted silhouette */
+  .cat-svg { pointer-events: painted; cursor: pointer; }
+  .cat-eye-wrapper { transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+
+  /* Little hop when clicked */
+  @keyframes catHop {
+    0%   { transform: translateY(0); }
+    35%  { transform: translateY(-8px); }
+    60%  { transform: translateY(0); }
+    75%  { transform: translateY(-3px); }
+    100% { transform: translateY(0); }
+  }
+  #scroll-cat.hopping .cat-svg { animation: catHop 0.55s ease-out; }
 
   @media (prefers-reduced-motion: reduce) {
     #scroll-cat { display: none; }
@@ -1385,7 +1405,7 @@
 
 <!-- Scroll cat: walks the bottom of the viewport as you scroll -->
 <div id="scroll-cat" aria-hidden="true">
-  <div class="cat-bubble">!</div>
+  <div class="cat-bubble"></div>
   <div class="sparkles">
     <span class="sparkle"></span>
     <span class="sparkle"></span>
@@ -1442,12 +1462,15 @@
       <circle cx="69" cy="36" r="6" fill="rgba(255,255,255,0.06)" stroke="#ede2c8" stroke-width="1.4"/>
       <line x1="62.5" y1="36" x2="63.5" y2="36" stroke="#ede2c8" stroke-width="1.4"/>
 
-      <!-- Eyes -->
-      <circle class="cat-eye" cx="57" cy="36" r="1.8" fill="#1a1a10"/>
-      <circle class="cat-eye" cx="69" cy="36" r="1.8" fill="#1a1a10"/>
-      <!-- Eye shine -->
-      <circle cx="57.7" cy="35.3" r="0.5" fill="#ede2c8"/>
-      <circle cx="69.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+      <!-- Eyes (in groups so pupils + shine can track the cursor together) -->
+      <g class="cat-eye-wrapper" data-eye-idx="0">
+        <circle class="cat-eye" cx="57" cy="36" r="1.8" fill="#1a1a10"/>
+        <circle cx="57.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+      </g>
+      <g class="cat-eye-wrapper" data-eye-idx="1">
+        <circle class="cat-eye" cx="69" cy="36" r="1.8" fill="#1a1a10"/>
+        <circle cx="69.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+      </g>
 
       <!-- Nose -->
       <path d="M 61 42 L 65 42 L 63 44.6 Z" fill="#c76a6a"/>
@@ -1479,19 +1502,67 @@
     stages[idx].classList.add('active');
   }, 2600);
 
-  /* Scroll Cat — walks with you, occasionally topples */
+  /* Scroll Cat — walks with you, tracks the cursor, topples, and meows on click */
   (function () {
     const cat = document.getElementById('scroll-cat');
     if (!cat) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    const bubble = cat.querySelector('.cat-bubble');
+    const eyes = cat.querySelectorAll('.cat-eye-wrapper');
+    const svg = cat.querySelector('.cat-svg');
+
     let lastY = window.scrollY;
     let toppleAccumulator = 0;
     let toppling = false;
+    let hopping = false;
     let idleTimer = null;
+    let mouseX = null, mouseY = null;
+    let bubbleTimer = null;
 
     const CAT_MARGIN = 24;
     const TOPPLE_THRESHOLD = 900;
+    const MEOWS = ['meow~', 'purr', 'mrrp', 'nya~', ':3', 'hi!'];
+    const MAX_PUPIL_OFFSET = 1.4;
+
+    function showBubble(text, duration = 1400) {
+      bubble.textContent = text;
+      bubble.classList.remove('show');
+      void bubble.offsetWidth;
+      bubble.classList.add('show');
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(() => bubble.classList.remove('show'), duration);
+    }
+
+    function updateEyes() {
+      if (toppling || hopping) return;
+      if (mouseX === null) return;
+      const rect = cat.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const flipped = cat.classList.contains('reversed');
+      const faceX = rect.left + 0.63 * rect.width;
+      const faceY = rect.top + 0.44 * rect.height;
+      let dx = mouseX - faceX;
+      let dy = mouseY - faceY;
+      const mag = Math.hypot(dx, dy);
+      if (mag < 1) {
+        eyes[0].style.transform = '';
+        eyes[1].style.transform = '';
+        return;
+      }
+      const nx = dx / mag;
+      const ny = dy / mag;
+      const sx = flipped ? -1 : 1;
+      const tx = sx * nx * MAX_PUPIL_OFFSET;
+      const ty = ny * MAX_PUPIL_OFFSET;
+      eyes[0].style.transform = `translate(${tx}px, ${ty}px)`;
+      eyes[1].style.transform = `translate(${tx}px, ${ty}px)`;
+    }
+
+    function resetEyes() {
+      eyes[0].style.transform = '';
+      eyes[1].style.transform = '';
+    }
 
     function updateCat() {
       const y = window.scrollY;
@@ -1507,7 +1578,7 @@
       if (delta > 0) cat.classList.remove('reversed');
       else if (delta < -2) cat.classList.add('reversed');
 
-      if (!toppling && absDelta > 1) {
+      if (!toppling && !hopping && absDelta > 1) {
         cat.classList.add('walking');
         toppleAccumulator += absDelta;
         if (toppleAccumulator > TOPPLE_THRESHOLD) {
@@ -1519,9 +1590,9 @@
       lastY = y;
 
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        cat.classList.remove('walking');
-      }, 160);
+      idleTimer = setTimeout(() => { cat.classList.remove('walking'); }, 160);
+
+      updateEyes();
     }
 
     function topple() {
@@ -1529,19 +1600,51 @@
       toppling = true;
       cat.classList.remove('walking');
       cat.classList.add('toppling');
+      resetEyes();
+      showBubble('!', 1400);
       setTimeout(() => {
         cat.classList.remove('toppling');
         toppling = false;
       }, 1500);
     }
 
-    let ticking = false;
+    function hop() {
+      if (toppling || hopping) return;
+      hopping = true;
+      cat.classList.remove('walking');
+      cat.classList.add('hopping');
+      resetEyes();
+      showBubble(MEOWS[Math.floor(Math.random() * MEOWS.length)], 1400);
+      setTimeout(() => {
+        cat.classList.remove('hopping');
+        hopping = false;
+      }, 550);
+    }
+
+    let scrollTicking = false;
     window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(() => { updateCat(); ticking = false; });
-        ticking = true;
+      if (!scrollTicking) {
+        requestAnimationFrame(() => { updateCat(); scrollTicking = false; });
+        scrollTicking = true;
       }
     }, { passive: true });
+
+    let mouseTicking = false;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (!mouseTicking) {
+        requestAnimationFrame(() => { updateEyes(); mouseTicking = false; });
+        mouseTicking = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+      mouseX = mouseY = null;
+      resetEyes();
+    });
+
+    svg.addEventListener('click', hop);
 
     updateCat();
   })();
