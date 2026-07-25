@@ -155,6 +155,25 @@
   .nav-links a:hover { color: var(--gold); }
   .nav-links a:hover::before, .nav-links a:hover::after { opacity: 1; }
 
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border: 1px solid rgba(134,201,136,0.28);
+    background: rgba(134,201,136,0.06);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--live);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .status-pill:hover { background: rgba(134,201,136,0.12); }
+  .status-pill .live-dot { width: 6px; height: 6px; }
+
   /* ---------- Hero ---------- */
   .hero {
     padding: 100px 0 72px;
@@ -669,6 +688,55 @@
   }
   .stack-group li:hover::before { opacity: 1; }
 
+  /* ---------- Certifications ---------- */
+  .certs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .cert {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .cert:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+  }
+  .cert-badge {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    border: 1px solid rgba(212,163,77,0.35);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .cert-body { flex: 1; min-width: 0; }
+  .cert-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+  .cert-issuer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+  .cert-issuer strong { color: var(--gold); font-weight: 500; }
+
   /* ---------- Contact ---------- */
   .contact {
     padding: 110px 0 60px;
@@ -758,8 +826,9 @@
     .case-meta { display: flex; gap: 14px; flex-wrap: wrap; }
     .case-meta .role, .case-meta .year { display: inline; }
     .stages { grid-template-columns: repeat(2, 1fr); gap: 14px 10px; }
-    .nav-links { gap: 16px; }
-    .nav-links a:not(.cta-inline) { display: none; }
+    .nav-links { gap: 12px; }
+    .nav-links a:not(.cta-inline):not(.status-pill) { display: none; }
+    .status-pill { padding: 4px 10px; font-size: 9px; }
     .contact-links { flex-direction: column; gap: 14px; }
     .hero-annotation { transform: rotate(-2deg) translateX(0); font-size: 18px; }
     .hero-annotation::after { display: none; }
@@ -776,9 +845,13 @@
       <span class="brand-name">Kholood<em>.</em></span>
     </div>
     <div class="nav-links">
+      <a href="#contact" class="status-pill" title="Open to work">
+        <span class="live-dot"></span>Open to Work
+      </a>
       <a href="#work">work</a>
       <a href="#story">story</a>
       <a href="#stack">stack</a>
+      <a href="#certs">certs</a>
       <a href="#contact">contact</a>
     </div>
   </nav>
@@ -915,7 +988,67 @@
       </div>
     </div>
 
-    <!-- Case 2: Order Processing System -->
+    <!-- Case 2: Real-Time Analytics -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">Systems Builder</span>
+        <span class="year">2023</span>
+        <span>Bharati Vidyapeeth</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Case Study · Real-Time Analytics Platform</div>
+        <h3>C++ threads pushing data <em>faster than they should</em>.</h3>
+        <p>
+          A multi-threaded C++ engine built for high-throughput, low-latency
+          analytics at Bharati Vidyapeeth. Focused on cache-friendly data
+          structures, contention-aware locking, and tight STL usage to
+          squeeze predictable performance out of commodity hardware.
+        </p>
+        <div class="case-tags">
+          <span class="tag">C++ · STL</span>
+          <span class="tag">Multi-threading</span>
+          <span class="tag">Real-Time</span>
+          <span class="tag">Performance</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>Low</strong> latency</span>
+          <span><strong>High</strong> throughput</span>
+          <span><strong>Thread-safe</strong> by design</span>
+        </div>
+        <div class="case-note">where I learned to respect the CPU</div>
+      </div>
+    </div>
+
+    <!-- Case 3: OfficesLang -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">Builder</span>
+        <span class="year">2024</span>
+        <span>Sprint · 1 month</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Case Study · Language / NLP</div>
+        <h3>OfficesLang — <em>bridging jargon</em> and human clarity.</h3>
+        <p>
+          A linguistic intelligence tool that translates dense workplace
+          jargon into clear, human language. Shipped end-to-end in a
+          <strong>one-month sprint</strong> — from NLP prototyping to a
+          usable interface.
+        </p>
+        <div class="case-tags">
+          <span class="tag">Python</span>
+          <span class="tag">NLP</span>
+          <span class="tag">1-month ship</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>1&nbsp;month</strong> concept → ship</span>
+          <span><strong>End-to-end</strong> tool</span>
+        </div>
+        <div class="case-note">shipped, on a Sunday</div>
+      </div>
+    </div>
+
+    <!-- Case 4: Order Processing System -->
     <div class="case">
       <div class="case-meta">
         <span class="role">Builder</span>
@@ -1061,6 +1194,50 @@
     </div>
   </section>
 
+  <!-- CERTIFICATIONS -->
+  <section id="certs" class="reveal">
+    <div class="section-label">Certifications</div>
+    <h2 class="section-title">Papers I've <em>signed</em> along the way.</h2>
+
+    <div class="certs">
+      <div class="cert">
+        <div class="cert-badge">A</div>
+        <div class="cert-body">
+          <div class="cert-title">AI Fluency — Framework &amp; Foundations</div>
+          <div class="cert-issuer"><strong>Anthropic</strong> · Apr 2026</div>
+        </div>
+      </div>
+      <div class="cert">
+        <div class="cert-badge">LC</div>
+        <div class="cert-body">
+          <div class="cert-title">Functions, Tools &amp; Agents — LangChain</div>
+          <div class="cert-issuer"><strong>DeepLearning.AI</strong> · Jul 2025</div>
+        </div>
+      </div>
+      <div class="cert">
+        <div class="cert-badge">DB</div>
+        <div class="cert-body">
+          <div class="cert-title">Databricks Fundamentals</div>
+          <div class="cert-issuer"><strong>Databricks</strong></div>
+        </div>
+      </div>
+      <div class="cert">
+        <div class="cert-badge">AZ</div>
+        <div class="cert-body">
+          <div class="cert-title">Azure AI-900</div>
+          <div class="cert-issuer"><strong>Microsoft</strong></div>
+        </div>
+      </div>
+      <div class="cert">
+        <div class="cert-badge">MS</div>
+        <div class="cert-body">
+          <div class="cert-title">Microsoft Learn Student Ambassador</div>
+          <div class="cert-issuer"><strong>Microsoft</strong> · Nov 2021</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACT -->
   <section id="contact" class="contact reveal">
     <div class="section-label">Contact</div>
@@ -1070,8 +1247,9 @@
     </div>
     <div class="contact-links">
       <a href="mailto:sjkholood@gmail.com"><span>email</span>sjkholood@gmail.com</a>
-      <a href="https://www.linkedin.com/" target="_blank" rel="noopener"><span>linkedin</span>/in/kholood-sajid</a>
-      <a href="https://codeforces.com/" target="_blank" rel="noopener"><span>codeforces</span>@kholood</a>
+      <a href="https://www.linkedin.com/in/kholood-jenan-sajid" target="_blank" rel="noopener"><span>linkedin</span>/in/kholood-jenan-sajid</a>
+      <a href="https://github.com/KholoodJenanSajid" target="_blank" rel="noopener"><span>github</span>/KholoodJenanSajid</a>
+      <a href="tel:+918299819282"><span>phone</span>+91 82998 19282</a>
     </div>
   </section>
 
