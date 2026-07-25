@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FunCam — Interactive Camera Studio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --cyan: #00f5ff;
+    --magenta: #ff2d78;
+    --yellow: #ffee00;
+    --green: #00ff88;
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --panel: #1a1a26;
+    --border: rgba(0,245,255,0.18);
+    --text: #e8e8ff;
+    --muted: rgba(232,232,255,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Scanline overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    grid-template-rows: 48px 1fr 120px;
+    height: 100vh;
+    gap: 0;
+  }
+
+  /* Header */
+  #header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    text-shadow: 0 0 20px rgba(0,245,255,0.6);
+  }
+
+  .logo span { color: var(--magenta); }
+
+  .status-bar {
+    display: flex;
+    gap: 20px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .status-item { display: flex; gap: 6px; align-items: center; }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  .dot.off { background: #444; box-shadow: none; animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Main canvas area */
+  #cam-area {
+    position: relative;
+    background: #000;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  #cam-area.grabbing { cursor: grabbing; }
+
+  #video { display: none; }
+
+  #canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* HUD overlay elements */
+  .hud-corner {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--cyan);
+    border-style: solid;
+    opacity: 0.7;
+  }
+
+  .hud-corner.tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+  .hud-corner.tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+  .hud-corner.bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+  .hud-corner.br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+  #effect-label {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    text-shadow: 0 0 12px var(--cyan);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  #effect-label.show { opacity: 1; }
+
+  #draw-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  #freeze-flash {
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+  }
+
+  #freeze-flash.flash { opacity: 0.8; }
+
+  #motion-indicator {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 50px; height: 50px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+  }
+
+  #motion-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--magenta);
+    box-shadow: 0 0 8px var(--magenta);
+    transition: transform 0.1s;
+  }
+
+  /* Right panel */
+  #panel {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .panel-section {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .section-title {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    padding: 8px 12px;
+    background: rgba(0,245,255,0.05);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+  .effect-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .effect-btn {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 8px 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .effect-btn:hover {
+    border-color: var(--cyan);
+    background: rgba(0,245,255,0.08);
+  }
+
+  .effect-btn.active {
+    border-color: var(--cyan);
+    background: rgba(0,245,255,0.15);
+    color: var(--cyan);
+    text-shadow: 0 0 8px var(--cyan);
+  }
+
+  .effect-btn .key {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    margin-bottom: 2px;
+  }
+
+  .effect-btn .name {
+    display: block;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Sliders */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+  }
+
+  .slider-label {
+    color: var(--muted);
+    width: 60px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    cursor: pointer;
+  }
+
+  .slider-val {
+    width: 30px;
+    text-align: right;
+    font-size: 10px;
+    color: var(--cyan);
+  }
+
+  /* Color picker row */
+  .color-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .color-swatch {
+    width: 22px; height: 22px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .color-swatch:hover, .color-swatch.active {
+    border-color: white;
+    transform: scale(1.2);
+  }
+
+  /* Keyboard shortcuts */
+  .shortcut-list { display: flex; flex-direction: column; gap: 5px; }
+
+  .shortcut-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  kbd {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text);
+  }
+
+  /* Bottom strip */
+  #bottom-bar {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+    overflow-x: auto;
+  }
+
+  .bottom-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+  }
+
+  .metric-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--cyan);
+    text-shadow: 0 0 10px rgba(0,245,255,0.4);
+    line-height: 1;
+  }
+
+  .metric-lbl {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .sep { width: 1px; height: 40px; background: var(--border); flex-shrink: 0; }
+
+  /* Action buttons */
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+
+  .action-btn:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(0,245,255,0.06);
+  }
+
+  .action-btn.primary {
+    border-color: var(--magenta);
+    color: var(--magenta);
+    text-shadow: 0 0 8px var(--magenta);
+  }
+
+  .action-btn.primary:hover {
+    background: rgba(255,45,120,0.12);
+  }
+
+  #motion-access-btn {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    font-size: 10px;
+  }
+
+  #motion-access-btn:hover { background: rgba(255,238,0,0.08); }
+
+  /* Paint mode indicator */
+  #paint-mode-label {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--magenta);
+    text-shadow: 0 0 8px var(--magenta);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  #paint-mode-label.show { opacity: 1; }
+
+  /* No-cam overlay */
+  #no-cam {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: var(--bg);
+  }
+
+  #no-cam h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    color: var(--cyan);
+    letter-spacing: 3px;
+  }
+
+  #no-cam p { font-size: 12px; color: var(--muted); text-align: center; max-width: 280px; line-height: 1.7; }
+
+  #start-cam-btn {
+    background: transparent;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 12px 28px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px var(--cyan);
+    transition: background 0.15s;
+  }
+
+  #start-cam-btn:hover { background: rgba(0,245,255,0.1); }
+
+  /* Glitch animation */
+  @keyframes glitch {
+    0%   { clip-path: inset(0 0 95% 0); transform: translate(-4px); }
+    10%  { clip-path: inset(15% 0 70% 0); transform: translate(4px); }
+    20%  { clip-path: inset(40% 0 40% 0); transform: translate(-2px); }
+    30%  { clip-path: inset(65% 0 20% 0); transform: translate(3px); }
+    40%  { clip-path: inset(80% 0 5% 0); transform: translate(-3px); }
+    50%  { clip-path: inset(0 0 0 0); transform: translate(0); }
+    100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+  }
+
+  #glitch-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+
+  #glitch-overlay.active { animation: glitch 0.15s steps(1) forwards; opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header id="header">
+    <div class="logo">FUN<span>CAM</span></div>
+    <div class="status-bar">
+      <div class="status-item"><div class="dot off" id="cam-dot"></div><span id="cam-status">no camera</span></div>
+      <div class="status-item"><div class="dot off" id="motion-dot-hdr"></div><span id="motion-status">no motion</span></div>
+      <div class="status-item"><span id="fps-label">-- fps</span></div>
+      <div class="status-item"><span id="effect-status">effect: none</span></div>
+    </div>
+  </header>
+
+  <main id="cam-area">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <canvas id="draw-canvas"></canvas>
+    <div id="freeze-flash"></div>
+    <div id="glitch-overlay"></div>
+    <div id="effect-label"></div>
+    <div id="paint-mode-label">— PAINT MODE —</div>
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div>
+    <div class="hud-corner br"></div>
+    <div id="motion-indicator">
+      <div id="motion-dot"></div>
+    </div>
+    <div id="no-cam">
+      <h2>FUNCAM</h2>
+      <p>Interactive camera studio with keyboard effects, touch painting, and motion control.</p>
+      <button id="start-cam-btn" onclick="startCamera()">ENABLE CAMERA</button>
+    </div>
+  </main>
+
+  <aside id="panel">
+    <div class="panel-section">
+      <div class="section-title">EFFECTS — PRESS KEY</div>
+      <div class="section-body">
+        <div class="effect-grid" id="effect-grid"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">ADJUST — ARROW KEYS</div>
+      <div class="section-body">
+        <div class="slider-row">
+          <span class="slider-label">INTENSITY</span>
+          <input type="range" id="sl-intensity" min="0" max="100" value="50">
+          <span class="slider-val" id="sv-intensity">50</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">ZOOM</span>
+          <input type="range" id="sl-zoom" min="50" max="200" value="100">
+          <span class="slider-val" id="sv-zoom">100%</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">MOTION MIX</span>
+          <input type="range" id="sl-motion" min="0" max="100" value="40">
+          <span class="slider-val" id="sv-motion">40</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">PAINT COLOR — MOUSE</div>
+      <div class="section-body">
+        <div class="color-row" id="color-row"></div>
+        <div class="slider-row" style="margin-top:4px">
+          <span class="slider-label">BRUSH SIZE</span>
+          <input type="range" id="sl-brush" min="5" max="80" value="20">
+          <span class="slider-val" id="sv-brush">20</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">CONTROLS</div>
+      <div class="section-body">
+        <div class="shortcut-list">
+          <div class="shortcut-item"><span>Apply effect</span><kbd>1–9</kbd></div>
+          <div class="shortcut-item"><span>Clear effect</span><kbd>0</kbd></div>
+          <div class="shortcut-item"><span>Intensity ±</span><kbd>↑ / ↓</kbd></div>
+          <div class="shortcut-item"><span>Zoom ±</span><kbd>← / →</kbd></div>
+          <div class="shortcut-item"><span>Freeze frame</span><kbd>Space</kbd></div>
+          <div class="shortcut-item"><span>Clear paint</span><kbd>C</kbd></div>
+          <div class="shortcut-item"><span>Trigger glitch</span><kbd>G</kbd></div>
+          <div class="shortcut-item"><span>Flip mirror</span><kbd>F</kbd></div>
+          <div class="shortcut-item"><span>Paint mode</span><kbd>P</kbd></div>
+          <div class="shortcut-item"><span>Draw on cam</span><span style="color:var(--muted);font-size:9px">drag mouse</span></div>
+          <div class="shortcut-item"><span>Zoom scroll</span><span style="color:var(--muted);font-size:9px">wheel</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">MOTION SENSOR</div>
+      <div class="section-body">
+        <button class="action-btn" id="motion-access-btn" onclick="requestMotion()">REQUEST MOTION ACCESS</button>
+        <div style="font-size:9px;color:var(--muted);line-height:1.6;margin-top:4px">
+          Tilt device to shift hue.<br>Shake to trigger glitch.<br>Roll to warp perspective.
+        </div>
+        <div class="shortcut-list" style="margin-top:6px">
+          <div class="shortcut-item"><span>Tilt X</span><span class="slider-val" id="mv-alpha">—</span></div>
+          <div class="shortcut-item"><span>Tilt Y</span><span class="slider-val" id="mv-beta">—</span></div>
+          <div class="shortcut-item"><span>Roll</span><span class="slider-val" id="mv-gamma">—</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div id="bottom-bar">
+    <div class="bottom-metric">
+      <span class="metric-val" id="m-fps">00</span>
+      <span class="metric-lbl">FPS</span>
+    </div>
+    <div class="sep"></div>
+    <div class="bottom-metric">
+      <span class="metric-val" id="m-effect">NONE</span>
+      <span class="metric-lbl">EFFECT</span>
+    </div>
+    <div class="sep"></div>
+    <div class="bottom-metric">
+      <span class="metric-val" id="m-intensity">50</span>
+      <span class="metric-lbl">INTENSITY</span>
+    </div>
+    <div class="sep"></div>
+    <div class="bottom-metric">
+      <span class="metric-val" id="m-zoom">100%</span>
+      <span class="metric-lbl">ZOOM</span>
+    </div>
+    <div class="sep"></div>
+    <div class="bottom-metric">
+      <span class="metric-val" id="m-mode" style="color:var(--magenta)">LIVE</span>
+      <span class="metric-lbl">MODE</span>
+    </div>
+    <div style="flex:1"></div>
+    <button class="action-btn" onclick="clearDrawing()">CLEAR PAINT</button>
+    <button class="action-btn primary" onclick="captureFrame()">CAPTURE</button>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const drawCanvas = document.getElementById('draw-canvas');
+const ctx = canvas.getContext('2d');
+const dctx = drawCanvas.getContext('2d');
+
+// State
+let currentEffect = 0;
+let intensity = 50;
+let zoom = 100;
+let motionMix = 40;
+let brushSize = 20;
+let frozen = false;
+let paintMode = false;
+let mirrored = false;
+let motionEnabled = false;
+let painting = false;
+let paintColor = '#ff2d78';
+let hueShift = 0;
+let tiltX = 0, tiltY = 0, tiltZ = 0;
+let lastAccel = {x:0,y:0,z:0};
+let glitching = false;
+let frameCount = 0, lastFpsTime = performance.now(), fps = 0;
+let camRunning = false;
+let frozenImageData = null;
+let rafId;
+
+const EFFECTS = [
+  { key:'1', name:'Normal',     fn: fxNormal },
+  { key:'2', name:'Grayscale',  fn: fxGrayscale },
+  { key:'3', name:'Invert',     fn: fxInvert },
+  { key:'4', name:'Thermal',    fn: fxThermal },
+  { key:'5', name:'Pixelate',   fn: fxPixelate },
+  { key:'6', name:'Neon Edge',  fn: fxNeonEdge },
+  { key:'7', name:'Glitch',     fn: fxGlitch },
+  { key:'8', name:'Mirror',     fn: fxMirror },
+  { key:'9', name:'Retro',      fn: fxRetro },
+];
+
+const COLORS = ['#ff2d78','#00f5ff','#ffee00','#00ff88','#ff7700','#aa00ff','#ffffff','#ff0000'];
+
+// Build effect buttons
+const effectGrid = document.getElementById('effect-grid');
+EFFECTS.forEach((e, i) => {
+  const btn = document.createElement('div');
+  btn.className = 'effect-btn' + (i===0?' active':'');
+  btn.innerHTML = `<span class="key">${e.key}</span><span class="name">${e.name}</span>`;
+  btn.onclick = () => setEffect(i);
+  btn.id = 'efbtn-' + i;
+  effectGrid.appendChild(btn);
+});
+
+// Build color swatches
+const colorRow = document.getElementById('color-row');
+COLORS.forEach(c => {
+  const sw = document.createElement('div');
+  sw.className = 'color-swatch' + (c===paintColor?' active':'');
+  sw.style.background = c;
+  sw.onclick = () => {
+    paintColor = c;
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+  };
+  colorRow.appendChild(sw);
+});
+
+// Slider bindings
+function bindSlider(id, valId, unit, cb) {
+  const sl = document.getElementById(id);
+  const sv = document.getElementById(valId);
+  sl.oninput = () => { sv.textContent = sl.value + (unit||''); cb(Number(sl.value)); };
+}
+
+bindSlider('sl-intensity','sv-intensity','', v => { intensity = v; document.getElementById('m-intensity').textContent = v; });
+bindSlider('sl-zoom','sv-zoom','%', v => { zoom = v; document.getElementById('m-zoom').textContent = v+'%'; });
+bindSlider('sl-motion','sv-motion','', v => { motionMix = v; });
+bindSlider('sl-brush','sv-brush','', v => { brushSize = v; });
+
+// Camera
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ ideal:1280 }, height:{ ideal:720 } } });
+    video.srcObject = stream;
+    await video.play();
+    document.getElementById('no-cam').style.display = 'none';
+    document.getElementById('cam-dot').classList.remove('off');
+    document.getElementById('cam-status').textContent = 'camera on';
+    camRunning = true;
+    resizeCanvases();
+    render();
+  } catch(e) {
+    document.querySelector('#no-cam p').textContent = 'Camera access denied. Please allow camera permission in your browser settings.';
+  }
+}
+
+function resizeCanvases() {
+  const area = document.getElementById('cam-area');
+  canvas.width = area.offsetWidth;
+  canvas.height = area.offsetHeight;
+  drawCanvas.width = area.offsetWidth;
+  drawCanvas.height = area.offsetHeight;
+}
+
+window.addEventListener('resize', () => {
+  resizeCanvases();
+  frozenImageData = null;
+});
+
+// Render loop
+function render() {
+  rafId = requestAnimationFrame(render);
+
+  // FPS
+  frameCount++;
+  const now = performance.now();
+  if(now - lastFpsTime > 500) {
+    fps = Math.round(frameCount * 1000 / (now - lastFpsTime));
+    frameCount = 0; lastFpsTime = now;
+    document.getElementById('m-fps').textContent = String(fps).padStart(2,'0');
+    document.getElementById('fps-label').textContent = fps + ' fps';
+  }
+
+  if(!camRunning) return;
+
+  ctx.save();
+
+  // Zoom + motion offset
+  const z = zoom / 100;
+  const ox = (tiltY / 45) * (motionMix/100) * 30;
+  const oy = (tiltX / 45) * (motionMix/100) * 30;
+
+  ctx.translate(canvas.width/2 + ox, canvas.height/2 + oy);
+  ctx.scale(z * (mirrored ? -1 : 1), z);
+  ctx.translate(-canvas.width/2, -canvas.height/2);
+
+  if(frozen && frozenImageData) {
+    ctx.putImageData(frozenImageData, 0, 0);
+    ctx.restore();
+    return;
+  }
+
+  // Draw video
+  const vw = video.videoWidth || 1;
+  const vh = video.videoHeight || 1;
+  const scale = Math.max(canvas.width/vw, canvas.height/vh);
+  const dw = vw*scale, dh = vh*scale;
+  const dx = (canvas.width-dw)/2, dy = (canvas.height-dh)/2;
+
+  ctx.filter = 'none';
+  ctx.drawImage(video, dx, dy, dw, dh);
+  ctx.restore();
+
+  // Apply effect to pixel data
+  const fx = EFFECTS[currentEffect];
+  if(fx && currentEffect > 0) {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    fx.fn(imageData, intensity/100);
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  // Hue shift from motion
+  if(hueShift !== 0 && motionEnabled) {
+    ctx.globalCompositeOperation = 'hue';
+    ctx.fillStyle = `hsl(${hueShift},100%,50%)`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+}
+
+// Effects
+function fxNormal(img, t) {}
+
+function fxGrayscale(img, t) {
+  const d = img.data;
+  for(let i=0;i<d.length;i+=4) {
+    const g = 0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    d[i] = d[i]*(1-t) + g*t;
+    d[i+1] = d[i+1]*(1-t) + g*t;
+    d[i+2] = d[i+2]*(1-t) + g*t;
+  }
+}
+
+function fxInvert(img, t) {
+  const d = img.data;
+  for(let i=0;i<d.length;i+=4) {
+    d[i]   = d[i]*(1-t) + (255-d[i])*t;
+    d[i+1] = d[i+1]*(1-t) + (255-d[i+1])*t;
+    d[i+2] = d[i+2]*(1-t) + (255-d[i+2])*t;
+  }
+}
+
+function fxThermal(img, t) {
+  const d = img.data;
+  for(let i=0;i<d.length;i+=4) {
+    const val = (0.299*d[i]+0.587*d[i+1]+0.114*d[i+2])/255;
+    const tr = Math.min(255, val*4*255);
+    const tg = Math.max(0, Math.min(255,(val*4-1)*255));
+    const tb = Math.max(0, Math.min(255,(val*4-2)*255));
+    d[i]   = d[i]*(1-t) + tr*t;
+    d[i+1] = d[i+1]*(1-t) + tg*t;
+    d[i+2] = d[i+2]*(1-t) + tb*t;
+  }
+}
+
+function fxPixelate(img, t) {
+  const size = Math.max(2, Math.floor(t * 40));
+  const w = img.width, h = img.height;
+  const d = img.data;
+  for(let y=0;y<h;y+=size) {
+    for(let x=0;x<w;x+=size) {
+      const idx = (y*w+x)*4;
+      const r=d[idx],g=d[idx+1],b=d[idx+2];
+      for(let py=0;py<size&&y+py<h;py++) {
+        for(let px=0;px<size&&x+px<w;px++) {
+          const i=((y+py)*w+(x+px))*4;
+          d[i]=r; d[i+1]=g; d[i+2]=b;
+        }
+      }
+    }
+  }
+}
+
+function fxNeonEdge(img, t) {
+  const d = img.data;
+  const w = img.width, h = img.height;
+  const copy = new Uint8ClampedArray(d);
+  for(let y=1;y<h-1;y++) {
+    for(let x=1;x<w-1;x++) {
+      const i=(y*w+x)*4;
+      const gx = copy[i+4]-copy[i-4];
+      const gy = copy[(y+1)*w*4+x*4]-copy[(y-1)*w*4+x*4];
+      const edge = Math.min(255, Math.sqrt(gx*gx+gy*gy));
+      const bright = edge * t;
+      d[i]   = Math.min(255, d[i]*0.3 + bright * 0.1);
+      d[i+1] = Math.min(255, d[i+1]*0.3 + bright * 1.0);
+      d[i+2] = Math.min(255, d[i+2]*0.3 + bright * 1.2);
+    }
+  }
+}
+
+function fxGlitch(img, t) {
+  const d = img.data;
+  const w = img.width;
+  const lines = Math.floor(t * 30);
+  for(let l=0;l<lines;l++) {
+    const y = Math.floor(Math.random() * img.height);
+    const shift = Math.floor((Math.random()-0.5) * t * 80);
+    for(let x=0;x<w;x++) {
+      const sx = ((x+shift)%w+w)%w;
+      const src=(y*w+sx)*4;
+      const dst=(y*w+x)*4;
+      d[dst]=d[src]; d[dst+1]=d[src+2]; d[dst+2]=d[src+1];
+    }
+  }
+}
+
+function fxMirror(img, t) {
+  const d = img.data;
+  const w = img.width, h = img.height;
+  const mid = Math.floor(w/2);
+  for(let y=0;y<h;y++) {
+    for(let x=0;x<mid;x++) {
+      const l=(y*w+x)*4;
+      const r=(y*w+(w-1-x))*4;
+      d[r]=d[l]; d[r+1]=d[l+1]; d[r+2]=d[l+2];
+    }
+  }
+}
+
+function fxRetro(img, t) {
+  const d = img.data;
+  for(let i=0;i<d.length;i+=4) {
+    d[i]   = Math.round(d[i]/64)*64;
+    d[i+1] = Math.round(d[i+1]/64)*64;
+    d[i+2] = Math.round(d[i+2]/64)*64;
+    if((Math.floor(i/4/img.width))%4===0) {
+      d[i]=d[i+1]=d[i+2]=d[i]*0.4;
+    }
+  }
+}
+
+// Effect switching
+function setEffect(idx) {
+  currentEffect = idx;
+  document.querySelectorAll('.effect-btn').forEach((b,i) => {
+    b.classList.toggle('active', i===idx);
+  });
+  const name = EFFECTS[idx].name.toUpperCase();
+  document.getElementById('m-effect').textContent = name;
+  document.getElementById('effect-status').textContent = 'effect: ' + name.toLowerCase();
+  showEffectLabel(name);
+}
+
+function showEffectLabel(name) {
+  const el = document.getElementById('effect-label');
+  el.textContent = name;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// Keyboard
+const keyMap = {};
+document.addEventListener('keydown', e => {
+  if(e.repeat) return;
+  const k = e.key;
+
+  if(k >= '0' && k <= '9') {
+    if(k === '0') setEffect(0);
+    else setEffect(Number(k)-1);
+    return;
+  }
+
+  if(k === ' ') { e.preventDefault(); toggleFreeze(); return; }
+  if(k.toLowerCase() === 'c') { clearDrawing(); return; }
+  if(k.toLowerCase() === 'g') { triggerGlitch(); return; }
+  if(k.toLowerCase() === 'f') { toggleMirror(); return; }
+  if(k.toLowerCase() === 'p') { togglePaintMode(); return; }
+
+  if(k === 'ArrowUp') {
+    e.preventDefault();
+    intensity = Math.min(100, intensity+5);
+    document.getElementById('sl-intensity').value = intensity;
+    document.getElementById('sv-intensity').textContent = intensity;
+    document.getElementById('m-intensity').textContent = intensity;
+  }
+  if(k === 'ArrowDown') {
+    e.preventDefault();
+    intensity = Math.max(0, intensity-5);
+    document.getElementById('sl-intensity').value = intensity;
+    document.getElementById('sv-intensity').textContent = intensity;
+    document.getElementById('m-intensity').textContent = intensity;
+  }
+  if(k === 'ArrowRight') {
+    e.preventDefault();
+    zoom = Math.min(200, zoom+5);
+    document.getElementById('sl-zoom').value = zoom;
+    document.getElementById('sv-zoom').textContent = zoom+'%';
+    document.getElementById('m-zoom').textContent = zoom+'%';
+  }
+  if(k === 'ArrowLeft') {
+    e.preventDefault();
+    zoom = Math.max(50, zoom-5);
+    document.getElementById('sl-zoom').value = zoom;
+    document.getElementById('sv-zoom').textContent = zoom+'%';
+    document.getElementById('m-zoom').textContent = zoom+'%';
+  }
+});
+
+// Freeze
+function toggleFreeze() {
+  if(!camRunning) return;
+  frozen = !frozen;
+  if(frozen) {
+    frozenImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    document.getElementById('m-mode').textContent = 'FROZEN';
+    document.getElementById('m-mode').style.color = 'var(--yellow)';
+    flashScreen();
+  } else {
+    frozenImageData = null;
+    document.getElementById('m-mode').textContent = 'LIVE';
+    document.getElementById('m-mode').style.color = 'var(--magenta)';
+  }
+}
+
+function flashScreen() {
+  const el = document.getElementById('freeze-flash');
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 150);
+}
+
+// Mirror
+function toggleMirror() {
+  mirrored = !mirrored;
+  showEffectLabel(mirrored ? 'MIRROR ON' : 'MIRROR OFF');
+}
+
+// Paint mode
+function togglePaintMode() {
+  paintMode = !paintMode;
+  const lbl = document.getElementById('paint-mode-label');
+  lbl.classList.toggle('show', paintMode);
+  document.getElementById('cam-area').style.cursor = paintMode ? 'crosshair' : 'default';
+}
+
+// Glitch flash
+function triggerGlitch() {
+  if(glitching) return;
+  glitching = true;
+  const el = document.getElementById('glitch-overlay');
+  el.style.background = `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
+  el.classList.add('active');
+  setTimeout(() => { el.classList.remove('active'); glitching=false; }, 200);
+}
+
+// Capture
+function captureFrame() {
+  const link = document.createElement('a');
+  link.download = 'funcam-' + Date.now() + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  flashScreen();
+}
+
+function clearDrawing() {
+  dctx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+}
+
+// Mouse / touchpad drawing
+const camArea = document.getElementById('cam-area');
+let lastX = 0, lastY = 0;
+
+camArea.addEventListener('mousedown', e => {
+  if(!paintMode) return;
+  painting = true;
+  const r = camArea.getBoundingClientRect();
+  lastX = e.clientX - r.left;
+  lastY = e.clientY - r.top;
+  camArea.classList.add('grabbing');
+});
+
+camArea.addEventListener('mousemove', e => {
+  if(!painting || !paintMode) return;
+  const r = camArea.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+  dctx.strokeStyle = paintColor;
+  dctx.lineWidth = brushSize;
+  dctx.lineCap = 'round';
+  dctx.lineJoin = 'round';
+  dctx.shadowBlur = brushSize * 0.8;
+  dctx.shadowColor = paintColor;
+  dctx.beginPath();
+  dctx.moveTo(lastX, lastY);
+  dctx.lineTo(x, y);
+  dctx.stroke();
+  lastX = x; lastY = y;
+});
+
+document.addEventListener('mouseup', () => {
+  painting = false;
+  camArea.classList.remove('grabbing');
+});
+
+// Touch support
+camArea.addEventListener('touchstart', e => {
+  if(!paintMode) return;
+  e.preventDefault();
+  painting = true;
+  const r = camArea.getBoundingClientRect();
+  const t = e.touches[0];
+  lastX = t.clientX - r.left;
+  lastY = t.clientY - r.top;
+}, {passive:false});
+
+camArea.addEventListener('touchmove', e => {
+  if(!painting || !paintMode) return;
+  e.preventDefault();
+  const r = camArea.getBoundingClientRect();
+  const t = e.touches[0];
+  const x = t.clientX - r.left;
+  const y = t.clientY - r.top;
+  dctx.strokeStyle = paintColor;
+  dctx.lineWidth = brushSize;
+  dctx.lineCap = 'round';
+  dctx.shadowBlur = brushSize;
+  dctx.shadowColor = paintColor;
+  dctx.beginPath();
+  dctx.moveTo(lastX, lastY);
+  dctx.lineTo(x, y);
+  dctx.stroke();
+  lastX = x; lastY = y;
+}, {passive:false});
+
+camArea.addEventListener('touchend', () => { painting = false; });
+
+// Mouse wheel zoom
+camArea.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom = Math.max(50, Math.min(200, zoom - e.deltaY * 0.1));
+  document.getElementById('sl-zoom').value = zoom;
+  document.getElementById('sv-zoom').textContent = Math.round(zoom)+'%';
+  document.getElementById('m-zoom').textContent = Math.round(zoom)+'%';
+}, {passive:false});
+
+// Device Motion & Orientation
+function requestMotion() {
+  if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(state => {
+      if(state === 'granted') enableMotion();
+    }).catch(console.error);
+  } else {
+    enableMotion();
+  }
+}
+
+function enableMotion() {
+  window.addEventListener('deviceorientation', e => {
+    tiltX = e.beta  || 0;
+    tiltY = e.gamma || 0;
+    tiltZ = e.alpha || 0;
+
+    document.getElementById('mv-alpha').textContent = Math.round(tiltZ);
+    document.getElementById('mv-beta').textContent  = Math.round(tiltX);
+    document.getElementById('mv-gamma').textContent = Math.round(tiltY);
+
+    // Hue from tilt
+    hueShift = ((tiltZ % 360) + 360) % 360;
+
+    // Update motion dot position
+    const mx = Math.max(-20,Math.min(20,tiltY/2));
+    const my = Math.max(-20,Math.min(20,tiltX/2));
+    document.getElementById('motion-dot').style.transform = `translate(${mx}px,${my}px)`;
+  });
+
+  window.addEventListener('devicemotion', e => {
+    const acc = e.acceleration || {};
+    const x = acc.x||0, y = acc.y||0, z = acc.z||0;
+    const shake = Math.abs(x-lastAccel.x)+Math.abs(y-lastAccel.y)+Math.abs(z-lastAccel.z);
+    if(shake > 25) triggerGlitch();
+    lastAccel = {x,y,z};
+  });
+
+  motionEnabled = true;
+  document.getElementById('motion-dot-hdr').classList.remove('off');
+  document.getElementById('motion-status').textContent = 'motion on';
+  document.getElementById('motion-access-btn').textContent = 'MOTION ACTIVE';
+  document.getElementById('motion-access-btn').style.borderColor = 'var(--green)';
+  document.getElementById('motion-access-btn').style.color = 'var(--green)';
+}
+
+// Auto-try motion on load (works on Android without permission)
+setTimeout(() => {
+  if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+    enableMotion();
+  }
+}, 500);
+</script>
+</body>
+</html>
