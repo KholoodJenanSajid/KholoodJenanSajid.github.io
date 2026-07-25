@@ -817,6 +817,127 @@
   }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
+  /* ---------- Scroll Cat ---------- */
+  #scroll-cat {
+    position: fixed;
+    bottom: 14px;
+    left: 24px;
+    width: 76px;
+    height: 62px;
+    z-index: 60;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
+    transition: left 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform, left;
+  }
+  .cat-flip {
+    width: 100%; height: 100%;
+    transition: transform 0.35s ease;
+  }
+  #scroll-cat.reversed .cat-flip { transform: scaleX(-1); }
+  .cat-svg { width: 100%; height: 100%; display: block; }
+
+  /* Walking bounce */
+  @keyframes catBounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-2px); }
+  }
+  #scroll-cat.walking .cat-svg {
+    animation: catBounce 0.42s ease-in-out infinite;
+  }
+
+  /* Leg walk cycle */
+  .cat-svg .leg { transform-box: fill-box; transform-origin: 50% 0%; }
+  @keyframes stepA { 0%,100% { transform: translateY(0); }    50% { transform: translateY(-2.2px); } }
+  @keyframes stepB { 0%,100% { transform: translateY(-2.2px); } 50% { transform: translateY(0); } }
+  #scroll-cat.walking .leg-fl,
+  #scroll-cat.walking .leg-br { animation: stepA 0.36s linear infinite; }
+  #scroll-cat.walking .leg-fr,
+  #scroll-cat.walking .leg-bl { animation: stepB 0.36s linear infinite; }
+
+  /* Tail wag */
+  .cat-tail { transform-box: fill-box; transform-origin: 100% 100%; animation: tailWag 2.4s ease-in-out infinite; }
+  @keyframes tailWag {
+    0%, 100% { transform: rotate(-6deg); }
+    50%      { transform: rotate(14deg); }
+  }
+
+  /* Blink */
+  .cat-eye { transform-box: fill-box; transform-origin: center; animation: blink 5.5s infinite; }
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    94%, 97%      { transform: scaleY(0.1); }
+  }
+
+  /* Topple / tumble */
+  @keyframes topple {
+    0%   { transform: rotate(0deg)    translateY(0); }
+    15%  { transform: rotate(-25deg)  translateY(-4px); }
+    35%  { transform: rotate(-180deg) translateY(-10px); }
+    55%  { transform: rotate(-330deg) translateY(-6px); }
+    72%  { transform: rotate(-360deg) translateY(0); }
+    82%  { transform: rotate(-358deg) translateY(-3px); }
+    100% { transform: rotate(-360deg) translateY(0); }
+  }
+  #scroll-cat.toppling { animation: topple 1.5s cubic-bezier(0.6, 0.05, 0.4, 0.95); }
+
+  /* Sparkles when toppling */
+  .sparkles { position: absolute; inset: -18px; pointer-events: none; }
+  .sparkle {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--gold-2);
+    clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  .sparkle:nth-child(1) { top: -6px;   left: 6px;    background: var(--gold-2); }
+  .sparkle:nth-child(2) { top: 8px;    right: -6px;  background: var(--live); }
+  .sparkle:nth-child(3) { bottom: 6px; left: -8px;   background: var(--gold-2); }
+  .sparkle:nth-child(4) { top: -4px;   right: 24px;  background: var(--gold); }
+  .sparkle:nth-child(5) { bottom: -2px; right: 14px; background: var(--gold-2); width: 7px; height: 7px; }
+
+  @keyframes sparklePop {
+    0%   { opacity: 0; transform: scale(0.3) rotate(0deg); }
+    40%  { opacity: 1; transform: scale(1.3) rotate(90deg); }
+    100% { opacity: 0; transform: scale(0.6) rotate(180deg); }
+  }
+  #scroll-cat.toppling .sparkle               { animation: sparklePop 1.15s ease-out; }
+  #scroll-cat.toppling .sparkle:nth-child(2)  { animation-delay: 0.1s; }
+  #scroll-cat.toppling .sparkle:nth-child(3)  { animation-delay: 0.2s; }
+  #scroll-cat.toppling .sparkle:nth-child(4)  { animation-delay: 0.05s; }
+  #scroll-cat.toppling .sparkle:nth-child(5)  { animation-delay: 0.25s; }
+
+  /* Little "!" thought bubble that pops on topple */
+  .cat-bubble {
+    position: absolute;
+    top: -22px; right: -8px;
+    width: 22px; height: 22px;
+    display: grid; place-items: center;
+    background: var(--surface-2);
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gold);
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  #scroll-cat.toppling .cat-bubble {
+    animation: bubblePop 1.4s ease-out;
+  }
+  @keyframes bubblePop {
+    0%   { opacity: 0; transform: scale(0.4) translateY(0); }
+    15%  { opacity: 1; transform: scale(1.1) translateY(-4px); }
+    75%  { opacity: 1; transform: scale(1) translateY(-4px); }
+    100% { opacity: 0; transform: scale(0.9) translateY(-8px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #scroll-cat { display: none; }
+  }
+
   /* ---------- Responsive ---------- */
   @media (max-width: 720px) {
     .container { padding: 0 22px; }
@@ -832,6 +953,8 @@
     .contact-links { flex-direction: column; gap: 14px; }
     .hero-annotation { transform: rotate(-2deg) translateX(0); font-size: 18px; }
     .hero-annotation::after { display: none; }
+    #scroll-cat { width: 56px; height: 46px; bottom: 8px; left: 10px; }
+    .cat-bubble { width: 18px; height: 18px; font-size: 10px; top: -18px; }
   }
 </style>
 </head>
@@ -1260,6 +1383,81 @@
 
 </div>
 
+<!-- Scroll cat: walks the bottom of the viewport as you scroll -->
+<div id="scroll-cat" aria-hidden="true">
+  <div class="cat-bubble">!</div>
+  <div class="sparkles">
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+  </div>
+  <div class="cat-flip">
+    <svg class="cat-svg" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+      <!-- Tail (drawn first so it sits behind the body) -->
+      <path class="cat-tail" d="M 24 52 Q 10 46 8 32 Q 8 22 16 20"
+            fill="none" stroke="#e8a95c" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 12 26 L 10 30" stroke="#a67539" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M 15 34 L 13 37" stroke="#a67539" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+      <!-- Back legs -->
+      <ellipse class="leg leg-bl" cx="30" cy="66" rx="3.6" ry="6" fill="#a67539"/>
+      <ellipse class="leg leg-br" cx="39" cy="66" rx="3.6" ry="6" fill="#c88a3a"/>
+
+      <!-- Body -->
+      <ellipse class="cat-body" cx="43" cy="55" rx="22" ry="12" fill="#e8a95c"/>
+      <!-- Body stripes -->
+      <path d="M 32 48 Q 33 55 32 62" stroke="#a67539" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M 40 46 Q 41 55 40 64" stroke="#a67539" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M 49 47 Q 50 55 49 63" stroke="#a67539" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <!-- White belly patch -->
+      <ellipse cx="46" cy="60" rx="14" ry="6" fill="#f5e6cc"/>
+
+      <!-- Front legs -->
+      <ellipse class="leg leg-fl" cx="51" cy="66" rx="3.6" ry="6" fill="#c88a3a"/>
+      <ellipse class="leg leg-fr" cx="59" cy="66" rx="3.6" ry="6" fill="#a67539"/>
+
+      <!-- Head -->
+      <circle class="cat-head" cx="63" cy="34" r="17" fill="#e8a95c"/>
+
+      <!-- Ears (outer) -->
+      <path d="M 51 22 L 48 9 L 59 20 Z" fill="#e8a95c" stroke="#a67539" stroke-width="0.8"/>
+      <path d="M 75 22 L 78 9 L 67 20 Z" fill="#e8a95c" stroke="#a67539" stroke-width="0.8"/>
+      <!-- Ears (inner pink) -->
+      <path d="M 52 20 L 51 13 L 56 19 Z" fill="#f5a789"/>
+      <path d="M 74 20 L 75 13 L 70 19 Z" fill="#f5a789"/>
+
+      <!-- Head stripes -->
+      <path d="M 56 19 Q 57 24 56 27" stroke="#a67539" stroke-width="1.5" fill="none"/>
+      <path d="M 63 17 L 63 23" stroke="#a67539" stroke-width="1.5" fill="none"/>
+      <path d="M 70 19 Q 69 24 70 27" stroke="#a67539" stroke-width="1.5" fill="none"/>
+
+      <!-- Cheek fluff -->
+      <ellipse cx="55" cy="42" rx="4" ry="2.6" fill="#f5e6cc" opacity="0.85"/>
+      <ellipse cx="71" cy="42" rx="4" ry="2.6" fill="#f5e6cc" opacity="0.85"/>
+
+      <!-- Glasses -->
+      <circle cx="57" cy="36" r="6" fill="rgba(255,255,255,0.06)" stroke="#ede2c8" stroke-width="1.4"/>
+      <circle cx="69" cy="36" r="6" fill="rgba(255,255,255,0.06)" stroke="#ede2c8" stroke-width="1.4"/>
+      <line x1="62.5" y1="36" x2="63.5" y2="36" stroke="#ede2c8" stroke-width="1.4"/>
+
+      <!-- Eyes -->
+      <circle class="cat-eye" cx="57" cy="36" r="1.8" fill="#1a1a10"/>
+      <circle class="cat-eye" cx="69" cy="36" r="1.8" fill="#1a1a10"/>
+      <!-- Eye shine -->
+      <circle cx="57.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+      <circle cx="69.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+
+      <!-- Nose -->
+      <path d="M 61 42 L 65 42 L 63 44.6 Z" fill="#c76a6a"/>
+      <!-- Mouth -->
+      <path d="M 63 45 Q 61 47 59 46.5" stroke="#7a4a2a" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+      <path d="M 63 45 Q 65 47 67 46.5" stroke="#7a4a2a" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+
 <script>
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -1280,6 +1478,73 @@
     idx = (idx + 1) % stages.length;
     stages[idx].classList.add('active');
   }, 2600);
+
+  /* Scroll Cat — walks with you, occasionally topples */
+  (function () {
+    const cat = document.getElementById('scroll-cat');
+    if (!cat) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let lastY = window.scrollY;
+    let toppleAccumulator = 0;
+    let toppling = false;
+    let idleTimer = null;
+
+    const CAT_MARGIN = 24;
+    const TOPPLE_THRESHOLD = 900;
+
+    function updateCat() {
+      const y = window.scrollY;
+      const delta = y - lastY;
+      const absDelta = Math.abs(delta);
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(1, Math.max(0, y / scrollable)) : 0;
+
+      const catWidth = cat.offsetWidth;
+      const maxLeft = window.innerWidth - catWidth - CAT_MARGIN;
+      cat.style.left = (CAT_MARGIN + (maxLeft - CAT_MARGIN) * progress) + 'px';
+
+      if (delta > 0) cat.classList.remove('reversed');
+      else if (delta < -2) cat.classList.add('reversed');
+
+      if (!toppling && absDelta > 1) {
+        cat.classList.add('walking');
+        toppleAccumulator += absDelta;
+        if (toppleAccumulator > TOPPLE_THRESHOLD) {
+          toppleAccumulator = 0;
+          topple();
+        }
+      }
+
+      lastY = y;
+
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        cat.classList.remove('walking');
+      }, 160);
+    }
+
+    function topple() {
+      if (toppling) return;
+      toppling = true;
+      cat.classList.remove('walking');
+      cat.classList.add('toppling');
+      setTimeout(() => {
+        cat.classList.remove('toppling');
+        toppling = false;
+      }, 1500);
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { updateCat(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateCat();
+  })();
 </script>
 
 </body>
