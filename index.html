@@ -1166,6 +1166,282 @@
     #bug-hud, .bug-drop, .score-float { display: none !important; }
   }
 
+  /* ---------- Chat Widget ---------- */
+  #chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 70;
+    font-family: 'Inter', sans-serif;
+  }
+  #chat-toggle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    background: var(--surface);
+    color: var(--gold);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 0 rgba(212,163,77,0.4);
+    transition: transform 0.2s, box-shadow 0.3s;
+    animation: chatPulse 2.6s infinite;
+    position: relative;
+  }
+  #chat-toggle::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 6px rgba(134,201,136,0.7);
+  }
+  #chat-toggle:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(0,0,0,0.55); }
+  #chat-toggle svg { width: 22px; height: 22px; }
+  @keyframes chatPulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 0 rgba(212,163,77,0.35); }
+    60% { box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 14px rgba(212,163,77,0); }
+  }
+  #chat-widget.open #chat-toggle { display: none; }
+
+  #chat-panel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 344px;
+    height: 480px;
+    max-height: calc(100vh - 40px);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+    opacity: 0;
+    transform: translateY(20px) scale(0.94);
+    transform-origin: bottom right;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+  }
+  #chat-widget.open #chat-panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .chat-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-2);
+    gap: 8px;
+  }
+  .chat-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    letter-spacing: 0.5px;
+    min-width: 0;
+  }
+  .chat-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    border: 1px solid rgba(212,163,77,0.4);
+    display: grid;
+    place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .chat-status {
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: var(--live);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chat-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 5px rgba(134,201,136,0.7);
+  }
+  .chat-actions { display: flex; gap: 2px; flex-shrink: 0; }
+  .chat-icon-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+    display: grid;
+    place-items: center;
+  }
+  .chat-icon-btn:hover { color: var(--gold); background: rgba(212,163,77,0.1); }
+  .chat-icon-btn svg { width: 14px; height: 14px; }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+
+  .msg {
+    max-width: 86%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    animation: msgIn 0.28s ease-out;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--gold);
+    color: #17170f;
+    font-weight: 500;
+    border-bottom-right-radius: 4px;
+  }
+  .msg em {
+    font-family: 'Caveat', cursive;
+    font-style: normal;
+    font-size: 15px;
+    color: var(--gold);
+    letter-spacing: 0.2px;
+  }
+  .msg.user em { color: rgba(23,23,15,0.7); font-family: 'Instrument Serif', serif; font-size: 14px; font-style: italic; }
+
+  .typing {
+    align-self: flex-start;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 4px;
+  }
+  .typing span {
+    width: 6px; height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .chat-quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 14px 4px;
+    border-top: 1px solid var(--line);
+  }
+  .chat-quick.hidden { display: none; }
+  .quick-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quick-chip:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-soft);
+  }
+
+  .chat-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .chat-input input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+  }
+  .chat-input input:focus { border-color: var(--gold); }
+  .chat-input input::placeholder { color: var(--muted); }
+  .chat-input button[type=submit] {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #17170f;
+    border: none;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    transition: transform 0.15s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .chat-input button[type=submit]:hover { background: var(--gold-2); transform: scale(1.08); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #chat-toggle { animation: none; }
+  }
+
   /* ---------- Responsive ---------- */
   @media (max-width: 720px) {
     .container { padding: 0 22px; }
@@ -1187,6 +1463,9 @@
     .hud-title { font-size: 8px; }
     .bug-drop { font-size: 10px; padding: 3px 8px; }
     .bug-drop.rare { font-size: 11px; padding: 4px 10px; }
+    #chat-widget { bottom: 12px; right: 12px; }
+    #chat-panel { width: calc(100vw - 24px); max-width: 360px; height: 440px; }
+    #chat-toggle { width: 48px; height: 48px; }
   }
 </style>
 </head>
@@ -1711,7 +1990,139 @@
   <div class="hud-hint" id="bug-hint">click errors to squash ↗</div>
 </div>
 
+<!-- Chat Widget -->
+<div id="chat-widget">
+  <button id="chat-toggle" aria-label="Open chat" title="Chat with the cat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      <circle cx="8" cy="12" r="0.8" fill="currentColor"/>
+      <circle cx="12" cy="12" r="0.8" fill="currentColor"/>
+      <circle cx="16" cy="12" r="0.8" fill="currentColor"/>
+    </svg>
+  </button>
+  <div id="chat-panel" role="dialog" aria-labelledby="chat-title-text">
+    <div class="chat-header">
+      <div class="chat-title">
+        <span class="chat-avatar">K</span>
+        <span id="chat-title-text">ask the cat</span>
+        <span class="chat-status">online</span>
+      </div>
+      <div class="chat-actions">
+        <button class="chat-icon-btn" id="chat-mute" aria-label="Toggle sound" title="Toggle sound"></button>
+        <button class="chat-icon-btn" id="chat-close" aria-label="Close chat" title="Close">×</button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-quick" id="chat-quick"></div>
+    <form class="chat-input" id="chat-form">
+      <input type="text" id="chat-text" placeholder="ask anything about kholood..." autocomplete="off" maxlength="200">
+      <button type="submit" aria-label="Send message">↵</button>
+    </form>
+  </div>
+</div>
+
 <script>
+  /* ---------- Audio (Web Audio API, no assets) ---------- */
+  let __audioCtx = null;
+  let __muted = false;
+  try { __muted = localStorage.getItem('audioMuted') === '1'; } catch (_) {}
+
+  function __getAudioCtx() {
+    if (__audioCtx) return __audioCtx;
+    try { __audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (_) { __audioCtx = null; }
+    return __audioCtx;
+  }
+
+  function __setMuted(m) {
+    __muted = !!m;
+    try { localStorage.setItem('audioMuted', __muted ? '1' : '0'); } catch (_) {}
+  }
+
+  /* Two-syllable synthesized meow */
+  function __playMeow() {
+    if (__muted) return;
+    const ctx = __getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1500;
+    filter.Q.value = 4;
+    filter.connect(ctx.destination);
+
+    // "me" — rising
+    const osc1 = ctx.createOscillator();
+    const g1 = ctx.createGain();
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(620, now);
+    osc1.frequency.linearRampToValueAtTime(780, now + 0.08);
+    g1.gain.setValueAtTime(0, now);
+    g1.gain.linearRampToValueAtTime(0.12, now + 0.02);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    osc1.connect(g1).connect(filter);
+    osc1.start(now);
+    osc1.stop(now + 0.15);
+
+    // "ow" — falling, longer
+    const osc2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    osc2.type = 'sawtooth';
+    osc2.frequency.setValueAtTime(560, now + 0.09);
+    osc2.frequency.exponentialRampToValueAtTime(280, now + 0.36);
+    g2.gain.setValueAtTime(0, now + 0.08);
+    g2.gain.linearRampToValueAtTime(0.13, now + 0.11);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+    osc2.connect(g2).connect(filter);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.4);
+  }
+
+  /* Ascending 3-note chime (rare bug bonus) */
+  function __playChime() {
+    if (__muted) return;
+    const ctx = __getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 987.77];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = now + i * 0.07;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.09, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.42);
+    });
+  }
+
+  /* Short click blip (bug catch) */
+  function __playBlip() {
+    if (__muted) return;
+    const ctx = __getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(680, now);
+    osc.frequency.exponentialRampToValueAtTime(1180, now + 0.055);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  }
+
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -1846,6 +2257,7 @@
       cat.classList.add('hopping');
       resetEyes();
       showBubble(MEOWS[Math.floor(Math.random() * MEOWS.length)], 1400);
+      if (typeof __playMeow === 'function') __playMeow();
       setTimeout(() => {
         cat.classList.remove('hopping');
         hopping = false;
@@ -2021,8 +2433,13 @@
         hintEl.classList.add('gone');
       }
 
-      if (isRare && typeof window.__catSay === 'function') {
-        window.__catSay(CAT_REACTIONS[Math.floor(Math.random() * CAT_REACTIONS.length)], 1400);
+      if (isRare) {
+        if (typeof __playChime === 'function') __playChime();
+        if (typeof window.__catSay === 'function') {
+          window.__catSay(CAT_REACTIONS[Math.floor(Math.random() * CAT_REACTIONS.length)], 1400);
+        }
+      } else {
+        if (typeof __playBlip === 'function') __playBlip();
       }
 
       bug.classList.add('popping');
@@ -2056,6 +2473,220 @@
     window.addEventListener('scroll', () => {
       if (window.scrollY > 200) start();
     }, { passive: true });
+  })();
+
+  /* ---------- Chatbot (rule-based, cat persona) ---------- */
+  (function ChatBot() {
+    const widget    = document.getElementById('chat-widget');
+    if (!widget) return;
+    const toggle    = document.getElementById('chat-toggle');
+    const panel     = document.getElementById('chat-panel');
+    const closeBtn  = document.getElementById('chat-close');
+    const muteBtn   = document.getElementById('chat-mute');
+    const messages  = document.getElementById('chat-messages');
+    const quickEl   = document.getElementById('chat-quick');
+    const form      = document.getElementById('chat-form');
+    const input     = document.getElementById('chat-text');
+
+    const SPEAKER_ON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+    const SPEAKER_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+
+    const QUICK = [
+      { label: 'who is kholood?',   q: 'who is kholood' },
+      { label: 'what does she do?', q: 'what does she do at work' },
+      { label: 'skills',            q: 'skills' },
+      { label: 'projects',          q: 'projects' },
+      { label: 'contact',           q: 'contact' },
+    ];
+
+    const R = {
+      hello: [
+        "meow! what would you like to know?",
+        "*yawns* hey. what's on your mind?",
+        "hi there. try one of the buttons below, or just type a question."
+      ],
+      who: [
+        "*preens* kholood jenan sajid — data engineer at amdocs, based in pune. B.Tech IT from bharati vidyapeeth (CGPA 9.64). she builds pipelines that don't wake anyone up at 3 AM, and she's currently *open to work*."
+      ],
+      work: [
+        "at amdocs (aug 2024 → present), she ships production data pipelines on snowflake, azure & python. she landed 10+ upstream feeds into a snowflake data lake, built 20+ automated QC & risk checks, cut end-to-end latency, and owns SPN-based auth for zero-touch runs. scroll up to the amdocs case study for the full story."
+      ],
+      skills: [
+        "her stack:\n· data — snowflake, ETL, data lake, pyspark, pandas\n· cloud — azure blob/SFTP, CI/CD, SPN auth, databricks, TWS\n· languages — python, SQL, typescript, C++\n· backend — spring boot, REST APIs, microservices, event-driven\n\nshe also holds AI certs: anthropic's AI fluency, langchain (deeplearning.ai), azure AI-900."
+      ],
+      projects: [
+        "5 case studies live here:\n1. amdocs enterprise data platform (snowflake, data lake)\n2. real-time analytics (C++ multi-threading @ BVP)\n3. officeslang — NLP jargon translator (1-month sprint)\n4. distributed event-driven order system (stripe)\n5. scalable scrapers @ let us code (95% accuracy)\n\nclick /work in the nav or scroll up."
+      ],
+      contact: [
+        "fastest ways to reach her:\n· sjkholood@gmail.com\n· linkedin.com/in/kholood-jenan-sajid\n· github.com/KholoodJenanSajid\n· +91 82998 19282\n\nshe's *open to work* — data engineering, ETL, data lake, real-time roles."
+      ],
+      resume: [
+        "her resume is on linkedin — /in/kholood-jenan-sajid — or email sjkholood@gmail.com and she'll send it directly."
+      ],
+      hire: [
+        "she's very much open to work — data engineering, ETL, snowflake, real-time systems, or anything at the intersection of code and messy data. email sjkholood@gmail.com or ping /in/kholood-jenan-sajid on linkedin."
+      ],
+      location: [
+        "pune, india. open to on-site, hybrid, or remote — depending on the role."
+      ],
+      education: [
+        "B.Tech in Information Technology from Bharati Vidyapeeth Deemed University, pune. CGPA 9.64. graduated may 2024. also 250+ LeetCode problems and a scrappy 3rd place in a 2024 coding challenge."
+      ],
+      data: [
+        "data engineering is her main gig. she thinks the *most interesting bugs are data bugs*, and lives in the unglamorous middle of the stack — staging, data lakes, validation. the small checks that stand between raw upstream files and dashboards someone actually trusts."
+      ],
+      snowflake: [
+        "snowflake is her daily driver at amdocs. she designs staging layers, tunes complex joins on large datasets, and handles cross-schema GUID mapping across payments, tax, inventory, and revenue feeds. scroll to the amdocs case study for more."
+      ],
+      amdocs: [
+        "at amdocs she owns the messy middle: python + SQL pipelines pushing production data through a snowflake data lake, 20+ risk/quality checks, SPN auth for zero-touch ingestion, and constant ETL tuning to keep latency down. *the pipeline that taught her lineage.*"
+      ],
+      certs: [
+        "her certs:\n· AI Fluency — Anthropic (Apr 2026)\n· Functions, Tools & Agents — LangChain / DeepLearning.AI (Jul 2025)\n· Databricks Fundamentals\n· Azure AI-900 — Microsoft\n· Microsoft Learn Student Ambassador (Nov 2021)"
+      ],
+      cat: [
+        "*preens* yes, I'm the cat. I walk when you scroll, topple when you scroll too much, and my eyes follow your cursor. try clicking me — I'll meow. try scrolling fast. try catching the falling red bugs."
+      ],
+      bugs: [
+        "the falling error codes? that's Debug Mode. click them to squash bad data. green ★ bugs are rare, worth +5, and I get excited when you catch them. your highscore is saved."
+      ],
+      pipeline: [
+        "she builds ingestion pipelines for high-volume transactional data — SFTP/blob → snowflake staging → transformation → QC → downstream. every hop has validation. the pipeline chip at the top of the page shows the shape: ingest → stage · lake → transform → validate · serve."
+      ],
+      thanks: [
+        "*purrs* anytime~ come back if you have more questions.",
+        "you're welcome. tell kholood I said hi."
+      ],
+      why: [
+        "she likes pipelines that fail loudly, code that reads like prose, and systems where the next engineer — including future her — doesn't need a map to change something."
+      ],
+      fallback: [
+        "*tilts head* not sure about that one. try asking about her *work*, *skills*, *projects*, or *contact* — or click one of the buttons.",
+        "*licks paw* I'm a small cat with a limited knowledge base. try: 'who is kholood', 'skills', 'projects', 'contact'."
+      ]
+    };
+
+    const RULES = [
+      [/\b(hi|hello|hey|yo|hola|namaste)\b/i,                                  'hello'],
+      [/\bmeow\b/i,                                                            'cat'],
+      [/\b(who|about|introduce|kholood|yourself|tell me)\b/i,                  'who'],
+      [/\b(where|location|based|pune|city|remote|onsite|hybrid)\b/i,           'location'],
+      [/\b(education|study|degree|college|university|school|cgpa|bharati|leetcode)\b/i, 'education'],
+      [/\b(cert|certification|langchain|anthropic|databricks|azure ai|ambassador|ai fluency)\b/i, 'certs'],
+      [/\b(snowflake)\b/i,                                                     'snowflake'],
+      [/\b(amdocs)\b/i,                                                        'amdocs'],
+      [/\b(pipeline|ingest|etl|stage|lake|transform|validate|kafka|event hub|streaming)\b/i, 'pipeline'],
+      [/\b(hire|hiring|available|opportunit|position|role|open to work)\b/i,   'hire'],
+      [/\b(work|job|current|company|amdocs|role)\b/i,                          'work'],
+      [/\b(skill|stack|tech|tool|language|framework|python|sql|typescript|c\+\+)\b/i, 'skills'],
+      [/\b(project|portfolio|case|study|built|officeslang|order|scraper|analytics)\b/i, 'projects'],
+      [/\b(contact|email|reach|phone|linkedin|call|dm|message)\b/i,            'contact'],
+      [/\b(resume|cv)\b/i,                                                     'resume'],
+      [/\b(cat|kitty|kitten|feline|paw)\b/i,                                   'cat'],
+      [/\b(bug|debug|game|error|catch|squash|highscore|score)\b/i,             'bugs'],
+      [/\b(data|snowflake|azure|lake|sql|python|spark)\b/i,                    'data'],
+      [/\b(why|philosophy|values|approach|opinion)\b/i,                        'why'],
+      [/\b(thank|thanks|ty|bye|cya|later|goodbye)\b/i,                         'thanks']
+    ];
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    function match(text) {
+      for (const [re, key] of RULES) {
+        if (re.test(text)) return pick(R[key]);
+      }
+      return pick(R.fallback);
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function formatMsg(s) {
+      return escapeHtml(s).replace(/\*(.+?)\*/g, '<em>$1</em>');
+    }
+
+    function addMessage(text, who) {
+      const msg = document.createElement('div');
+      msg.className = 'msg ' + who;
+      msg.innerHTML = formatMsg(text);
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function addTyping() {
+      const t = document.createElement('div');
+      t.className = 'typing';
+      t.id = 'typing-indicator';
+      t.innerHTML = '<span></span><span></span><span></span>';
+      messages.appendChild(t);
+      messages.scrollTop = messages.scrollHeight;
+      return t;
+    }
+    function removeTyping() {
+      const t = document.getElementById('typing-indicator');
+      if (t) t.remove();
+    }
+
+    function botReply(text) {
+      addTyping();
+      const delay = 400 + Math.random() * 500;
+      setTimeout(() => {
+        removeTyping();
+        addMessage(text, 'bot');
+      }, delay);
+    }
+
+    function ask(text) {
+      const clean = text.trim();
+      if (!clean) return;
+      addMessage(clean, 'user');
+      input.value = '';
+      quickEl.classList.add('hidden');
+      botReply(match(clean));
+    }
+
+    function buildQuick() {
+      quickEl.innerHTML = '';
+      QUICK.forEach(p => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quick-chip';
+        btn.textContent = p.label;
+        btn.addEventListener('click', () => ask(p.q));
+        quickEl.appendChild(btn);
+      });
+    }
+
+    let opened = false;
+    function openChat() {
+      widget.classList.add('open');
+      if (!opened) {
+        opened = true;
+        addMessage("*stretches* meow~ I'm kholood's very official spokescat. ask me anything about her — work, projects, or how to reach her.", 'bot');
+        buildQuick();
+        if (typeof __playMeow === 'function') __playMeow();
+      }
+      setTimeout(() => input.focus(), 260);
+    }
+    function closeChat() { widget.classList.remove('open'); }
+
+    function refreshMuteBtn() {
+      muteBtn.innerHTML = __muted ? SPEAKER_OFF : SPEAKER_ON;
+      muteBtn.setAttribute('title', __muted ? 'Sound off — click to enable' : 'Sound on — click to mute');
+    }
+    refreshMuteBtn();
+
+    toggle.addEventListener('click', openChat);
+    closeBtn.addEventListener('click', closeChat);
+    muteBtn.addEventListener('click', () => {
+      __setMuted(!__muted);
+      refreshMuteBtn();
+      if (!__muted && typeof __playBlip === 'function') __playBlip();
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      ask(input.value);
+    });
   })();
 </script>
 
