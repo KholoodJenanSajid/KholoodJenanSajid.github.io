@@ -1280,6 +1280,113 @@
     background: var(--live);
     box-shadow: 0 0 5px rgba(134,201,136,0.7);
   }
+  .ai-badge {
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--live);
+    background: rgba(134,201,136,0.12);
+    border: 1px solid rgba(134,201,136,0.4);
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.6px;
+  }
+  .chat-title.ai-active .chat-status { display: none; }
+  .chat-title.ai-active .ai-badge { display: inline-flex; align-items: center; gap: 4px; }
+  .chat-title.ai-active .ai-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 5px rgba(134,201,136,0.8);
+    animation: livePulse 1.6s infinite;
+  }
+
+  .chat-settings-pane {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    animation: settingsIn 0.25s ease-out;
+  }
+  @keyframes settingsIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .chat-settings-pane h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .chat-settings-pane p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .chat-settings-pane p a {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--gold);
+  }
+  .chat-settings-pane p a:hover { color: var(--gold-2); }
+  .chat-settings-pane input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .chat-settings-pane input:focus { border-color: var(--gold); }
+  .settings-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .settings-actions button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--ink-2);
+    transition: all 0.2s;
+  }
+  .settings-actions button:hover { border-color: var(--gold); color: var(--gold); }
+  #groq-save {
+    background: var(--gold);
+    color: #17170f;
+    border-color: var(--gold);
+    font-weight: 600;
+  }
+  #groq-save:hover { background: var(--gold-2); border-color: var(--gold-2); color: #17170f; }
+  .settings-status {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+  }
+  .settings-status.active { color: var(--live); }
+  .settings-status.active::before { content: '● '; }
+  .settings-status.error { color: #d95c5c; }
+  .settings-status.error::before { content: '✕ '; }
   .chat-actions { display: flex; gap: 2px; flex-shrink: 0; }
   .chat-icon-btn {
     background: none;
@@ -2002,15 +2109,29 @@
   </button>
   <div id="chat-panel" role="dialog" aria-labelledby="chat-title-text">
     <div class="chat-header">
-      <div class="chat-title">
+      <div class="chat-title" id="chat-title-el">
         <span class="chat-avatar">K</span>
         <span id="chat-title-text">ask the cat</span>
         <span class="chat-status">online</span>
+        <span class="ai-badge" title="LLM mode active">AI</span>
       </div>
       <div class="chat-actions">
+        <button class="chat-icon-btn" id="chat-settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
         <button class="chat-icon-btn" id="chat-mute" aria-label="Toggle sound" title="Toggle sound"></button>
         <button class="chat-icon-btn" id="chat-close" aria-label="Close chat" title="Close">×</button>
       </div>
+    </div>
+    <div class="chat-settings-pane" id="chat-settings-pane" hidden>
+      <h4>upgrade to LLM chat</h4>
+      <p>paste a free Groq API key (get one at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>) to unlock real conversational AI. key stays in your browser only.</p>
+      <input type="password" id="groq-key-input" placeholder="gsk_..." autocomplete="off" spellcheck="false">
+      <div class="settings-actions">
+        <button type="button" id="groq-clear">clear key</button>
+        <button type="button" id="groq-save">save &amp; enable</button>
+      </div>
+      <p class="settings-status" id="groq-status">no key set · using rule-based responses</p>
     </div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-quick" id="chat-quick"></div>
@@ -2475,195 +2596,473 @@
     }, { passive: true });
   })();
 
-  /* ---------- Chatbot (rule-based, cat persona) ---------- */
+  /* ---------- Chatbot v2: context-aware + optional Groq LLM ---------- */
   (function ChatBot() {
-    const widget    = document.getElementById('chat-widget');
+    const widget       = document.getElementById('chat-widget');
     if (!widget) return;
-    const toggle    = document.getElementById('chat-toggle');
-    const panel     = document.getElementById('chat-panel');
-    const closeBtn  = document.getElementById('chat-close');
-    const muteBtn   = document.getElementById('chat-mute');
-    const messages  = document.getElementById('chat-messages');
-    const quickEl   = document.getElementById('chat-quick');
-    const form      = document.getElementById('chat-form');
-    const input     = document.getElementById('chat-text');
+    const toggle       = document.getElementById('chat-toggle');
+    const closeBtn     = document.getElementById('chat-close');
+    const muteBtn      = document.getElementById('chat-mute');
+    const settingsBtn  = document.getElementById('chat-settings');
+    const settingsPane = document.getElementById('chat-settings-pane');
+    const groqInput    = document.getElementById('groq-key-input');
+    const groqSave     = document.getElementById('groq-save');
+    const groqClear    = document.getElementById('groq-clear');
+    const groqStatus   = document.getElementById('groq-status');
+    const titleEl      = document.getElementById('chat-title-el');
+    const messagesEl   = document.getElementById('chat-messages');
+    const quickEl      = document.getElementById('chat-quick');
+    const form         = document.getElementById('chat-form');
+    const input        = document.getElementById('chat-text');
 
     const SPEAKER_ON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
     const SPEAKER_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
 
-    const QUICK = [
-      { label: 'who is kholood?',   q: 'who is kholood' },
-      { label: 'what does she do?', q: 'what does she do at work' },
-      { label: 'skills',            q: 'skills' },
-      { label: 'projects',          q: 'projects' },
-      { label: 'contact',           q: 'contact' },
-    ];
-
-    const R = {
-      hello: [
-        "meow! what would you like to know?",
-        "*yawns* hey. what's on your mind?",
-        "hi there. try one of the buttons below, or just type a question."
-      ],
-      who: [
-        "*preens* kholood jenan sajid — data engineer at amdocs, based in pune. B.Tech IT from bharati vidyapeeth (CGPA 9.64). she builds pipelines that don't wake anyone up at 3 AM, and she's currently *open to work*."
-      ],
-      work: [
-        "at amdocs (aug 2024 → present), she ships production data pipelines on snowflake, azure & python. she landed 10+ upstream feeds into a snowflake data lake, built 20+ automated QC & risk checks, cut end-to-end latency, and owns SPN-based auth for zero-touch runs. scroll up to the amdocs case study for the full story."
-      ],
-      skills: [
-        "her stack:\n· data — snowflake, ETL, data lake, pyspark, pandas\n· cloud — azure blob/SFTP, CI/CD, SPN auth, databricks, TWS\n· languages — python, SQL, typescript, C++\n· backend — spring boot, REST APIs, microservices, event-driven\n\nshe also holds AI certs: anthropic's AI fluency, langchain (deeplearning.ai), azure AI-900."
-      ],
-      projects: [
-        "5 case studies live here:\n1. amdocs enterprise data platform (snowflake, data lake)\n2. real-time analytics (C++ multi-threading @ BVP)\n3. officeslang — NLP jargon translator (1-month sprint)\n4. distributed event-driven order system (stripe)\n5. scalable scrapers @ let us code (95% accuracy)\n\nclick /work in the nav or scroll up."
-      ],
-      contact: [
-        "fastest ways to reach her:\n· sjkholood@gmail.com\n· linkedin.com/in/kholood-jenan-sajid\n· github.com/KholoodJenanSajid\n· +91 82998 19282\n\nshe's *open to work* — data engineering, ETL, data lake, real-time roles."
-      ],
-      resume: [
-        "her resume is on linkedin — /in/kholood-jenan-sajid — or email sjkholood@gmail.com and she'll send it directly."
-      ],
-      hire: [
-        "she's very much open to work — data engineering, ETL, snowflake, real-time systems, or anything at the intersection of code and messy data. email sjkholood@gmail.com or ping /in/kholood-jenan-sajid on linkedin."
-      ],
-      location: [
-        "pune, india. open to on-site, hybrid, or remote — depending on the role."
-      ],
-      education: [
-        "B.Tech in Information Technology from Bharati Vidyapeeth Deemed University, pune. CGPA 9.64. graduated may 2024. also 250+ LeetCode problems and a scrappy 3rd place in a 2024 coding challenge."
-      ],
-      data: [
-        "data engineering is her main gig. she thinks the *most interesting bugs are data bugs*, and lives in the unglamorous middle of the stack — staging, data lakes, validation. the small checks that stand between raw upstream files and dashboards someone actually trusts."
-      ],
-      snowflake: [
-        "snowflake is her daily driver at amdocs. she designs staging layers, tunes complex joins on large datasets, and handles cross-schema GUID mapping across payments, tax, inventory, and revenue feeds. scroll to the amdocs case study for more."
-      ],
-      amdocs: [
-        "at amdocs she owns the messy middle: python + SQL pipelines pushing production data through a snowflake data lake, 20+ risk/quality checks, SPN auth for zero-touch ingestion, and constant ETL tuning to keep latency down. *the pipeline that taught her lineage.*"
-      ],
-      certs: [
-        "her certs:\n· AI Fluency — Anthropic (Apr 2026)\n· Functions, Tools & Agents — LangChain / DeepLearning.AI (Jul 2025)\n· Databricks Fundamentals\n· Azure AI-900 — Microsoft\n· Microsoft Learn Student Ambassador (Nov 2021)"
-      ],
-      cat: [
-        "*preens* yes, I'm the cat. I walk when you scroll, topple when you scroll too much, and my eyes follow your cursor. try clicking me — I'll meow. try scrolling fast. try catching the falling red bugs."
-      ],
-      bugs: [
-        "the falling error codes? that's Debug Mode. click them to squash bad data. green ★ bugs are rare, worth +5, and I get excited when you catch them. your highscore is saved."
-      ],
-      pipeline: [
-        "she builds ingestion pipelines for high-volume transactional data — SFTP/blob → snowflake staging → transformation → QC → downstream. every hop has validation. the pipeline chip at the top of the page shows the shape: ingest → stage · lake → transform → validate · serve."
-      ],
-      thanks: [
-        "*purrs* anytime~ come back if you have more questions.",
-        "you're welcome. tell kholood I said hi."
-      ],
-      why: [
-        "she likes pipelines that fail loudly, code that reads like prose, and systems where the next engineer — including future her — doesn't need a map to change something."
-      ],
-      fallback: [
-        "*tilts head* not sure about that one. try asking about her *work*, *skills*, *projects*, or *contact* — or click one of the buttons.",
-        "*licks paw* I'm a small cat with a limited knowledge base. try: 'who is kholood', 'skills', 'projects', 'contact'."
-      ]
+    // ================= Knowledge Base =================
+    // Each topic has: keywords, summary, optional detail (for "tell me more"), followUps.
+    const TOPICS = {
+      hello: {
+        keywords: ['hi', 'hello', 'hey', 'yo', 'hola', 'namaste', 'sup', 'howdy'],
+        summary: ["meow! what would you like to know?", "*yawns* hey. what's on your mind?", "hi there. type a question or click one of the chips below."],
+        followUps: ['who is kholood?', 'her work', 'projects', 'contact']
+      },
+      who: {
+        keywords: ['who', 'about', 'yourself', 'kholood', 'introduce', 'tell me who', 'her name', 'sajid'],
+        summary: "*preens* kholood jenan sajid — data engineer at amdocs, based in pune, india. B.Tech IT from bharati vidyapeeth (CGPA 9.64). she builds pipelines that don't wake anyone up at 3 AM, and she's currently *open to work*.",
+        detail: "she started with backend + DSA (250+ LeetCode, a scrappy 3rd place in a 2024 coding challenge), realized the *most interesting bug in any system is usually a data bug*, and now lives in the unglamorous middle of the stack — staging layers, data lakes, validation.",
+        followUps: ['her work', 'her stack', 'her story', 'contact']
+      },
+      work: {
+        keywords: ['work', 'job', 'amdocs', 'current', 'role', 'position', 'company', 'employer', 'day job'],
+        summary: "at amdocs (aug 2024 → present), she's a data engineer shipping production pipelines on snowflake, azure & python for high-volume transactional workloads.",
+        detail: "specifically: she landed 10+ upstream feeds (payments, tax, inventory, revenue) into a snowflake data lake via azure blob and SFTP. built 20+ automated QC + risk validation checks that cut production data defects. tuned ETL and complex joins to reduce end-to-end latency. also owns SPN-based auth so pipelines run fully automated across environments — no human in the loop.",
+        followUps: ['tell me more', 'her stack', 'the metrics', 'other projects']
+      },
+      skills: {
+        keywords: ['skill', 'stack', 'tech', 'tool', 'language', 'framework', 'expertise', 'proficient'],
+        summary: "her stack:\n· data — snowflake, ETL, data lake, pyspark, pandas, numpy\n· cloud — azure blob/SFTP, CI/CD, SPN auth, databricks, TWS scheduler\n· languages — python, SQL, typescript, C++ STL\n· backend — spring boot, REST APIs, microservices, event-driven",
+        detail: "plus AI-adjacent: langchain, tensorflow. and DSA is solid — 250+ LeetCode problems, ranked 3rd in a 2024 coding challenge. she also holds certs from anthropic (AI fluency), langchain (deeplearning.ai), databricks fundamentals, and azure AI-900.",
+        followUps: ['her certs', 'her data specialty', 'projects']
+      },
+      projects: {
+        keywords: ['project', 'portfolio', 'case', 'study', 'built', 'shipped', 'made', 'created'],
+        summary: "5 case studies live on this site:\n1. amdocs enterprise data platform (snowflake, data lake)\n2. real-time analytics engine (C++ multi-threading @ BVP)\n3. officeslang — NLP jargon translator (1-month sprint)\n4. distributed event-driven order system (stripe integration)\n5. scalable scrapers @ let us code (95% accuracy)",
+        followUps: ['officeslang', 'the c++ project', 'order system', 'let us code']
+      },
+      officeslang: {
+        keywords: ['officeslang', 'offices lang', 'jargon', 'nlp translator'],
+        summary: "officeslang — a linguistic intelligence tool that translates dense workplace jargon into clear, human language. she shipped it end-to-end in a *one-month sprint*, from NLP prototyping to a usable interface.",
+        followUps: ['other projects', 'her NLP skills', 'why she built it']
+      },
+      realtime: {
+        keywords: ['real-time', 'real time', 'analytics engine', 'multi-thread', 'multithread', 'threading', 'c++ project', 'cpp'],
+        summary: "real-time analytics — a multi-threaded C++ engine at bharati vidyapeeth. focused on cache-friendly data structures, contention-aware locking, and tight STL usage to squeeze predictable performance out of commodity hardware. *where she learned to respect the CPU.*",
+        followUps: ['other projects', 'her C++ level', 'her stack']
+      },
+      order: {
+        keywords: ['order', 'stripe', 'event-driven', 'event driven', 'distributed', 'lifecycle', 'order system'],
+        summary: "a distributed event-driven order system — REST APIs, async task execution, full order lifecycle from placement to fulfillment. wired in stripe for real payment capture. streaming-style architecture similar to kafka/event hub.",
+        followUps: ['other projects', 'why event-driven', 'her backend stack']
+      },
+      lus: {
+        keywords: ['let us code', 'scrapy', 'scraper', 'mongodb', 'internship', 'intern'],
+        summary: "at let us code (nov 2023 → jul 2024), she built scalable scraping systems handling multi-category product datasets with 95% data accuracy. automated ingestion, optimized MongoDB storage for query performance and deduplication. *first taste of scale.*",
+        followUps: ['other projects', 'her mongodb', 'her python']
+      },
+      contact: {
+        keywords: ['contact', 'email', 'reach', 'phone', 'linkedin', 'call', 'dm', 'message', 'get in touch', 'how to contact'],
+        summary: "fastest ways to reach her:\n· sjkholood@gmail.com\n· linkedin.com/in/kholood-jenan-sajid\n· github.com/KholoodJenanSajid\n· +91 82998 19282\n\nshe's *open to work.*",
+        followUps: ['availability', 'resume', 'timezone']
+      },
+      resume: {
+        keywords: ['resume', 'cv', 'download resume'],
+        summary: "her resume is on linkedin — /in/kholood-jenan-sajid. or email sjkholood@gmail.com and she'll send the latest PDF directly.",
+        followUps: ['contact', 'her skills', 'her work']
+      },
+      hire: {
+        keywords: ['hire', 'hiring', 'available', 'opportunit', 'open to work', 'onboard', 'looking for'],
+        summary: "she's very much open to work — data engineering, ETL, snowflake, real-time systems, or anything at the intersection of code and messy data. email sjkholood@gmail.com or ping /in/kholood-jenan-sajid on linkedin.",
+        followUps: ['contact', 'her stack', 'her location']
+      },
+      location: {
+        keywords: ['where', 'location', 'based', 'pune', 'city', 'india', 'remote', 'onsite', 'hybrid', 'timezone'],
+        summary: "pune, india (IST, UTC+5:30). open to on-site, hybrid, or remote — depending on the role.",
+        followUps: ['contact', 'availability']
+      },
+      education: {
+        keywords: ['education', 'study', 'degree', 'college', 'university', 'school', 'cgpa', 'bharati', 'leetcode', 'graduated'],
+        summary: "B.Tech in Information Technology from Bharati Vidyapeeth Deemed University, pune. CGPA 9.64. graduated may 2024. she also solved 250+ LeetCode problems and ranked 3rd in a 2024 coding challenge.",
+        followUps: ['her stack', 'certs', 'work history']
+      },
+      certs: {
+        keywords: ['cert', 'certification', 'langchain', 'anthropic', 'databricks', 'azure ai', 'ambassador', 'ai fluency'],
+        summary: "her certs:\n· AI Fluency — Anthropic (Apr 2026)\n· Functions, Tools & Agents — LangChain / DeepLearning.AI (Jul 2025)\n· Databricks Fundamentals\n· Azure AI-900 — Microsoft\n· Microsoft Learn Student Ambassador (Nov 2021)",
+        followUps: ['her stack', 'her AI experience', 'projects']
+      },
+      snowflake: {
+        keywords: ['snowflake'],
+        summary: "snowflake is her daily driver at amdocs. she designs staging layers, tunes complex joins on large datasets, and handles cross-schema GUID mapping across payments, tax, inventory, and revenue feeds.",
+        followUps: ['amdocs work', 'her SQL level', 'other data tools']
+      },
+      pipeline: {
+        keywords: ['pipeline', 'ingest', 'etl', 'stage', 'data lake', 'transform', 'validate', 'kafka', 'event hub', 'streaming', 'ingestion'],
+        summary: "she builds ingestion pipelines for high-volume transactional data — SFTP/blob → snowflake staging → transformation → QC → downstream. every hop has validation. see the live pipeline chip at the top of the page.",
+        detail: "the QC layer is where she spends real energy — schema drift checks, null-key guards, duplicate GUID detection, cross-schema mapping validation. the goal is a pipeline that fails loudly and early, never silently.",
+        followUps: ['more detail', 'the QC checks', 'amdocs']
+      },
+      data: {
+        keywords: ['data', 'data eng', 'data engineering'],
+        summary: "data engineering is her main gig. she thinks the *most interesting bugs are data bugs*, and lives in the unglamorous middle of the stack — staging layers, data lakes, validation. the small checks between raw upstream files and dashboards someone actually trusts.",
+        followUps: ['her stack', 'amdocs', 'projects']
+      },
+      python: {
+        keywords: ['python', 'py'],
+        summary: "python is her primary daily language — at amdocs for ETL and validation, and across all her projects. she uses pandas, numpy, pyspark, and scrapy. also solid on OOP principles from her internship.",
+        followUps: ['her stack', 'other languages', 'projects']
+      },
+      values: {
+        keywords: ['why', 'philosophy', 'values', 'approach', 'opinion', 'believe', 'principle', 'philosophy'],
+        summary: "she likes *pipelines that fail loudly*, code that reads like prose, and systems where the next engineer — including future her — doesn't need a map to change something.",
+        followUps: ['her story', 'projects', 'her stack']
+      },
+      story: {
+        keywords: ['story', 'journey', 'how did', 'started', 'begin', 'origin', 'path', 'background'],
+        summary: "she fell into data by accident, then obsession. started with backend + DSA (250+ LeetCode, a scrappy 3rd place in a 2024 coding challenge), then realized the *most interesting bug in any system is usually a data bug*. now she lives in the unglamorous middle of the stack.",
+        followUps: ['her values', 'projects', 'her work']
+      },
+      cat: {
+        keywords: ['cat', 'kitty', 'kitten', 'feline', 'paw', 'meow', 'purr', 'mascot'],
+        summary: "*preens* yes, I'm the cat. I walk when you scroll, topple when you scroll too much, and my eyes follow your cursor. try clicking me — I'll actually meow now. try scrolling fast. try catching the falling red bugs.",
+        followUps: ['about kholood', 'debug mode', 'her projects']
+      },
+      bugs: {
+        keywords: ['bug', 'debug', 'game', 'catch', 'squash', 'highscore', 'score', 'error codes'],
+        summary: "the falling error codes? that's Debug Mode — click them to squash bad data. green ★ bugs are rare, worth +5 each, and I get excited when you catch them. your highscore is saved in your browser.",
+        followUps: ['about kholood', 'the cat', 'her projects']
+      },
+      ai: {
+        keywords: ['ai', 'artificial intelligence', 'llm', 'gpt', 'chatbot', 'ml', 'machine learning', 'genai'],
+        summary: "her AI story is legit: langchain cert from deeplearning.ai, anthropic AI fluency, azure AI-900, plus tensorflow and pyspark in the stack. also, well, she built me — and I'm a chatbot, so.",
+        detail: "if you paste a Groq API key in the settings (gear icon top-right of this chat), I'll actually run on llama 3.3 70B and get properly smart. right now I'm running on carefully-hand-written rules.",
+        followUps: ['her certs', 'her stack', 'projects']
+      },
+      hobbies: {
+        keywords: ['hobby', 'hobbies', 'free time', 'weekend', 'fun', 'outside work', 'personal', 'interest'],
+        summary: "besides work? competitive programming (LeetCode is a habit), reading, and apparently building small pipelines for fun. also: adopted me. clearly a person of taste.",
+        followUps: ['her story', 'projects', 'why data eng']
+      },
+      site: {
+        keywords: ['site', 'website', 'portfolio site', 'this page', 'this website'],
+        summary: "this site is hand-built — HTML/CSS/vanilla JS, no framework. dark editorial theme (instrument serif + jetbrains mono + inter + a bit of caveat). the pipeline chip, the falling bugs, the cat, and me are all custom.",
+        followUps: ['who is kholood?', 'the cat', 'debug mode']
+      },
+      thanks: {
+        keywords: ['thank', 'thanks', 'ty', 'appreciate'],
+        summary: ["*purrs* anytime~ come back if you have more questions.", "you're welcome. tell kholood I said hi."],
+        followUps: ['contact', 'resume', 'projects']
+      },
+      bye: {
+        keywords: ['bye', 'cya', 'later', 'goodbye', 'gotta go', 'ttyl'],
+        summary: "*stretches* bye~ don't forget to say hi to kholood if you like what you see.",
+        followUps: []
+      },
+      smalltalk: {
+        keywords: ['how are you', "what's up", 'whats up', "how's it going", 'hows it going', 'how do you do'],
+        summary: "*yawns* just watching everyone scroll through the site. you?",
+        followUps: ['about kholood', 'the site', 'the cat']
+      },
+      joke: {
+        keywords: ['joke', 'funny', 'humor', 'make me laugh'],
+        summary: ["why did the SQL developer go to therapy?\n\nbecause they had too many *inner join* issues.\n\n*licks paw smugly*", "how many data engineers does it take to change a lightbulb?\n\nnone. it's a hardware problem. *ignores you*"],
+        followUps: ['another one', 'about kholood', 'her work']
+      },
+      you: {
+        keywords: ['what are you', 'who are you', "you're a bot", 'chatbot', 'are you real'],
+        summary: "*preens* I am a very-official cat spokesperson written in vanilla JavaScript. I know a lot about kholood. what's your question?",
+        followUps: ['who is kholood?', 'the site', 'the cat']
+      }
     };
 
-    const RULES = [
-      [/\b(hi|hello|hey|yo|hola|namaste)\b/i,                                  'hello'],
-      [/\bmeow\b/i,                                                            'cat'],
-      [/\b(who|about|introduce|kholood|yourself|tell me)\b/i,                  'who'],
-      [/\b(where|location|based|pune|city|remote|onsite|hybrid)\b/i,           'location'],
-      [/\b(education|study|degree|college|university|school|cgpa|bharati|leetcode)\b/i, 'education'],
-      [/\b(cert|certification|langchain|anthropic|databricks|azure ai|ambassador|ai fluency)\b/i, 'certs'],
-      [/\b(snowflake)\b/i,                                                     'snowflake'],
-      [/\b(amdocs)\b/i,                                                        'amdocs'],
-      [/\b(pipeline|ingest|etl|stage|lake|transform|validate|kafka|event hub|streaming)\b/i, 'pipeline'],
-      [/\b(hire|hiring|available|opportunit|position|role|open to work)\b/i,   'hire'],
-      [/\b(work|job|current|company|amdocs|role)\b/i,                          'work'],
-      [/\b(skill|stack|tech|tool|language|framework|python|sql|typescript|c\+\+)\b/i, 'skills'],
-      [/\b(project|portfolio|case|study|built|officeslang|order|scraper|analytics)\b/i, 'projects'],
-      [/\b(contact|email|reach|phone|linkedin|call|dm|message)\b/i,            'contact'],
-      [/\b(resume|cv)\b/i,                                                     'resume'],
-      [/\b(cat|kitty|kitten|feline|paw)\b/i,                                   'cat'],
-      [/\b(bug|debug|game|error|catch|squash|highscore|score)\b/i,             'bugs'],
-      [/\b(data|snowflake|azure|lake|sql|python|spark)\b/i,                    'data'],
-      [/\b(why|philosophy|values|approach|opinion)\b/i,                        'why'],
-      [/\b(thank|thanks|ty|bye|cya|later|goodbye)\b/i,                         'thanks']
-    ];
-
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-    function match(text) {
-      for (const [re, key] of RULES) {
-        if (re.test(text)) return pick(R[key]);
+    // ================= Utilities =================
+    function levenshtein(a, b) {
+      if (a === b) return 0;
+      const al = a.length, bl = b.length;
+      if (al === 0) return bl;
+      if (bl === 0) return al;
+      let prev = new Array(bl + 1);
+      for (let i = 0; i <= bl; i++) prev[i] = i;
+      for (let i = 1; i <= al; i++) {
+        const cur = [i];
+        for (let j = 1; j <= bl; j++) {
+          cur[j] = Math.min(
+            prev[j] + 1,
+            cur[j - 1] + 1,
+            prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+          );
+        }
+        prev = cur;
       }
-      return pick(R.fallback);
+      return prev[bl];
     }
 
+    function fuzzyHit(text, keyword) {
+      const kw = keyword.toLowerCase();
+      const t = text.toLowerCase();
+      if (t.includes(kw)) return 2;
+      if (kw.length < 4) return 0;
+      const words = t.split(/\s+/);
+      for (const w of words) {
+        if (Math.abs(w.length - kw.length) > 2) continue;
+        if (levenshtein(w, kw) <= 1) return 1;
+      }
+      return 0;
+    }
+
+    const pick = arr => Array.isArray(arr) ? arr[Math.floor(Math.random() * arr.length)] : arr;
+
+    // ================= Classifier =================
+    let lastTopic = null;
+    let history = []; // {role, content}
+
+    const CONTINUATION_RE = /^(more|tell me more|elaborate|why|how|expand|continue|and\??|go on|okay and|ok and)\b/i;
+
+    function classify(text) {
+      const clean = text.toLowerCase().trim();
+      if (CONTINUATION_RE.test(clean) && lastTopic) {
+        return { key: lastTopic, isDetail: true };
+      }
+      let best = null, bestScore = 0;
+      for (const [key, topic] of Object.entries(TOPICS)) {
+        let score = 0;
+        for (const kw of topic.keywords) {
+          const hit = fuzzyHit(clean, kw);
+          // longer keywords weigh more
+          score += hit * Math.min(3, Math.ceil(kw.length / 4));
+        }
+        if (score > bestScore) { bestScore = score; best = key; }
+      }
+      return { key: best, score: bestScore, isDetail: false };
+    }
+
+    function respondRules(text) {
+      const { key, isDetail } = classify(text);
+      if (!key) return null;
+      const topic = TOPICS[key];
+      lastTopic = key;
+      const body = isDetail && topic.detail ? topic.detail : topic.summary;
+      return { text: pick(body), followUps: topic.followUps || [] };
+    }
+
+    function fallbackReply(text) {
+      const clean = text.toLowerCase();
+      // Try to be helpful: guess based on partial hits
+      const guesses = [];
+      for (const [key, topic] of Object.entries(TOPICS)) {
+        for (const kw of topic.keywords) {
+          if (kw.length >= 3 && (clean.includes(kw.slice(0, 3)) || fuzzyHit(clean, kw))) {
+            guesses.push(key); break;
+          }
+        }
+      }
+      const hint = guesses.length > 0
+        ? "did you mean something about *" + guesses.slice(0, 2).join('* or *') + "*? "
+        : "";
+      return {
+        text: hint + "*tilts head* I'm not sure I follow. try one of these:",
+        followUps: ['who is kholood?', 'her work', 'skills', 'projects', 'contact']
+      };
+    }
+
+    // ================= Renderer =================
     function escapeHtml(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
     function formatMsg(s) {
-      return escapeHtml(s).replace(/\*(.+?)\*/g, '<em>$1</em>');
+      return escapeHtml(s).replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
     }
-
     function addMessage(text, who) {
       const msg = document.createElement('div');
       msg.className = 'msg ' + who;
       msg.innerHTML = formatMsg(text);
-      messages.appendChild(msg);
-      messages.scrollTop = messages.scrollHeight;
+      messagesEl.appendChild(msg);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      history.push({ role: who === 'user' ? 'user' : 'assistant', content: text });
+      if (history.length > 12) history = history.slice(-12);
     }
-
     function addTyping() {
       const t = document.createElement('div');
       t.className = 'typing';
       t.id = 'typing-indicator';
       t.innerHTML = '<span></span><span></span><span></span>';
-      messages.appendChild(t);
-      messages.scrollTop = messages.scrollHeight;
-      return t;
+      messagesEl.appendChild(t);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
     }
     function removeTyping() {
       const t = document.getElementById('typing-indicator');
       if (t) t.remove();
     }
-
-    function botReply(text) {
-      addTyping();
-      const delay = 400 + Math.random() * 500;
-      setTimeout(() => {
-        removeTyping();
-        addMessage(text, 'bot');
-      }, delay);
+    function setChips(chips) {
+      quickEl.innerHTML = '';
+      if (!chips || !chips.length) { quickEl.classList.add('hidden'); return; }
+      quickEl.classList.remove('hidden');
+      chips.forEach(label => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quick-chip';
+        btn.textContent = label;
+        btn.addEventListener('click', () => ask(label));
+        quickEl.appendChild(btn);
+      });
     }
 
-    function ask(text) {
+    // ================= Groq LLM =================
+    const GROQ_KEY_STORAGE = 'groqApiKey';
+    const GROQ_MODEL = 'llama-3.3-70b-versatile';
+    const GROQ_SYSTEM = [
+      "You are the cat mascot on Kholood Jenan Sajid's portfolio website. Speak in first person as her cat spokesperson. Be playful, warm, concise. Occasionally use *actions* like *purrs*, *tilts head*, *licks paw*. Use lowercase mostly. Keep replies under 4 short sentences unless asked for detail.",
+      "",
+      "About Kholood:",
+      "- Data Engineer at Amdocs (Aug 2024 → Present), based in Pune, India (IST, UTC+5:30)",
+      "- B.Tech IT from Bharati Vidyapeeth Deemed University (CGPA 9.64, graduated May 2024)",
+      "- Currently OPEN TO WORK",
+      "- Stack: Snowflake, Python, SQL, Azure Blob/SFTP, CI/CD, PySpark, Pandas, NumPy, Spring Boot, REST APIs, Microservices, Event-driven, C++ STL, TypeScript, MongoDB, Scrapy, TensorFlow, LangChain, TWS Scheduler",
+      "- At Amdocs: designed reusable pipelines landing 10+ upstream feeds (payments, tax, inventory, revenue) into a Snowflake data lake via Azure Blob/SFTP. Built 20+ automated QC + risk validation checks. Cut end-to-end latency. Uses SPN auth for zero-touch automated ingestion. Handles cross-schema GUID mapping.",
+      "- Projects (5 case studies):",
+      "  1. Amdocs enterprise data platform (Snowflake, data lake, ETL)",
+      "  2. Real-time analytics — multi-threaded C++ engine @ BVP",
+      "  3. OfficesLang — NLP jargon-to-clarity translator, shipped in a 1-month sprint",
+      "  4. Distributed event-driven order system with Stripe integration",
+      "  5. Scalable Scrapy-based scrapers @ Let Us Code Systems (2023-2024 intern), 95% accuracy, MongoDB storage",
+      "- Certifications: AI Fluency (Anthropic, Apr 2026), Functions/Tools/Agents on LangChain (DeepLearning.AI, Jul 2025), Databricks Fundamentals, Azure AI-900, Microsoft Learn Student Ambassador (Nov 2021)",
+      "- Contact: sjkholood@gmail.com · linkedin.com/in/kholood-jenan-sajid · github.com/KholoodJenanSajid · +91 82998 19282",
+      "- Also: 250+ LeetCode problems, 3rd place in a 2024 coding challenge",
+      "- Design values: 'pipelines that fail loudly, code that reads like prose, systems the next engineer doesn't need a map to change'",
+      "",
+      "If asked something you don't have info about, say so — DO NOT invent facts about her. Redirect to email sjkholood@gmail.com."
+    ].join('\n');
+
+    function getGroqKey() {
+      try { return localStorage.getItem(GROQ_KEY_STORAGE) || ''; } catch (_) { return ''; }
+    }
+    function setGroqKey(v) {
+      try {
+        if (v) localStorage.setItem(GROQ_KEY_STORAGE, v);
+        else   localStorage.removeItem(GROQ_KEY_STORAGE);
+      } catch (_) {}
+    }
+    function llmActive() { return !!getGroqKey(); }
+
+    async function askLLM(userMsg) {
+      const key = getGroqKey();
+      const msgs = [
+        { role: 'system', content: GROQ_SYSTEM },
+        ...history.slice(-8),
+        { role: 'user', content: userMsg }
+      ];
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: GROQ_MODEL, messages: msgs,
+          temperature: 0.75, max_tokens: 300, top_p: 0.95
+        })
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error('groq ' + res.status + ' ' + errText.slice(0, 120));
+      }
+      const data = await res.json();
+      return (data.choices && data.choices[0] && data.choices[0].message.content || '').trim();
+    }
+
+    // ================= Main ask handler =================
+    async function ask(text) {
       const clean = text.trim();
       if (!clean) return;
       addMessage(clean, 'user');
       input.value = '';
       quickEl.classList.add('hidden');
-      botReply(match(clean));
+      addTyping();
+
+      // Rule-based classifier always runs (for chips)
+      const ruleResult = respondRules(clean);
+
+      if (llmActive()) {
+        try {
+          const reply = await askLLM(clean);
+          removeTyping();
+          if (!reply) throw new Error('empty reply');
+          addMessage(reply, 'bot');
+          setChips(ruleResult ? ruleResult.followUps : ['who is kholood?', 'her work', 'skills', 'contact']);
+          return;
+        } catch (e) {
+          console.warn('LLM failed, falling back to rules:', e.message);
+          setGroqStatus('LLM failed — using rule-based · check your key', 'error');
+          // fall through to rule-based
+        }
+      }
+
+      const delay = 380 + Math.random() * 420;
+      setTimeout(() => {
+        removeTyping();
+        const reply = ruleResult || fallbackReply(clean);
+        addMessage(reply.text, 'bot');
+        setChips(reply.followUps);
+      }, delay);
     }
 
-    function buildQuick() {
-      quickEl.innerHTML = '';
-      QUICK.forEach(p => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'quick-chip';
-        btn.textContent = p.label;
-        btn.addEventListener('click', () => ask(p.q));
-        quickEl.appendChild(btn);
-      });
+    // ================= Settings =================
+    function refreshAiBadge() {
+      if (llmActive()) titleEl.classList.add('ai-active');
+      else titleEl.classList.remove('ai-active');
     }
+    function setGroqStatus(msg, type) {
+      groqStatus.textContent = msg;
+      groqStatus.classList.remove('active', 'error');
+      if (type === 'active') groqStatus.classList.add('active');
+      if (type === 'error')  groqStatus.classList.add('error');
+    }
+    function refreshSettings() {
+      const key = getGroqKey();
+      if (key) {
+        groqInput.value = key.slice(0, 6) + '••••' + key.slice(-4);
+        setGroqStatus('LLM active · llama 3.3 70B via groq', 'active');
+      } else {
+        groqInput.value = '';
+        setGroqStatus('no key set · using rule-based responses', null);
+      }
+      refreshAiBadge();
+    }
+    settingsBtn.addEventListener('click', () => {
+      settingsPane.hidden = !settingsPane.hidden;
+      if (!settingsPane.hidden) {
+        refreshSettings();
+        setTimeout(() => groqInput.focus(), 100);
+      }
+    });
+    groqSave.addEventListener('click', () => {
+      const v = groqInput.value.trim();
+      if (!v || v.includes('••••')) { setGroqStatus('paste a valid key first', 'error'); return; }
+      if (!v.startsWith('gsk_')) { setGroqStatus('groq keys start with "gsk_"', 'error'); return; }
+      setGroqKey(v);
+      refreshSettings();
+      settingsPane.hidden = true;
+    });
+    groqClear.addEventListener('click', () => {
+      setGroqKey('');
+      refreshSettings();
+    });
 
+    // ================= Open / close / etc =================
+    const OPENING_LINE = "*stretches* meow~ I'm kholood's very official spokescat. ask me anything about her — work, projects, or how to reach her.";
+    const INITIAL_CHIPS = ['who is kholood?', 'her work', 'skills', 'projects', 'contact'];
     let opened = false;
     function openChat() {
       widget.classList.add('open');
       if (!opened) {
         opened = true;
-        addMessage("*stretches* meow~ I'm kholood's very official spokescat. ask me anything about her — work, projects, or how to reach her.", 'bot');
-        buildQuick();
+        addMessage(OPENING_LINE, 'bot');
+        setChips(INITIAL_CHIPS);
         if (typeof __playMeow === 'function') __playMeow();
       }
       setTimeout(() => input.focus(), 260);
@@ -2675,6 +3074,7 @@
       muteBtn.setAttribute('title', __muted ? 'Sound off — click to enable' : 'Sound on — click to mute');
     }
     refreshMuteBtn();
+    refreshAiBadge();
 
     toggle.addEventListener('click', openChat);
     closeBtn.addEventListener('click', closeChat);
