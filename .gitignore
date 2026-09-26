@@ -24,3 +24,13 @@ yarn-error.log*
 # Env
 .env
 .env.local
+
+# Separate project — lives in its own GitHub repo
+blobslash/
+
+# Other unrelated sub-projects in this workspace
+databricks-nasa-exoplanets/
+drawboard/
+
+# Source video kept at workspace root (public/character.mp4 is the tracked copy)
+Woman_moving_head_and_eyes_*.mp4

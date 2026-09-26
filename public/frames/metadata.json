@@ -2,8 +2,8 @@
   "totalFrames": 240,
   "fps": 24.0,
   "durationSec": 10.0,
-  "videoWidth": 720,
-  "videoHeight": 1280,
+  "videoWidth": 1280,
+  "videoHeight": 720,
   "framesExtracted": 64,
   "sampleIndices": [
     0,
@@ -72,10 +72,10 @@
     238
   ],
   "centerFrameIndex": 239,
-  "backgroundHex": "#9a412f",
+  "backgroundHex": "#a7241d",
   "backgroundRGB": [
-    154,
-    65,
-    47
+    167,
+    36,
+    29
   ]
 }

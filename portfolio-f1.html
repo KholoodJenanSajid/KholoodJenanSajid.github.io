@@ -1,0 +1,5126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kholood Jenan Sajid — Data Engineer</title>
+<meta name="description" content="Data Engineer building resilient ETL pipelines, data lakes, and event-driven systems on Snowflake and Azure." />
+<meta name="author" content="Kholood Jenan Sajid" />
+
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Kholood Jenan Sajid — Data Engineer" />
+<meta property="og:description" content="Data Engineer building resilient ETL pipelines, data lakes, and event-driven systems on Snowflake and Azure." />
+<meta property="og:image" content="preview.png" />
+<meta property="og:url" content="https://kholoodjenansajid.github.io/" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Kholood Jenan Sajid — Data Engineer" />
+<meta name="twitter:description" content="Data Engineer building resilient ETL pipelines, data lakes, and event-driven systems on Snowflake and Azure." />
+<meta name="twitter:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0d0a;              /* warm near-black */
+    --surface: #16140f;         /* card bg */
+    --surface-2: #1e1b13;       /* elevated */
+    --ink: #ece2c8;             /* warm cream */
+    --ink-2: #c9bfa5;
+    --muted: rgba(236,226,200,0.42);
+    --line: rgba(236,226,200,0.10);
+    --line-strong: rgba(236,226,200,0.20);
+    --gold: #d4a34d;
+    --gold-2: #f2c766;
+    --gold-soft: rgba(212,163,77,0.15);
+    --live: #86c988;
+  }
+
+  * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grain + vignette */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at top, rgba(212,163,77,0.06), transparent 60%),
+      radial-gradient(ellipse at bottom, rgba(134,201,136,0.03), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(236,226,200,0.025) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+  }
+
+  /* ---- Blueprint grid overlay — engine-schematic hint (very subtle) -------
+     Dialed way back so it's a texture, not a competitor to the content. */
+  .blueprint-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(197,163,80,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(197,163,80,0.035) 1px, transparent 1px);
+    background-size: 200px 200px, 200px 200px;
+    -webkit-mask: radial-gradient(ellipse 90% 85% at 50% 50%, black 10%, transparent 100%);
+            mask: radial-gradient(ellipse 90% 85% at 50% 50%, black 10%, transparent 100%);
+    opacity: 1;
+  }
+  /* Corner labels: barely visible, only present at rest */
+  .blueprint-grid .bp-corner {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: rgba(197,163,80,0.14);
+    text-transform: uppercase;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .blueprint-grid .bp-tl,
+  .blueprint-grid .bp-tr,
+  .blueprint-grid .bp-bl,
+  .blueprint-grid .bp-br { display: none; }         /* hidden by default — was noise */
+  .blueprint-grid .bp-marks { display: none; }      /* also hide the crosshair reticle */
+  @media (max-width: 720px) {
+    .blueprint-grid { background-size: 100px 100px, 100px 100px; }
+  }
+
+  /* ---------- Interactive particle field (F1 aero / CFD streamlines) ---------- */
+  #particle-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: screen;
+    opacity: 0.32;                          /* dial the aero flow way back — subtle background */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #particle-canvas { display: none; }
+    #flow-hud { display: none; }
+  }
+
+  /* ---- Hidden dead-node: HUD moved out of the top; live values now drive the bottom broadcast ticker ---- */
+  #flow-hud { display: none !important; }
+
+  /* ---- F1 broadcast ticker — bottom strip, scrolls horizontally ---- */
+  #broadcast-ticker {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 30px;
+    z-index: 30;
+    background: rgba(14,13,10,0.82);
+    border-top: 1px solid var(--gold-soft);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    pointer-events: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+  }
+  #broadcast-ticker::before {
+    content: 'RADIO';
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+    background: var(--gold);
+    color: var(--bg);
+    padding: 8px 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+  }
+  #broadcast-ticker .ticker-viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    mask: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
+    -webkit-mask: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
+  }
+  #broadcast-ticker .ticker-track {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 42px;
+    white-space: nowrap;
+    animation: tickerScroll 55s linear infinite;
+    will-change: transform;
+    padding-left: 24px;
+  }
+  #broadcast-ticker .ticker-item { display: inline-flex; align-items: center; gap: 10px; }
+  #broadcast-ticker .ticker-item .k { color: var(--muted); }
+  #broadcast-ticker .ticker-item .v { color: var(--gold-2); font-variant-numeric: tabular-nums; }
+  #broadcast-ticker .ticker-item.live .v {
+    color: var(--live);
+    text-shadow: 0 0 4px rgba(134,201,136,0.6);
+  }
+  #broadcast-ticker .ticker-item.hot .v { color: #ff9548; text-shadow: 0 0 4px rgba(255,149,72,0.6); }
+  #broadcast-ticker .sep {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.55;
+    flex: 0 0 auto;
+  }
+  @keyframes tickerScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (max-width: 640px) {
+    #broadcast-ticker { height: 26px; font-size: 9px; letter-spacing: 1.8px; }
+    #broadcast-ticker::before { padding: 6px 10px; }
+  }
+
+  /* ---- Race-track edge marker — pixel racing-line on the left rail ------
+     A fixed vertical dotted spine with red/white curb ticks. Scroll
+     progress fills the spine from top-down so it reads as a track marker
+     tracing your position on the lap.                                    */
+  #track-rail {
+    position: fixed;
+    top: 92px;                       /* clear the nav */
+    bottom: 46px;                    /* clear the ticker */
+    left: 14px;
+    width: 14px;
+    z-index: 25;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  #track-rail .rail-spine {
+    position: relative;
+    flex: 1;
+    width: 2px;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(197,163,80,0.35) 0 4px,
+      transparent 4px 8px
+    );
+  }
+  #track-rail .rail-fill {
+    position: absolute;
+    top: 0; left: -1px;
+    width: 4px;
+    height: var(--lap-pct, 0%);
+    background: linear-gradient(
+      to bottom,
+      var(--gold) 0%,
+      var(--gold-2) 60%,
+      transparent 100%
+    );
+    box-shadow: 0 0 6px rgba(197,163,80,0.6);
+    border-radius: 2px;
+    transition: height 0.15s linear;
+  }
+  #track-rail .rail-car {
+    position: absolute;
+    left: -4px;
+    top: var(--lap-pct, 0%);
+    width: 10px;
+    height: 10px;
+    transform: translateY(-50%);
+    background: var(--gold);
+    box-shadow:
+      0 0 0 2px var(--bg),
+      0 0 10px rgba(197,163,80,0.9),
+      0 0 20px rgba(255,149,72,0.4);
+    clip-path: polygon(50% 0, 100% 30%, 90% 100%, 10% 100%, 0 30%);
+    transition: top 0.15s linear;
+  }
+  #track-rail .rail-cap {
+    width: 12px;
+    height: 2px;
+    background: var(--gold);
+    opacity: 0.7;
+  }
+  #track-rail .rail-cap.top    { margin-bottom: 2px; }
+  #track-rail .rail-cap.bottom { margin-top: 2px; }
+  /* Red/white curb ticks — 4 evenly spaced curbs down the spine */
+  #track-rail .curb {
+    position: absolute;
+    left: -5px;
+    width: 12px;
+    height: 4px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        #d64545 0 3px,
+        #f2f0e9 3px 6px
+      );
+    opacity: 0.5;
+  }
+  #track-rail .curb.c1 { top: 20%; }
+  #track-rail .curb.c2 { top: 42%; }
+  #track-rail .curb.c3 { top: 64%; }
+  #track-rail .curb.c4 { top: 86%; }
+
+  @media (max-width: 720px) {
+    #track-rail { display: none; }        /* hide on small screens */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #track-rail .rail-fill, #track-rail .rail-car { transition: none; }
+  }
+
+  /* ---- Rotating F1 telemetry dial — bottom-left corner --------------------
+     A live circular gauge. Outer tick ring rotates continuously (engine
+     idle); inner needle deflects on scroll velocity; arc fills from 0→100%
+     with the same --lap-pct that drives the track rail. All aspects
+     animate — hence "rotating UI".                                        */
+  #tele-dial {
+    position: fixed;
+    left: 40px;
+    bottom: 52px;                 /* clears the ticker + gives breathing room */
+    width: 96px;
+    height: 96px;
+    z-index: 26;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55));
+  }
+  #tele-dial .dial-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  /* Housing ring */
+  #tele-dial .dial-housing {
+    fill: rgba(14,13,10,0.85);
+    stroke: rgba(197,163,80,0.28);
+    stroke-width: 1;
+  }
+  /* Idle-rotating outer tick ring — continuously spins */
+  #tele-dial .dial-ring {
+    transform-origin: 50px 50px;
+    animation: dialSpin 18s linear infinite;
+  }
+  #tele-dial .dial-ring line {
+    stroke: rgba(197,163,80,0.5);
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+  #tele-dial .dial-ring line.major {
+    stroke: var(--gold-2);
+    stroke-width: 1.6;
+  }
+  /* Progress arc — fills with lap-pct (existing var from track-rail).
+     pathLength=100 lets us treat the ring as a 0-100 unit line.        */
+  #tele-dial .dial-arc {
+    fill: none;
+    stroke: url(#dialArcGrad);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50px 50px;
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--lap-pct-num, 0));
+    transition: stroke-dashoffset 0.15s linear;
+    filter: drop-shadow(0 0 4px rgba(197,163,80,0.6));
+  }
+  /* Scroll-driven needle — reacts to signed scroll velocity */
+  #tele-dial .dial-needle {
+    transform-origin: 50px 50px;
+    transform: rotate(var(--needle-angle, 0deg));
+    transition: transform 0.35s cubic-bezier(0.2, 1.02, 0.3, 1);
+  }
+  #tele-dial .dial-needle .stem {
+    stroke: var(--gold-2);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  #tele-dial .dial-needle .hub    { fill: var(--gold); }
+  /* Center readouts */
+  #tele-dial .dial-label-txt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6.5px;
+    letter-spacing: 2px;
+    fill: var(--muted);
+    text-transform: uppercase;
+  }
+  #tele-dial .dial-value-txt {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    fill: var(--gold);
+  }
+  /* External badge under the dial */
+  #tele-dial .dial-caption {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  }
+  @keyframes dialSpin {
+    from { transform: rotate(0);     }
+    to   { transform: rotate(360deg); }
+  }
+  @media (max-width: 720px) {
+    #tele-dial { display: none; }      /* hide on small screens */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #tele-dial .dial-ring { animation: none; }
+    #tele-dial .dial-needle, #tele-dial .dial-arc { transition: none; }
+  }
+
+  /* First-load onboarding hint */
+  #flow-hint {
+    position: fixed;
+    left: 50%;
+    top: 68%;
+    transform: translateX(-50%);
+    z-index: 41;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--gold-2);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  #flow-hint.show { opacity: 0.85; animation: hintBob 2.4s ease-in-out infinite; }
+  @keyframes hintBob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50%      { transform: translate(-50%, -4px); }
+  }
+  @media (max-width: 900px) { #flow-hint { display: none; } }
+  @media (max-width: 900px) {
+    #flow-hud { display: none; }
+  }
+
+  .container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+    /* Container stays perfectly still — no wheel-roll/yaw/drift, calm scroll. */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .container { transform: none !important; }
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: var(--bg);
+  }
+
+  /* ---------- Nav ---------- */
+  nav {
+    padding: 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: rgba(14,13,10,0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 50;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .brand-mark {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .brand-name {
+    font-family: 'Caveat', cursive;
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1;
+    transform: translateY(2px);
+  }
+  .brand-name em { font-style: normal; color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .nav-links a {
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::before {
+    content: '[ ';
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .nav-links a::after {
+    content: ' ]';
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::before, .nav-links a:hover::after { opacity: 1; }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border: 1px solid rgba(134,201,136,0.28);
+    background: rgba(134,201,136,0.06);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--live);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .status-pill:hover { background: rgba(134,201,136,0.12); }
+  .status-pill .live-dot { width: 6px; height: 6px; }
+
+  /* ---- F1 race-status strip — sits under the nav, always visible ---------- */
+  .race-status {
+    position: sticky;
+    top: 66px;                         /* clears the nav sticky (24px pad + content) */
+    z-index: 45;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 0 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(197,163,80,0.14);
+    background: linear-gradient(180deg, rgba(14,13,10,0.88) 0%, rgba(14,13,10,0.62) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .rs-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid rgba(197,163,80,0.22);
+    background: rgba(20,17,12,0.5);
+    border-radius: 4px;
+    font-size: 9.5px;
+    letter-spacing: 2px;
+    line-height: 1;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .rs-pill .rs-k    { color: var(--muted); }
+  .rs-pill .rs-v    { color: var(--gold-2); font-variant-numeric: tabular-nums; }
+  .rs-pill .rs-sep  { opacity: 0.4; padding: 0 2px; }
+  .rs-pill .rs-led {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(197,163,80,0.6);
+    flex: 0 0 auto;
+  }
+  /* DRS: green + live blink */
+  .rs-pill.rs-live { border-color: rgba(134,201,136,0.35); }
+  .rs-pill.rs-live .rs-led { background: var(--live); box-shadow: 0 0 6px rgba(134,201,136,0.7); animation: rsPulse 1.6s ease-in-out infinite; }
+  .rs-pill.rs-live .rs-v   { color: var(--live); text-shadow: 0 0 4px rgba(134,201,136,0.4); }
+  /* ERS: cyan/blue */
+  .rs-pill.rs-ers  { border-color: rgba(120,190,240,0.32); }
+  .rs-pill.rs-ers .rs-led { background: #7abfff; box-shadow: 0 0 6px rgba(120,190,255,0.7); animation: rsPulse 2.2s ease-in-out infinite; }
+  .rs-pill.rs-ers .rs-v   { color: #a5d3ff; }
+  /* MODE: amber */
+  .rs-pill.rs-mode { border-color: rgba(212,163,77,0.4); }
+  .rs-pill.rs-mode .rs-led { background: var(--gold); }
+  /* TIRE compound colors — SOFT is red */
+  .rs-pill.rs-tire .rs-tire-soft { background: #ff3f3f; box-shadow: 0 0 6px rgba(255, 63, 63, 0.7); }
+  .rs-pill.rs-tire .rs-v { color: #ff8b6a; }
+  /* LAP: gold */
+  .rs-pill.rs-lap  { border-color: rgba(197,163,80,0.4); background: rgba(197,163,80,0.08); }
+  .rs-pill.rs-lap .rs-v { color: var(--gold); font-weight: 700; }
+  .rs-pill.rs-lap .rs-total { color: var(--muted); opacity: 0.7; }
+  /* FLAG: greenpulse or yellow/red depending on state */
+  .rs-pill.rs-flag { border-color: rgba(134,201,136,0.32); }
+  .rs-pill.rs-flag .rs-flag-dot { background: var(--live); animation: rsPulse 1.2s ease-in-out infinite; }
+  .rs-pill.rs-flag .rs-v { color: var(--live); }
+  /* Yellow flag state (JS can toggle .rs-yellow) */
+  .rs-pill.rs-flag.rs-yellow .rs-flag-dot { background: #ffcc44; box-shadow: 0 0 6px rgba(255,204,68,0.8); }
+  .rs-pill.rs-flag.rs-yellow .rs-v        { color: #ffcc44; }
+  @keyframes rsPulse {
+    0%, 100% { opacity: 1;   transform: scale(1);   }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+  }
+  @media (max-width: 720px) {
+    .race-status { top: 58px; gap: 4px; padding: 6px 0 8px; }
+    .rs-pill { padding: 3px 7px; font-size: 8.5px; letter-spacing: 1.4px; }
+    /* Hide MODE + FLAG on very small screens to save space */
+    .rs-pill.rs-mode, .rs-pill.rs-flag { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 100px 0 72px;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .eyebrow .eyebrow-sep { color: var(--gold); opacity: 0.5; }
+  .eyebrow::before {
+    content: '';
+    width: 28px; height: 1px;
+    background: var(--gold);
+  }
+  .eyebrow::after {
+    content: '_';
+    color: var(--gold);
+    animation: blink 1.1s steps(2, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  h1.display {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(40px, 6.5vw, 72px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 28px;
+    color: var(--ink);
+  }
+  h1.display em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: 0;
+    font-size: 1.08em;
+  }
+
+  .hero-annotation {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--gold);
+    display: inline-block;
+    transform: rotate(-3deg) translateX(-6px);
+    margin-bottom: -8px;
+    position: relative;
+  }
+  .hero-annotation::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    width: 30px;
+    height: 22px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 30'><path d='M2 15 Q 20 5, 36 20' stroke='%23d4a34d' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M30 15 L36 20 L30 25' stroke='%23d4a34d' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat center/contain;
+    transform: translateY(-4px);
+  }
+
+  .lede {
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    max-width: 640px;
+    margin-bottom: 52px;
+  }
+  .lede strong { font-weight: 500; color: var(--ink); }
+  .lede em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.05em;
+  }
+
+  /* ---------- Live Pipeline Chip ---------- */
+  .pipeline-card {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 22px 26px;
+    max-width: 720px;
+    position: relative;
+    box-shadow:
+      0 1px 0 rgba(236,226,200,0.04) inset,
+      0 20px 60px rgba(0,0,0,0.4);
+  }
+  .pipeline-card::before {
+    content: '// live_status.log';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--bg);
+    padding: 0 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+
+  .pipeline-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .pipeline-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 0 0 rgba(134,201,136,0.7);
+    animation: livePulse 2s infinite;
+  }
+  @keyframes livePulse {
+    0% { box-shadow: 0 0 0 0 rgba(134,201,136,0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(134,201,136,0); }
+    100% { box-shadow: 0 0 0 0 rgba(134,201,136,0); }
+  }
+
+  .live-label {
+    color: var(--live);
+    font-weight: 500;
+  }
+
+  .cta-inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .cta-inline:hover { color: var(--gold-2); border-color: var(--gold-2); }
+
+  .stages {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 6px 0;
+  }
+
+  .stage-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .stage-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.2px;
+  }
+
+  .stage-bar {
+    height: 3px;
+    background: rgba(236,226,200,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .stage-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: var(--fill, 0%);
+    background: linear-gradient(90deg, var(--gold), var(--gold-2));
+    border-radius: 2px;
+    animation: fillGrow 2.4s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+    box-shadow: 0 0 12px rgba(212,163,77,0.4);
+  }
+  @keyframes fillGrow {
+    from { width: 0%; }
+    to { width: var(--fill); }
+  }
+
+  .stage.active .stage-name { color: var(--gold-2); }
+  .stage.active .stage-num::after {
+    content: ' ▲';
+    color: var(--gold-2);
+  }
+
+  .pipeline-metrics {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line-strong);
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .pipeline-metrics span strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    padding: 88px 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+
+  /* ---- F1 sector-timing section labels ------------------------------- */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 2.8px;
+    color: var(--muted);
+    margin-bottom: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    border: 1px solid var(--gold-soft);
+    border-radius: 999px;
+    background: rgba(20,17,12,0.6);
+    overflow: hidden;
+    line-height: 1;
+  }
+  .section-label .sec-num {
+    background: var(--gold);
+    color: var(--bg);
+    font-weight: 600;
+    padding: 8px 12px;
+    letter-spacing: 3px;
+  }
+  .section-label .sec-name {
+    padding: 8px 14px;
+    color: var(--ink);
+  }
+  .section-label .sec-tag {
+    padding: 8px 14px 8px 0;
+    color: var(--gold-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label .sec-tag::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold-2);
+    box-shadow: 0 0 6px var(--gold);
+    animation: fhPulse 1.6s ease-in-out infinite;
+  }
+  .section-label::before { content: none; }
+
+  /* ---- Grid-start light gantry — between sections ------------------------
+     Replaces the flat colored stripe with an F1 pit-lane start-lights
+     gantry. Rectangular red LED pills sit off (dark) in the mounted rail,
+     then light up sequentially when the divider reveals — the moment the
+     race actually starts. Small "GRID" and "READY" text-labels flank it. */
+  .sector-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 24px auto 62px;
+    padding: 10px 96px;
+    position: relative;
+    min-height: 44px;
+    max-width: 640px;
+    border-radius: 10px;
+    background:
+      linear-gradient(180deg, rgba(20,18,15,0.88) 0%, rgba(6,5,4,0.92) 100%);
+    border: 1px solid rgba(197,163,80,0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      inset 0 -1px 0 rgba(0,0,0,0.55),
+      0 3px 14px rgba(0,0,0,0.4);
+  }
+  /* GRID / stage-left label */
+  .sector-divider::before {
+    content: 'GRID';
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  /* READY / stage-right label — with a tiny leading pulse dot */
+  .sector-divider::after {
+    content: '● READY';
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--live);
+    text-transform: uppercase;
+    font-weight: 600;
+    text-shadow: 0 0 6px rgba(134,201,136,0.5);
+    opacity: 0.55;
+    transition: opacity 0.4s ease-out;
+  }
+  /* When lights are all on → READY pulses to full intensity */
+  .sector-divider.reveal.in::after {
+    opacity: 1;
+    animation: gridReady 1.4s ease-in-out infinite;
+  }
+  @keyframes gridReady {
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 1;    }
+  }
+  /* Each span → a small circular DOT particle mounted on the rail.
+     Dormant = tiny/dark, on = full bloom with radial glow.               */
+  .sector-divider span {
+    flex: 0 0 auto;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2a0a05 0%, #140301 65%, #050101 100%);
+    border: 1px solid rgba(150, 40, 20, 0.22);
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.7);
+    transform: scale(0.55);
+    transition:
+      background   0.18s ease-out,
+      border-color 0.18s ease-out,
+      box-shadow   0.28s ease-out,
+      transform    0.42s cubic-bezier(0.34, 1.56, 0.55, 1);   /* spring-in bloom */
+    /* Kill legacy color classes — every dot renders identically */
+    flex-grow: 0 !important;
+  }
+  /* Sequential light-up cascade — like the F1 5-lights start sequence */
+  .sector-divider.reveal.in span:nth-child(1) { transition-delay: 0.10s; }
+  .sector-divider.reveal.in span:nth-child(2) { transition-delay: 0.26s; }
+  .sector-divider.reveal.in span:nth-child(3) { transition-delay: 0.42s; }
+  .sector-divider.reveal.in span:nth-child(4) { transition-delay: 0.58s; }
+  .sector-divider.reveal.in span:nth-child(5) { transition-delay: 0.74s; }
+  .sector-divider.reveal.in span:nth-child(6) { transition-delay: 0.90s; }
+  .sector-divider.reveal.in span {
+    transform: scale(1);
+    background: radial-gradient(circle at 35% 30%, #ffd07a 0%, #ff5533 42%, #a01818 92%);
+    border-color: rgba(255, 100, 60, 0.55);
+    box-shadow:
+      0 0 8px  rgba(255, 90, 50, 0.75),
+      0 0 22px rgba(255, 80, 40, 0.4),
+      0 0 40px rgba(255, 60, 30, 0.18),
+      inset 0 1px 2px rgba(255, 220, 150, 0.55);
+  }
+  /* Compact on mobile: shorter rail, smaller pills, hide side labels */
+  @media (max-width: 640px) {
+    .sector-divider {
+      padding: 8px 20px;
+      gap: 10px;
+      min-height: 36px;
+      margin: 18px auto 44px;
+    }
+    .sector-divider::before,
+    .sector-divider::after { display: none; }
+    .sector-divider span { width: 9px; height: 9px; }
+  }
+
+  /* Micro-telemetry chip (inline) */
+  .telem-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--gold-soft);
+    border-radius: 999px;
+    color: var(--ink-2);
+    background: rgba(20,17,12,0.4);
+  }
+  .telem-chip .k { color: var(--muted); }
+  .telem-chip .v { color: var(--gold-2); font-variant-numeric: tabular-nums; }
+  .telem-chip.green .v  { color: var(--live); }
+  .telem-chip.violet .v { color: #b48ce6; }
+
+  /* Lap-time typography (monospace tabular numbers) */
+  .lap-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    color: var(--gold-2);
+  }
+
+  /* Chip row for the Now / stint block */
+  .now-chips {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ---------- F1 rotating turbine (fixed corner — always visible) ---------- */
+  :root { --turbine-duration: 2.4s; --turbine-scale: 1; }
+  .hero { position: relative; }
+  .turbine {
+    position: fixed;
+    top: 86px;
+    right: 22px;
+    width: 108px;
+    height: 108px;
+    pointer-events: none;
+    opacity: 0.85;
+    z-index: 45;
+    transform: scale(var(--turbine-scale));
+    transform-origin: 50% 50%;
+    transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1), opacity 0.3s;
+    filter: drop-shadow(0 6px 22px rgba(212,163,77,0.15));
+  }
+  .turbine.revved { opacity: 1; }
+  .turbine.revved::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    opacity: 0.4;
+    animation: turbinePulse 0.6s ease-out;
+    pointer-events: none;
+  }
+  @keyframes turbinePulse {
+    from { transform: scale(0.9); opacity: 0.7; }
+    to   { transform: scale(1.25); opacity: 0; }
+  }
+  .turbine .stator { transform-origin: 50% 50%; }
+  .turbine .rotor  {
+    transform-origin: 50% 50%;
+    animation: turbineSpin var(--turbine-duration) linear infinite;
+    will-change: transform;
+  }
+  .turbine .counter-rotor {
+    transform-origin: 50% 50%;
+    animation: turbineSpin var(--turbine-duration) linear infinite reverse;
+    animation-duration: calc(var(--turbine-duration) * 1.7);
+    will-change: transform;
+  }
+  @keyframes turbineSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .turbine .tick { opacity: 0.35; }
+  @media (max-width: 780px) {
+    .turbine { width: 78px; height: 78px; top: 78px; right: 14px; }
+  }
+  @media (max-width: 520px) {
+    .turbine { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .turbine .rotor, .turbine .counter-rotor { animation: none; }
+  }
+
+  /* ---------- Hero copy readability plate ---------- */
+  h1.display, .lede {
+    text-shadow:
+      0 0 22px rgba(14, 13, 10, 0.90),
+      0 0 8px  rgba(14, 13, 10, 0.85),
+      0 0 3px  rgba(14, 13, 10, 0.80);
+  }
+  .eyebrow, .hero-annotation {
+    text-shadow: 0 0 10px rgba(14,13,10,0.9);
+  }
+  .section-title {
+    text-shadow: 0 0 18px rgba(14,13,10,0.85), 0 0 4px rgba(14,13,10,0.8);
+  }
+  /* Reserve room at the bottom so the ticker doesn't cover content */
+  body { padding-bottom: 34px; }
+  @media (max-width: 640px) {
+    body { padding-bottom: 30px; }
+  }
+
+  h2.section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(28px, 3.8vw, 42px);
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    margin-bottom: 20px;                 /* leave room for the sector chips */
+    max-width: 760px;
+  }
+
+  /* ---- HUD corner brackets on every content section -----------------------
+     4 L-shaped brackets in the corners of each section, drawn via layered
+     linear-gradients on ::before so no extra DOM is required.            */
+  section.reveal, header.hero {
+    position: relative;
+  }
+  section.reveal::before,
+  header.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    --bk-size: 14px;
+    --bk-color: rgba(197,163,80,0.18);
+    --bk-thickness: 1px;
+    background:
+      /* Top-left horizontal + vertical */
+      linear-gradient(to right,  var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat top    left  / var(--bk-size)      var(--bk-thickness),
+      linear-gradient(to bottom, var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat top    left  / var(--bk-thickness) var(--bk-size),
+      /* Top-right */
+      linear-gradient(to left,   var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat top    right / var(--bk-size)      var(--bk-thickness),
+      linear-gradient(to bottom, var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat top    right / var(--bk-thickness) var(--bk-size),
+      /* Bottom-left */
+      linear-gradient(to right,  var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat bottom left  / var(--bk-size)      var(--bk-thickness),
+      linear-gradient(to top,    var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat bottom left  / var(--bk-thickness) var(--bk-size),
+      /* Bottom-right */
+      linear-gradient(to left,   var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat bottom right / var(--bk-size)      var(--bk-thickness),
+      linear-gradient(to top,    var(--bk-color) var(--bk-thickness), transparent var(--bk-thickness))
+        no-repeat bottom right / var(--bk-thickness) var(--bk-size);
+  }
+  /* Small padding so the corner brackets have space; content-first */
+  section.reveal { padding: 20px 16px 32px; }
+
+  /* ---- Sector-time chips (below each section-title) — slim, monochrome ---- */
+  .sector-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: -4px 0 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--muted);
+  }
+  .sc-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .sc-chip .sc-k { color: rgba(197,163,80,0.5); }
+  .sc-chip .sc-v { color: var(--muted); font-variant-numeric: tabular-nums; }
+  /* Best-sector highlights kept, but VERY subtle */
+  .sc-chip.sc-pb   .sc-v { color: #b596d6; }              /* pale purple */
+  .sc-chip.sc-best .sc-v { color: #86c988; }              /* muted green */
+  .sc-chip.sc-lap  .sc-k { color: var(--gold); }
+  .sc-chip.sc-lap  .sc-v { color: var(--gold); }
+  .sc-chip .sc-tri { display: none; }                     /* drop the arrows */
+  h2.section-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    font-size: 1.1em;
+    letter-spacing: 0;
+  }
+
+  /* ---------- Now block ---------- */
+  .now-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .now-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    padding-top: 6px;
+    line-height: 1.9;
+  }
+  .now-label strong { color: var(--ink); font-weight: 500; }
+  .now-body p {
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--ink-2);
+    max-width: 640px;
+  }
+  .now-body p + p { margin-top: 18px; }
+  .now-body strong { color: var(--ink); font-weight: 500; }
+  .now-body em {
+    color: var(--gold);
+    font-style: italic;
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.1em;
+  }
+
+  /* ---------- Work / Case studies ---------- */
+  .case {
+    padding: 44px 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 40px;
+    transition: background 0.3s;
+    position: relative;
+  }
+  .case:first-of-type { border-top: none; padding-top: 8px; }
+  .case::before {
+    content: '';
+    position: absolute;
+    left: -20px; right: -20px; top: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(212,163,77,0.04), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 12px;
+    z-index: -1;
+  }
+  .case:hover::before { opacity: 1; }
+
+  .case-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+  .case-meta .role {
+    color: var(--gold);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .case-meta .year { display: block; color: var(--ink-2); }
+
+  .case-body h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(22px, 2.4vw, 28px);
+    line-height: 1.25;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .case-body h3 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    font-size: 1.15em;
+    letter-spacing: 0;
+  }
+
+  .case-body .tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .case-body .tagline::before {
+    content: '// ';
+    color: var(--gold);
+  }
+
+  .case-body p {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    max-width: 620px;
+    margin-bottom: 18px;
+  }
+  .case-body p strong { color: var(--ink); font-weight: 500; }
+
+  .case-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .case-metrics span strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .case-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+    color: var(--ink-2);
+    background: rgba(236,226,200,0.02);
+    transition: all 0.2s;
+  }
+  .tag:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+    background: var(--gold-soft);
+  }
+
+  .case-note {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--gold);
+    display: inline-block;
+    margin-top: 14px;
+    transform: rotate(-1deg);
+    opacity: 0.85;
+  }
+  .case-note::before {
+    content: '↳ ';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  /* ---------- Story ---------- */
+  .story {
+    max-width: 720px;
+  }
+  .story p {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 22px;
+    font-weight: 300;
+  }
+  .story p em {
+    font-family: 'Instrument Serif', serif;
+    color: var(--gold);
+    font-style: italic;
+    font-size: 1.15em;
+  }
+  .story .signature {
+    font-family: 'Caveat', cursive;
+    font-size: 32px;
+    color: var(--gold);
+    margin-top: 36px;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+  .story .signature::before {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    vertical-align: middle;
+    margin-right: 12px;
+    transform: translateY(-2px);
+  }
+
+  /* ---------- Stack ---------- */
+  /* ---- Stack section: F1 constructor timing table ------------------------
+     Vertical stack of team-rows. Each row: colored team stripe, POS badge,
+     TEAM name, LOADOUT chip cluster, mock REV column, mock GAP column.   */
+  .stack-grid {
+    display: block;
+    border: 1px solid rgba(197,163,80,0.22);
+    background: rgba(20,17,12,0.55);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    counter-reset: stack-pos;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  /* Column header row */
+  .stack-grid::before {
+    content: 'POS · TEAM · LOADOUT · REV · GAP';
+    display: block;
+    padding: 10px 16px;
+    font-size: 9px;
+    letter-spacing: 3.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    background: rgba(0,0,0,0.45);
+    border-bottom: 1px solid rgba(197,163,80,0.18);
+  }
+  .stack-group {
+    display: grid;
+    grid-template-columns: 44px minmax(140px, 200px) 1fr 72px 68px;
+    gap: 14px;
+    padding: 14px 16px;
+    align-items: center;
+    border-bottom: 1px solid rgba(197,163,80,0.08);
+    border-left: 3px solid transparent;
+    counter-increment: stack-pos;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .stack-group:last-child { border-bottom: none; }
+  .stack-group:hover      { background: rgba(197,163,80,0.045); }
+  /* Team-color stripes */
+  .stack-group:nth-of-type(1) { border-left-color: #ff5533; }  /* red */
+  .stack-group:nth-of-type(2) { border-left-color: #7abfff; }  /* blue */
+  .stack-group:nth-of-type(3) { border-left-color: #86c988; }  /* green */
+  .stack-group:nth-of-type(4) { border-left-color: #d0b0f0; }  /* purple */
+  /* POS badge (before the h4) */
+  .stack-group::before {
+    content: 'P' counter(stack-pos, decimal-leading-zero);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--gold);
+    background: rgba(197,163,80,0.1);
+    border: 1px solid rgba(197,163,80,0.28);
+    border-radius: 3px;
+    padding: 4px 0;
+    text-align: center;
+  }
+  /* Team name (from h4) */
+  .stack-group h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink);
+    margin: 0;
+    padding: 0;
+    border: none;
+    line-height: 1.3;
+  }
+  .stack-group h4::before { content: ''; }             /* kill legacy "# " prefix */
+  /* LOADOUT chip cluster (from ul → li) */
+  .stack-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .stack-group li {
+    display: inline-block;
+    padding: 3px 8px;
+    border: 1px solid rgba(197,163,80,0.18);
+    background: rgba(30,27,19,0.55);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-2);
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .stack-group li::before { content: ''; margin: 0; }  /* kill legacy dot prefix */
+  .stack-group li:hover {
+    color: var(--gold);
+    border-color: rgba(197,163,80,0.5);
+    background: rgba(197,163,80,0.1);
+    padding-left: 8px;
+  }
+  /* REV & GAP columns (via ::after and second pseudo through nth-child) */
+  .stack-group::after {
+    content: 'REV 15.0K';
+    display: block;
+    grid-column: 4 / span 2;
+    text-align: right;
+    font-size: 10px;
+    color: var(--gold-2);
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+  .stack-group:nth-of-type(1)::after { content: 'REV 15.0K   ―'; }
+  .stack-group:nth-of-type(2)::after { content: 'REV 13.4K   +0.412'; color: var(--muted); }
+  .stack-group:nth-of-type(3)::after { content: 'REV 14.2K   +0.891'; color: var(--muted); }
+  .stack-group:nth-of-type(4)::after { content: 'REV 12.8K   +1.244'; color: var(--muted); }
+  /* Collapse to two columns on narrow screens */
+  @media (max-width: 720px) {
+    .stack-grid::before { font-size: 8px; letter-spacing: 2px; padding: 8px 12px; }
+    .stack-group {
+      grid-template-columns: 36px 1fr;
+      gap: 10px;
+      padding: 12px;
+    }
+    .stack-group h4 { grid-column: 2; margin-bottom: 4px; }
+    .stack-group ul { grid-column: 2; }
+    .stack-group::after { grid-column: 2; text-align: left; font-size: 9px; margin-top: 4px; }
+  }
+
+  /* ---------- Certifications ---------- */
+  .certs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .cert {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 20px 18px;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .cert:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+  }
+  .cert-badge {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    border: 1px solid rgba(212,163,77,0.35);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .cert-body { flex: 1; min-width: 0; }
+  .cert-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+  .cert-issuer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+  .cert-issuer strong { color: var(--gold); font-weight: 500; }
+
+  /* Superlicense strip above each cert */
+  .cert::before {
+    content: 'FIA · KJS SUPERLICENSE · ' attr(data-lic);
+    position: absolute;
+    top: -1px; left: -1px; right: -1px;
+    padding: 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 2.5px;
+    color: var(--bg);
+    background: var(--gold);
+    text-transform: uppercase;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cert { padding-top: 32px !important; border-radius: 10px; }
+
+  /* ---------- Contact ---------- */
+  .contact {
+    padding: 110px 0 60px;
+    border-top: 1px solid var(--line);
+  }
+  .contact-lead {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin-bottom: 40px;
+    max-width: 780px;
+    color: var(--ink);
+  }
+  .contact-lead em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    font-size: 1.15em;
+    letter-spacing: 0;
+  }
+  .contact-note {
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    color: var(--gold);
+    display: inline-block;
+    margin-bottom: 32px;
+    transform: rotate(-2deg);
+    opacity: 0.9;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .contact-links a {
+    color: var(--ink);
+    text-decoration: none;
+    padding: 10px 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(20,17,12,0.5);
+    transition: all 0.18s ease;
+    letter-spacing: 0.4px;
+  }
+  .contact-links a::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 6px rgba(134,201,136,0.6);
+  }
+  .contact-links a:hover {
+    color: var(--bg);
+    background: var(--gold);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(212,163,77,0.25);
+  }
+  .contact-links a:hover::before { background: var(--bg); box-shadow: none; }
+  .contact-links a span {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 9.5px;
+  }
+  .contact-links a:hover span { color: rgba(14,13,10,0.7); }
+
+  footer {
+    padding: 40px 0;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer .heart {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--gold);
+  }
+
+  /* ---------- Fade-in on scroll ---------- */
+  /* ---- Scroll reveal: minimal — fade + tiny slide, nothing else ----------
+     Prior wheel-roll / horizontal-360 flourishes felt chaotic. This is a
+     clean gentle fade so content stays readable.                         */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity   0.5s ease-out,
+      transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1);
+    will-change: transform, opacity;
+  }
+  .reveal.in       { opacity: 1; transform: translateY(0); }
+  .reveal.gone-up  { opacity: 0; transform: translateY(-18px); }
+  /* Sector-divider strips: tiny fade so they don't hang alone between sections */
+  .sector-divider.reveal {
+    transform: translateY(14px);
+    transform-origin: 50% 50%;
+    filter: none;
+    transition: opacity 0.5s ease-out, transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1);
+    will-change: transform, opacity;
+  }
+  .sector-divider.reveal.in       { transform: translateY(0); filter: none; }
+  .sector-divider.reveal.gone-up  { transform: translateY(-14px); filter: none; }
+  /* Section label spins in like a tire-change wheel */
+  .reveal .section-label {
+    transform-origin: 0% 50%;
+    transform: perspective(700px) rotateY(-92deg) translateZ(0);
+    opacity: 0;
+    transition: transform 0.85s cubic-bezier(0.34, 1.35, 0.4, 1) 0.05s,
+                opacity 0.4s ease-out 0.15s;
+  }
+  .reveal.in .section-label {
+    transform: perspective(700px) rotateY(0);
+    opacity: 1;
+  }
+  /* ---- Chicane arcs: each child takes its own racing line -----------------
+     Odd-indexed elements enter through the LEFT hairpin (pivot bottom-left),
+     even-indexed through the RIGHT hairpin (pivot bottom-right). Together
+     they slalom into formation like cars taking a chicane.                 */
+  /* Child elements: gentle staggered slide-in — no rotations */
+  .reveal .section-title,
+  .reveal .story p,
+  .reveal .case,
+  .reveal .cert,
+  .reveal .stack-group,
+  .reveal .now-grid,
+  .reveal .contact-note,
+  .reveal .contact-lead,
+  .reveal .contact-links {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity   0.45s ease-out,
+      transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  /* When section is in view — all children snap onto the racing line */
+  .reveal.in .section-title,
+  .reveal.in .story p,
+  .reveal.in .case,
+  .reveal.in .cert,
+  .reveal.in .stack-group,
+  .reveal.in .now-grid,
+  .reveal.in .contact-note,
+  .reveal.in .contact-lead,
+  .reveal.in .contact-links {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Cascade timing — like a train of cars threading through the corner */
+  .reveal.in .section-title       { transition-delay: 0.18s; }
+  .reveal.in .now-grid            { transition-delay: 0.22s; }
+  .reveal.in .contact-note        { transition-delay: 0.22s; }
+  .reveal.in .contact-lead        { transition-delay: 0.32s; }
+  .reveal.in .contact-links       { transition-delay: 0.42s; }
+  .reveal.in .story p:nth-child(1){ transition-delay: 0.22s; }
+  .reveal.in .story p:nth-child(2){ transition-delay: 0.32s; }
+  .reveal.in .story p:nth-child(3){ transition-delay: 0.42s; }
+  .reveal.in .case:nth-of-type(1),  .reveal.in .cert:nth-of-type(1),
+  .reveal.in .stack-group:nth-of-type(1) { transition-delay: 0.22s; }
+  .reveal.in .case:nth-of-type(2),  .reveal.in .cert:nth-of-type(2),
+  .reveal.in .stack-group:nth-of-type(2) { transition-delay: 0.32s; }
+  .reveal.in .case:nth-of-type(3),  .reveal.in .cert:nth-of-type(3),
+  .reveal.in .stack-group:nth-of-type(3) { transition-delay: 0.42s; }
+  .reveal.in .case:nth-of-type(4),  .reveal.in .cert:nth-of-type(4),
+  .reveal.in .stack-group:nth-of-type(4) { transition-delay: 0.52s; }
+  .reveal.in .case:nth-of-type(5),  .reveal.in .cert:nth-of-type(5) { transition-delay: 0.62s; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.in, .reveal .section-label,
+    .reveal .section-title, .reveal .case, .reveal .cert, .reveal .stack-group {
+      transform: none !important; opacity: 1 !important; filter: none !important;
+    }
+  }
+
+  /* ---------- Scroll Cat ---------- */
+  #scroll-cat {
+    position: fixed;
+    bottom: 40px;
+    left: 24px;
+    width: 76px;
+    height: 62px;
+    z-index: 60;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
+    transition: left 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform, left;
+  }
+  .cat-flip {
+    width: 100%; height: 100%;
+    transition: transform 0.35s ease;
+  }
+  #scroll-cat.reversed .cat-flip { transform: scaleX(-1); }
+  .cat-svg { width: 100%; height: 100%; display: block; }
+
+  /* Walking bounce */
+  @keyframes catBounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-2px); }
+  }
+  #scroll-cat.walking .cat-svg {
+    animation: catBounce 0.42s ease-in-out infinite;
+  }
+
+  /* Leg walk cycle */
+  .cat-svg .leg { transform-box: fill-box; transform-origin: 50% 0%; }
+  @keyframes stepA { 0%,100% { transform: translateY(0); }    50% { transform: translateY(-2.2px); } }
+  @keyframes stepB { 0%,100% { transform: translateY(-2.2px); } 50% { transform: translateY(0); } }
+  #scroll-cat.walking .leg-fl,
+  #scroll-cat.walking .leg-br { animation: stepA 0.36s linear infinite; }
+  #scroll-cat.walking .leg-fr,
+  #scroll-cat.walking .leg-bl { animation: stepB 0.36s linear infinite; }
+
+  /* Tail wag */
+  .cat-tail { transform-box: fill-box; transform-origin: 100% 100%; animation: tailWag 2.4s ease-in-out infinite; }
+  @keyframes tailWag {
+    0%, 100% { transform: rotate(-6deg); }
+    50%      { transform: rotate(14deg); }
+  }
+
+  /* Blink */
+  .cat-eye { transform-box: fill-box; transform-origin: center; animation: blink 5.5s infinite; }
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    94%, 97%      { transform: scaleY(0.1); }
+  }
+
+  /* Topple / tumble */
+  @keyframes topple {
+    0%   { transform: rotate(0deg)    translateY(0); }
+    15%  { transform: rotate(-25deg)  translateY(-4px); }
+    35%  { transform: rotate(-180deg) translateY(-10px); }
+    55%  { transform: rotate(-330deg) translateY(-6px); }
+    72%  { transform: rotate(-360deg) translateY(0); }
+    82%  { transform: rotate(-358deg) translateY(-3px); }
+    100% { transform: rotate(-360deg) translateY(0); }
+  }
+  #scroll-cat.toppling { animation: topple 1.5s cubic-bezier(0.6, 0.05, 0.4, 0.95); }
+
+  /* Sparkles when toppling */
+  .sparkles { position: absolute; inset: -18px; pointer-events: none; }
+  .sparkle {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--gold-2);
+    clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  .sparkle:nth-child(1) { top: -6px;   left: 6px;    background: var(--gold-2); }
+  .sparkle:nth-child(2) { top: 8px;    right: -6px;  background: var(--live); }
+  .sparkle:nth-child(3) { bottom: 6px; left: -8px;   background: var(--gold-2); }
+  .sparkle:nth-child(4) { top: -4px;   right: 24px;  background: var(--gold); }
+  .sparkle:nth-child(5) { bottom: -2px; right: 14px; background: var(--gold-2); width: 7px; height: 7px; }
+
+  @keyframes sparklePop {
+    0%   { opacity: 0; transform: scale(0.3) rotate(0deg); }
+    40%  { opacity: 1; transform: scale(1.3) rotate(90deg); }
+    100% { opacity: 0; transform: scale(0.6) rotate(180deg); }
+  }
+  #scroll-cat.toppling .sparkle               { animation: sparklePop 1.15s ease-out; }
+  #scroll-cat.toppling .sparkle:nth-child(2)  { animation-delay: 0.1s; }
+  #scroll-cat.toppling .sparkle:nth-child(3)  { animation-delay: 0.2s; }
+  #scroll-cat.toppling .sparkle:nth-child(4)  { animation-delay: 0.05s; }
+  #scroll-cat.toppling .sparkle:nth-child(5)  { animation-delay: 0.25s; }
+
+  /* Speech bubble (dynamic text, triggered by JS) */
+  .cat-bubble {
+    position: absolute;
+    top: -26px; right: -14px;
+    min-width: 26px;
+    height: 24px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    border: 1px solid var(--gold);
+    border-radius: 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0;
+    transform: scale(0.4);
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .cat-bubble.show { animation: bubblePop 1.4s ease-out; }
+  @keyframes bubblePop {
+    0%   { opacity: 0; transform: scale(0.4) translateY(0); }
+    15%  { opacity: 1; transform: scale(1.1) translateY(-4px); }
+    75%  { opacity: 1; transform: scale(1) translateY(-4px); }
+    100% { opacity: 0; transform: scale(0.9) translateY(-8px); }
+  }
+
+  /* Make the cat clickable only on its painted silhouette */
+  .cat-svg { pointer-events: painted; cursor: pointer; }
+  .cat-eye-wrapper { transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+
+  /* Little hop when clicked */
+  @keyframes catHop {
+    0%   { transform: translateY(0); }
+    35%  { transform: translateY(-8px); }
+    60%  { transform: translateY(0); }
+    75%  { transform: translateY(-3px); }
+    100% { transform: translateY(0); }
+  }
+  #scroll-cat.hopping .cat-svg { animation: catHop 0.55s ease-out; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #scroll-cat { display: none; }
+  }
+
+  /* ---------- Bug Hunt Mini-Game ---------- */
+  #bug-hud {
+    position: fixed;
+    top: 84px;
+    right: 24px;
+    z-index: 55;
+    background: rgba(30, 27, 19, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 176px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  #bug-hud.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .hud-title {
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hud-title::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #d95c5c;
+    box-shadow: 0 0 6px rgba(217,92,92,0.7);
+    animation: livePulse 1.6s infinite;
+  }
+  .hud-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 0 4px;
+    line-height: 1;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .hud-close:hover { color: var(--gold); background: rgba(212,163,77,0.1); }
+
+  .hud-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .hud-row + .hud-row { margin-top: 3px; }
+  .hud-label { color: var(--muted); font-size: 10px; }
+  .hud-value {
+    color: var(--gold);
+    font-weight: 500;
+    font-size: 12px;
+    display: inline-block;
+  }
+  .hud-value.pop { animation: hudPop 0.5s ease-out; }
+  @keyframes hudPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.35); color: var(--gold-2); text-shadow: 0 0 8px rgba(242,199,102,0.6); }
+    100% { transform: scale(1); text-shadow: none; }
+  }
+
+  .hud-combo {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    text-align: center;
+    color: var(--live);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s, height 0.3s;
+  }
+  .hud-combo.active { opacity: 1; height: 22px; animation: comboPulse 0.5s ease; }
+  @keyframes comboPulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); text-shadow: 0 0 8px rgba(134,201,136,0.6); }
+    100% { transform: scale(1); text-shadow: none; }
+  }
+
+  .hud-hint {
+    margin-top: 6px;
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: var(--gold);
+    text-align: center;
+    opacity: 0.85;
+    transition: opacity 0.4s;
+  }
+  .hud-hint.gone { opacity: 0; height: 0; margin: 0; }
+
+  /* Falling bug errors */
+  .bug-drop {
+    position: fixed;
+    top: -40px;
+    padding: 4px 10px;
+    background: rgba(30, 15, 15, 0.92);
+    border: 1px solid rgba(217, 92, 92, 0.55);
+    border-radius: 4px;
+    color: #f4a5a5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: crosshair;
+    pointer-events: auto;
+    z-index: 45;
+    user-select: none;
+    box-shadow: 0 0 20px rgba(217, 92, 92, 0.18);
+    will-change: transform;
+    animation:
+      bugFall var(--fall-duration, 24s) linear forwards,
+      bugShake 0.5s ease-in-out infinite;
+  }
+  .bug-drop::before { content: '⚠ '; opacity: 0.75; }
+  .bug-drop:hover {
+    color: #ffd4d4;
+    box-shadow: 0 0 30px rgba(217, 92, 92, 0.4);
+    border-color: rgba(255, 180, 180, 0.9);
+  }
+  .bug-drop.rare {
+    color: #a8e0aa;
+    background: rgba(12, 28, 18, 0.92);
+    border-color: rgba(134, 201, 136, 0.6);
+    box-shadow: 0 0 25px rgba(134, 201, 136, 0.25);
+    font-weight: 600;
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  .bug-drop.rare::before { content: '★ '; opacity: 1; }
+  .bug-drop.rare:hover {
+    color: #d5f5d6;
+    box-shadow: 0 0 40px rgba(134, 201, 136, 0.5);
+    border-color: rgba(200, 240, 200, 0.9);
+  }
+
+  @keyframes bugFall {
+    from { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+    to   { transform: translateY(calc(100vh + 80px)) rotate(var(--tilt, 0deg)); }
+  }
+  @keyframes bugShake {
+    0%, 100% { margin-left: 0; }
+    25% { margin-left: -1.5px; }
+    75% { margin-left: 1.5px; }
+  }
+
+  .bug-drop.popping {
+    animation: bugPop 0.45s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes bugPop {
+    0%   { transform: scale(1) rotate(var(--tilt, 0deg)); opacity: 1; }
+    50%  { transform: scale(1.6) rotate(calc(var(--tilt, 0deg) + 15deg)); opacity: 0.85; }
+    100% { transform: scale(0.2) rotate(calc(var(--tilt, 0deg) + 40deg)); opacity: 0; }
+  }
+
+  /* Floating score indicator on catch */
+  .score-float {
+    position: fixed;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold);
+    pointer-events: none;
+    z-index: 46;
+    animation: scoreFloat 0.9s ease-out forwards;
+    text-shadow: 0 0 10px rgba(212, 163, 77, 0.7);
+  }
+  .score-float.rare {
+    color: var(--live);
+    font-size: 16px;
+    text-shadow: 0 0 12px rgba(134, 201, 136, 0.7);
+  }
+  @keyframes scoreFloat {
+    0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+    30%  { opacity: 1; transform: translateY(-18px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-46px) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #bug-hud, .bug-drop, .score-float { display: none !important; }
+  }
+
+  /* ---------- Chat Widget ---------- */
+  #chat-widget {
+    position: fixed;
+    bottom: 44px;
+    right: 20px;
+    z-index: 70;
+    font-family: 'Inter', sans-serif;
+  }
+  #chat-toggle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    background: var(--surface);
+    color: var(--gold);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 0 rgba(212,163,77,0.4);
+    transition: transform 0.2s, box-shadow 0.3s;
+    animation: chatPulse 2.6s infinite;
+    position: relative;
+  }
+  #chat-toggle::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 6px rgba(134,201,136,0.7);
+  }
+  #chat-toggle:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(0,0,0,0.55); }
+  #chat-toggle svg { width: 22px; height: 22px; }
+  @keyframes chatPulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 0 rgba(212,163,77,0.35); }
+    60% { box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 14px rgba(212,163,77,0); }
+  }
+  #chat-widget.open #chat-toggle { display: none; }
+
+  #chat-panel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 344px;
+    height: 480px;
+    max-height: calc(100vh - 40px);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+    opacity: 0;
+    transform: translateY(20px) scale(0.94);
+    transform-origin: bottom right;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+  }
+  #chat-widget.open #chat-panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .chat-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-2);
+    gap: 8px;
+  }
+  .chat-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    letter-spacing: 0.5px;
+    min-width: 0;
+  }
+  .chat-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    border: 1px solid rgba(212,163,77,0.4);
+    display: grid;
+    place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .chat-status {
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: var(--live);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chat-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 5px rgba(134,201,136,0.7);
+  }
+  .ai-badge {
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--live);
+    background: rgba(134,201,136,0.12);
+    border: 1px solid rgba(134,201,136,0.4);
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.6px;
+  }
+  .chat-title.ai-active .chat-status { display: none; }
+  .chat-title.ai-active .ai-badge { display: inline-flex; align-items: center; gap: 4px; }
+  .chat-title.ai-active .ai-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 5px rgba(134,201,136,0.8);
+    animation: livePulse 1.6s infinite;
+  }
+
+  .chat-settings-pane {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    animation: settingsIn 0.25s ease-out;
+  }
+  @keyframes settingsIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .chat-settings-pane h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .chat-settings-pane p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .chat-settings-pane p a {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--gold);
+  }
+  .chat-settings-pane p a:hover { color: var(--gold-2); }
+  .chat-settings-pane input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .chat-settings-pane input:focus { border-color: var(--gold); }
+  .settings-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .settings-actions button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--ink-2);
+    transition: all 0.2s;
+  }
+  .settings-actions button:hover { border-color: var(--gold); color: var(--gold); }
+  #groq-save {
+    background: var(--gold);
+    color: #17170f;
+    border-color: var(--gold);
+    font-weight: 600;
+  }
+  #groq-save:hover { background: var(--gold-2); border-color: var(--gold-2); color: #17170f; }
+  .settings-status {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+  }
+  .settings-status.active { color: var(--live); }
+  .settings-status.active::before { content: '● '; }
+  .settings-status.error { color: #d95c5c; }
+  .settings-status.error::before { content: '✕ '; }
+  .chat-actions { display: flex; gap: 2px; flex-shrink: 0; }
+  .chat-icon-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+    display: grid;
+    place-items: center;
+  }
+  .chat-icon-btn:hover { color: var(--gold); background: rgba(212,163,77,0.1); }
+  .chat-icon-btn svg { width: 14px; height: 14px; }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+
+  .msg {
+    max-width: 86%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    animation: msgIn 0.28s ease-out;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--gold);
+    color: #17170f;
+    font-weight: 500;
+    border-bottom-right-radius: 4px;
+  }
+  .msg em {
+    font-family: 'Caveat', cursive;
+    font-style: normal;
+    font-size: 15px;
+    color: var(--gold);
+    letter-spacing: 0.2px;
+  }
+  .msg.user em { color: rgba(23,23,15,0.7); font-family: 'Instrument Serif', serif; font-size: 14px; font-style: italic; }
+
+  .typing {
+    align-self: flex-start;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 4px;
+  }
+  .typing span {
+    width: 6px; height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .chat-quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 14px 4px;
+    border-top: 1px solid var(--line);
+  }
+  .chat-quick.hidden { display: none; }
+  .quick-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quick-chip:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-soft);
+  }
+
+  .chat-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .chat-input input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+  }
+  .chat-input input:focus { border-color: var(--gold); }
+  .chat-input input::placeholder { color: var(--muted); }
+  .chat-input button[type=submit] {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #17170f;
+    border: none;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    transition: transform 0.15s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .chat-input button[type=submit]:hover { background: var(--gold-2); transform: scale(1.08); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #chat-toggle { animation: none; }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 720px) {
+    .container { padding: 0 22px; }
+    .hero { padding: 68px 0 44px; }
+    section { padding: 64px 0; }
+    .now-grid, .case { grid-template-columns: 1fr; gap: 18px; }
+    .case-meta { display: flex; gap: 14px; flex-wrap: wrap; }
+    .case-meta .role, .case-meta .year { display: inline; }
+    .stages { grid-template-columns: repeat(2, 1fr); gap: 14px 10px; }
+    .nav-links { gap: 12px; }
+    .nav-links a:not(.cta-inline):not(.status-pill) { display: none; }
+    .status-pill { padding: 4px 10px; font-size: 9px; }
+    .contact-links { flex-direction: column; gap: 14px; }
+    .hero-annotation { transform: rotate(-2deg) translateX(0); font-size: 18px; }
+    .hero-annotation::after { display: none; }
+    #scroll-cat { width: 56px; height: 46px; bottom: 34px; left: 10px; }
+    .cat-bubble { min-width: 20px; height: 20px; font-size: 13px; top: -22px; padding: 0 8px; }
+    #bug-hud { top: 72px; right: 12px; padding: 8px 10px; min-width: 148px; }
+    .hud-title { font-size: 8px; }
+    .bug-drop { font-size: 10px; padding: 3px 8px; }
+    .bug-drop.rare { font-size: 11px; padding: 4px 10px; }
+    #chat-widget { bottom: 38px; right: 12px; }
+    #chat-panel { width: calc(100vw - 24px); max-width: 360px; height: 440px; }
+    #chat-toggle { width: 48px; height: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Engine-blueprint grid overlay — subtle technical drawing behind everything -->
+<div class="blueprint-grid" aria-hidden="true">
+  <div class="bp-corner bp-tl">X · REF 000 · Y · REF 000 · θ 0°</div>
+  <div class="bp-corner bp-tr">SCALE 1:100 · SECT A-A</div>
+  <div class="bp-corner bp-bl">DRAWN · KJS · REV 2.6 · 2026</div>
+  <div class="bp-corner bp-br">V6 TURBO HYBRID · 15,000 RPM · MGU-H · MGU-K</div>
+  <svg class="bp-marks" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <!-- Cross-hair reticle at center -->
+    <line x1="50" y1="46" x2="50" y2="54" stroke="rgba(197,163,80,0.18)" stroke-width="0.15"/>
+    <line x1="46" y1="50" x2="54" y2="50" stroke="rgba(197,163,80,0.18)" stroke-width="0.15"/>
+    <circle cx="50" cy="50" r="0.6" fill="none" stroke="rgba(197,163,80,0.25)" stroke-width="0.15"/>
+  </svg>
+</div>
+
+<canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+<aside id="flow-hud" aria-hidden="true" hidden>
+  <span data-fh="state" data-state="IDLE">IDLE</span>
+  <span data-fh="vavg">0</span>
+  <span data-fh="vmax">0</span>
+  <span data-fh="theta">0°</span>
+  <span data-fh="re">0</span>
+  <span data-fh="n">0</span>
+  <span data-fh="narrator">warming up…</span>
+</aside>
+
+<!-- Race-track edge marker: pixel racing-line + curb ticks + car indicator -->
+<div id="track-rail" aria-hidden="true">
+  <div class="rail-cap top"></div>
+  <div class="rail-spine">
+    <div class="curb c1"></div>
+    <div class="curb c2"></div>
+    <div class="curb c3"></div>
+    <div class="curb c4"></div>
+    <div class="rail-fill"></div>
+    <div class="rail-car"></div>
+  </div>
+  <div class="rail-cap bottom"></div>
+</div>
+
+<!-- Rotating F1 telemetry dial: idle spin ring + scroll-driven needle + lap-fill arc -->
+<div id="tele-dial" aria-hidden="true">
+  <svg class="dial-svg" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="dialArcGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#c5a350"/>
+        <stop offset="55%"  stop-color="#e6c56e"/>
+        <stop offset="100%" stop-color="#ff9548"/>
+      </linearGradient>
+    </defs>
+    <!-- Housing -->
+    <circle class="dial-housing" cx="50" cy="50" r="46"/>
+    <!-- Inner darker ring -->
+    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    <!-- Rotating tick ring (24 ticks, every 6th is major) -->
+    <g class="dial-ring">
+      <!-- ticks generated statically at each 15° -->
+      <line x1="50" y1="6"  x2="50" y2="12" class="major"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(15 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(30 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(45 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(60 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(75 50 50)"/>
+      <line x1="50" y1="6"  x2="50" y2="12" class="major" transform="rotate(90 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(105 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(120 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(135 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(150 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(165 50 50)"/>
+      <line x1="50" y1="6"  x2="50" y2="12" class="major" transform="rotate(180 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(195 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(210 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(225 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(240 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(255 50 50)"/>
+      <line x1="50" y1="6"  x2="50" y2="12" class="major" transform="rotate(270 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(285 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(300 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(315 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(330 50 50)"/>
+      <line x1="50" y1="7"  x2="50" y2="11" transform="rotate(345 50 50)"/>
+    </g>
+    <!-- Progress arc (lap %) — pathLength normalizes total to 100 -->
+    <circle class="dial-arc" cx="50" cy="50" r="34" pathLength="100"/>
+    <!-- Center readouts -->
+    <text class="dial-label-txt" x="50" y="43"  text-anchor="middle">LAP</text>
+    <text class="dial-value-txt" x="50" y="59"  text-anchor="middle" id="dialLapNum">01</text>
+    <!-- Sweeping needle (scroll-velocity) -->
+    <g class="dial-needle">
+      <line class="stem" x1="50" y1="50" x2="50" y2="18"/>
+      <circle class="hub" cx="50" cy="50" r="3"/>
+    </g>
+  </svg>
+  <div class="dial-caption">TELEMETRY · LIVE</div>
+</div>
+
+<div id="broadcast-ticker" aria-hidden="true">
+  <div class="ticker-viewport">
+    <div class="ticker-track" data-ticker-track>
+      <!-- populated by JS; static fallback below for no-JS -->
+      <span class="ticker-item live"><span class="k">STATUS</span><span class="v">STINT ACTIVE</span></span>
+      <span class="sep"></span>
+      <span class="ticker-item"><span class="k">SESSION</span><span class="v">S01 · PIT WALL</span></span>
+      <span class="sep"></span>
+      <span class="ticker-item"><span class="k">TEAM</span><span class="v">KJS · AMDOCS</span></span>
+    </div>
+  </div>
+</div>
+
+<div id="flow-hint" aria-hidden="true">move your cursor — air flows around the words</div>
+
+<div class="container">
+
+  <nav>
+    <div class="brand">
+      <span class="brand-mark">kj.sajid /</span>
+      <span class="brand-name">Kholood<em>.</em></span>
+    </div>
+    <div class="nav-links">
+      <a href="#contact" class="status-pill" title="Open to work">
+        <span class="live-dot"></span>Open to Work
+      </a>
+      <a href="#work">work</a>
+      <a href="#story">story</a>
+      <a href="#stack">stack</a>
+      <a href="#certs">certs</a>
+      <a href="#contact">contact</a>
+    </div>
+  </nav>
+
+  <!-- F1 race-status strip: live-toggling pills sit under the nav on every screen -->
+  <div id="race-status" class="race-status" aria-hidden="true">
+    <span class="rs-pill rs-live"     data-rs="drs">
+      <span class="rs-led"></span><span class="rs-k">DRS</span><span class="rs-v" id="rsDrs">OPEN</span>
+    </span>
+    <span class="rs-pill rs-ers"      data-rs="ers">
+      <span class="rs-led"></span><span class="rs-k">ERS</span><span class="rs-v" id="rsErs">DEPLOY</span>
+    </span>
+    <span class="rs-pill rs-mode"     data-rs="mode">
+      <span class="rs-led"></span><span class="rs-k">MODE</span><span class="rs-v" id="rsMode">QUALI</span>
+    </span>
+    <span class="rs-pill rs-tire"     data-rs="tire">
+      <span class="rs-led rs-tire-soft"></span><span class="rs-k">TIRE</span><span class="rs-v" id="rsTire">SOFT · L14</span>
+    </span>
+    <span class="rs-pill rs-lap"      data-rs="lap">
+      <span class="rs-k">LAP</span><span class="rs-v" id="rsLap">01</span><span class="rs-k rs-sep">/</span><span class="rs-v rs-total">06</span>
+    </span>
+    <span class="rs-pill rs-flag"     data-rs="flag">
+      <span class="rs-led rs-flag-dot"></span><span class="rs-k">FLAG</span><span class="rs-v" id="rsFlag">GREEN</span>
+    </span>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <!-- Rotating F1 turbine (visible mechanical F1 essence) -->
+    <svg class="turbine" viewBox="-60 -60 120 120" aria-hidden="true">
+      <!-- Outer stator ring -->
+      <circle cx="0" cy="0" r="55" fill="none" stroke="rgba(212,163,77,0.25)" stroke-width="0.8"/>
+      <circle cx="0" cy="0" r="46" fill="none" stroke="rgba(212,163,77,0.55)" stroke-width="0.6"/>
+      <!-- Tick marks around the outside -->
+      <g class="stator" stroke="rgba(212,163,77,0.7)" stroke-width="0.8">
+        <line class="tick" x1="0" y1="-55" x2="0" y2="-50"/>
+        <line class="tick" x1="27.5" y1="-47.6" x2="25" y2="-43.3"/>
+        <line class="tick" x1="47.6" y1="-27.5" x2="43.3" y2="-25"/>
+        <line class="tick" x1="55" y1="0" x2="50" y2="0"/>
+        <line class="tick" x1="47.6" y1="27.5" x2="43.3" y2="25"/>
+        <line class="tick" x1="27.5" y1="47.6" x2="25" y2="43.3"/>
+        <line class="tick" x1="0" y1="55" x2="0" y2="50"/>
+        <line class="tick" x1="-27.5" y1="47.6" x2="-25" y2="43.3"/>
+        <line class="tick" x1="-47.6" y1="27.5" x2="-43.3" y2="25"/>
+        <line class="tick" x1="-55" y1="0" x2="-50" y2="0"/>
+        <line class="tick" x1="-47.6" y1="-27.5" x2="-43.3" y2="-25"/>
+        <line class="tick" x1="-27.5" y1="-47.6" x2="-25" y2="-43.3"/>
+      </g>
+
+      <!-- Counter-rotor: slower ring (inner static-looking one) -->
+      <g class="counter-rotor">
+        <circle cx="0" cy="0" r="34" fill="none" stroke="rgba(212,163,77,0.35)" stroke-width="0.5" stroke-dasharray="2 3"/>
+      </g>
+
+      <!-- Main rotor with 8 turbine blades (spins with throttle) -->
+      <g class="rotor">
+        <!-- Blades: swept aerofoil shape, repeated by rotation -->
+        <g fill="url(#turbineGrad)" stroke="rgba(212,163,77,0.85)" stroke-width="0.35" stroke-linejoin="round">
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(45)"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(90)"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(135)"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(180)"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(225)"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(270)"/>
+          <path d="M 0 -6 Q 6 -18 4 -32 Q 2 -40 -4 -42 Q -6 -30 -3 -18 Q -2 -10 0 -6 Z"
+                transform="rotate(315)"/>
+        </g>
+        <!-- Hub -->
+        <circle cx="0" cy="0" r="6" fill="rgba(20,15,10,0.95)" stroke="rgba(212,163,77,1)" stroke-width="0.8"/>
+        <circle cx="0" cy="0" r="2.2" fill="rgba(242,199,102,1)"/>
+        <!-- Hub marker so you can see the spin direction -->
+        <line x1="0" y1="0" x2="0" y2="-4.6" stroke="rgba(20,15,10,1)" stroke-width="1"/>
+      </g>
+
+      <defs>
+        <radialGradient id="turbineGrad" cx="0.5" cy="0.5" r="0.55">
+          <stop offset="0%"  stop-color="#f2c766" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#d4a34d" stop-opacity="0.75"/>
+          <stop offset="100%" stop-color="#a67539" stop-opacity="0.6"/>
+        </radialGradient>
+      </defs>
+    </svg>
+
+    <div class="eyebrow">
+      <span>TEAM · KJS</span>
+      <span class="eyebrow-sep">·</span>
+      <span>S01 · PIT WALL</span>
+      <span class="eyebrow-sep">·</span>
+      <span>Pune, IN · IST +05:30</span>
+    </div>
+
+    <div class="hero-annotation">hi, I'm Kholood</div>
+    <h1 class="display flow-obstacle" data-flow-shape="ellipse">
+      I build the <em>pipelines</em><br>
+      that keep data <em>honest</em>.
+    </h1>
+
+    <p class="lede flow-obstacle" data-flow-shape="ellipse">
+      Data engineer at <strong>Amdocs</strong>. I design pipelines the way F1
+      teams design airflow — <em>measured</em>, <em>telemetered</em>, tuned for
+      pressure. Snowflake &amp; Azure, ETL &amp; data lakes, event-driven systems
+      that don&rsquo;t break under load.
+    </p>
+
+    <!-- Live Pipeline Card -->
+    <div class="pipeline-card">
+      <div class="pipeline-head">
+        <div class="pipeline-title">
+          <span class="live-dot"></span>
+          <span>PIPELINE.TELEMETRY · <span class="live-label">LIVE</span></span>
+        </div>
+        <a class="cta-inline" href="#work">race log →</a>
+      </div>
+
+      <div class="stages">
+        <div class="stage" style="--fill: 100%; --delay: 0.1s;">
+          <div class="stage-num">01</div>
+          <div class="stage-name">ingest</div>
+          <div class="stage-bar"></div>
+        </div>
+        <div class="stage" style="--fill: 100%; --delay: 0.35s;">
+          <div class="stage-num">02</div>
+          <div class="stage-name">stage · lake</div>
+          <div class="stage-bar"></div>
+        </div>
+        <div class="stage" style="--fill: 100%; --delay: 0.6s;">
+          <div class="stage-num">03</div>
+          <div class="stage-name">transform</div>
+          <div class="stage-bar"></div>
+        </div>
+        <div class="stage active" style="--fill: 92%; --delay: 0.85s;">
+          <div class="stage-num">04</div>
+          <div class="stage-name">validate · serve</div>
+          <div class="stage-bar"></div>
+        </div>
+      </div>
+
+      <div class="pipeline-metrics">
+        <span><strong>10+</strong> upstream feeds</span>
+        <span><strong>20+</strong> QC checks</span>
+        <span><strong>95→100%</strong> reliability</span>
+        <span><strong>~2–4 min</strong> sync</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="sector-divider" aria-hidden="true">
+    <span class="s-green"></span><span class="s-green"></span><span class="s-mute"></span>
+    <span class="s-mute"></span><span class="s-mute"></span><span class="s-mute"></span>
+  </div>
+
+  <!-- NOW -->
+  <section id="now" class="reveal">
+    <div class="section-label">
+      <span class="sec-num">S02</span>
+      <span class="sec-name">Live Stint</span>
+      <span class="sec-tag">on track</span>
+    </div>
+    <div class="now-grid">
+      <div class="now-label">
+        <strong>2024 — Present</strong><br>
+        Amdocs<br>
+        Pune, IN
+      </div>
+      <div class="now-body">
+        <p>
+          <strong>Data Engineer</strong> at Amdocs — running production-grade
+          data pipelines on <em>Snowflake, Azure, and Python</em> for
+          high-volume transactional workloads. Think of it as a race stint:
+          long, technical, telemetered.
+        </p>
+        <p>
+          Most days I&rsquo;m untangling ingestion from ten different upstream
+          feeds — payments, tax, inventory, revenue — landing them safely in a
+          <em>data lake</em>, running dozens of quality checks, and making sure
+          downstream teams never see a broken row.
+        </p>
+        <div class="now-chips">
+          <span class="telem-chip green"><span class="k">stint</span><span class="v">18 mo · live</span></span>
+          <span class="telem-chip"><span class="k">feeds</span><span class="v">10+</span></span>
+          <span class="telem-chip"><span class="k">qc</span><span class="v">20+</span></span>
+          <span class="telem-chip"><span class="k">reliability</span><span class="v">95 → 100%</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sector-divider" aria-hidden="true">
+    <span class="s-green"></span><span class="s-green"></span><span class="s-gold"></span>
+    <span class="s-mute"></span><span class="s-mute"></span><span class="s-mute"></span>
+  </div>
+
+  <!-- WORK -->
+  <section id="work" class="reveal">
+    <div class="section-label">
+      <span class="sec-num">S03</span>
+      <span class="sec-name">Race Log</span>
+      <span class="sec-tag">5 stints logged</span>
+    </div>
+    <h2 class="section-title flow-obstacle">A short list of the pipelines I&rsquo;ve <em>built</em>, <em>broken</em>, and <em>quietly fixed</em>.</h2>
+
+    <!-- Case 1: Amdocs -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">Data Engineer</span>
+        <span class="year">2024 — Present</span>
+        <span>Amdocs</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Stint 01 · Enterprise Data Platform · Amdocs</div>
+        <h3>Snowflake pipelines that <em>don't wake anyone up at 3&nbsp;AM</em>.</h3>
+        <p>
+          Designed and maintained reusable ingestion pipelines in Python + SQL
+          landing <strong>10+ upstream feeds</strong> (payments, tax, inventory,
+          revenue) from external systems into a <strong>Snowflake data lake</strong>
+          via Azure Blob and SFTP. Built <strong>20+ automated data quality
+          &amp; risk validation checks</strong> that cut data defects in
+          production, and tuned ETL logic and complex joins for high-throughput
+          jobs — reducing end-to-end latency across the board.
+        </p>
+        <p>
+          Also owned secure credential handling and role-based access, using
+          <strong>Service Principal (SPN)</strong> auth so pipelines could run
+          fully automated across environments — no human in the loop.
+        </p>
+        <div class="case-tags">
+          <span class="tag">Snowflake</span>
+          <span class="tag">Azure Blob / SFTP</span>
+          <span class="tag">Python</span>
+          <span class="tag">SQL</span>
+          <span class="tag">Data Lake</span>
+          <span class="tag">CI/CD</span>
+          <span class="tag">SPN Auth</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>10+</strong> upstream feeds</span>
+          <span><strong>20+</strong> QC / risk checks</span>
+          <span><strong>↓</strong> end-to-end latency</span>
+          <span><strong>↓↓</strong> production data defects</span>
+        </div>
+        <div class="case-note">the pipeline that taught me lineage</div>
+      </div>
+    </div>
+
+    <!-- Case 2: Real-Time Analytics -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">Systems Builder</span>
+        <span class="year">2023</span>
+        <span>Bharati Vidyapeeth</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Stint 02 · Real-Time Analytics · BVP</div>
+        <h3>C++ threads pushing data <em>faster than they should</em>.</h3>
+        <p>
+          A multi-threaded C++ engine built for high-throughput, low-latency
+          analytics at Bharati Vidyapeeth. Focused on cache-friendly data
+          structures, contention-aware locking, and tight STL usage to
+          squeeze predictable performance out of commodity hardware.
+        </p>
+        <div class="case-tags">
+          <span class="tag">C++ · STL</span>
+          <span class="tag">Multi-threading</span>
+          <span class="tag">Real-Time</span>
+          <span class="tag">Performance</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>Low</strong> latency</span>
+          <span><strong>High</strong> throughput</span>
+          <span><strong>Thread-safe</strong> by design</span>
+        </div>
+        <div class="case-note">where I learned to respect the CPU</div>
+      </div>
+    </div>
+
+    <!-- Case 3: OfficesLang -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">Builder</span>
+        <span class="year">2024</span>
+        <span>Sprint · 1 month</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Stint 03 · Language / NLP · OfficesLang</div>
+        <h3>OfficesLang — <em>bridging jargon</em> and human clarity.</h3>
+        <p>
+          A linguistic intelligence tool that translates dense workplace
+          jargon into clear, human language. Shipped end-to-end in a
+          <strong>one-month sprint</strong> — from NLP prototyping to a
+          usable interface.
+        </p>
+        <div class="case-tags">
+          <span class="tag">Python</span>
+          <span class="tag">NLP</span>
+          <span class="tag">1-month ship</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>1&nbsp;month</strong> concept → ship</span>
+          <span><strong>End-to-end</strong> tool</span>
+        </div>
+        <div class="case-note">shipped, on a Sunday</div>
+      </div>
+    </div>
+
+    <!-- Case 4: Order Processing System -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">Builder</span>
+        <span class="year">2024</span>
+        <span>Personal Project</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Stint 04 · Event-Driven Backend · Order Processing</div>
+        <h3>A distributed order system that <em>behaves like real infra</em>.</h3>
+        <p>
+          Built an event-driven backend simulating an integrated order workflow
+          — REST APIs, asynchronous task execution, and a full order lifecycle
+          from placement to fulfillment. Wired in Stripe for live payment
+          capture, giving me reliable transaction data and a reference
+          architecture for streaming-style flows similar to <strong>Event Hub /
+          Kafka</strong>.
+        </p>
+        <div class="case-tags">
+          <span class="tag">Python</span>
+          <span class="tag">REST APIs</span>
+          <span class="tag">Async / Events</span>
+          <span class="tag">Stripe</span>
+          <span class="tag">Distributed Systems</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>+70%</strong> functional coverage</span>
+          <span><strong>end-to-end</strong> order lifecycle</span>
+          <span><strong>live</strong> payment capture</span>
+        </div>
+        <div class="case-note">how I fell for event-driven design</div>
+      </div>
+    </div>
+
+    <!-- Case 3: Let Us Code -->
+    <div class="case">
+      <div class="case-meta">
+        <span class="role">SWE Intern</span>
+        <span class="year">2023 — 2024</span>
+        <span>Let Us Code Systems</span>
+      </div>
+      <div class="case-body">
+        <div class="tagline">Stint 05 · Scalable Ingestion · Let Us Code</div>
+        <h3>Scrapers that <em>don't lie</em> about the data.</h3>
+        <p>
+          Built scalable scraping systems handling multi-category product
+          datasets with a <strong>95% accuracy rate</strong>, automated the
+          ingestion pipeline to remove manual steps, and redesigned MongoDB
+          storage for faster queries and less duplication. First time I really
+          felt the difference between <em>code that runs</em> and
+          <em>code that runs at scale, quietly, for months</em>.
+        </p>
+        <div class="case-tags">
+          <span class="tag">Python</span>
+          <span class="tag">Scrapy</span>
+          <span class="tag">Pandas</span>
+          <span class="tag">MongoDB</span>
+          <span class="tag">OOP · DSA</span>
+        </div>
+        <div class="case-metrics">
+          <span><strong>95%</strong> data accuracy</span>
+          <span><strong>↓</strong> manual intervention</span>
+          <span><strong>↑</strong> query performance</span>
+        </div>
+        <div class="case-note">first taste of scale</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <div class="sector-divider" aria-hidden="true">
+    <span class="s-green"></span><span class="s-green"></span><span class="s-gold"></span>
+    <span class="s-violet"></span><span class="s-mute"></span><span class="s-mute"></span>
+  </div>
+
+  <section id="story" class="reveal">
+    <div class="section-label">
+      <span class="sec-num">S04</span>
+      <span class="sec-name">Team Radio</span>
+      <span class="sec-tag">open channel</span>
+    </div>
+    <div class="story">
+      <p>
+        I fell into data the way most engineers do — by accident, then
+        obsession. I started with backend code and DSA (<strong>250+ LeetCode</strong>
+        problems, a scrappy <strong>3rd place</strong> in a coding challenge),
+        and somewhere along the way I realised the <em>most interesting bug
+        in any system is usually a data bug</em>.
+      </p>
+      <p>
+        These days I spend my time on the unglamorous middle of the stack —
+        ETL, staging layers, data lakes, orchestration, and the hundred small
+        checks that stand between raw upstream files and a dashboard someone
+        actually trusts.
+      </p>
+      <p>
+        I like pipelines that <em>fail loudly</em>, code that reads like prose,
+        and systems where the next engineer — including future me — doesn't
+        need a map to change something.
+      </p>
+      <div class="signature">Kholood, from Pune</div>
+    </div>
+  </section>
+
+  <div class="sector-divider" aria-hidden="true">
+    <span class="s-green"></span><span class="s-green"></span><span class="s-gold"></span>
+    <span class="s-violet"></span><span class="s-gold"></span><span class="s-mute"></span>
+  </div>
+
+  <!-- STACK -->
+  <section id="stack" class="reveal">
+    <div class="section-label">
+      <span class="sec-num">S05</span>
+      <span class="sec-name">The Garage</span>
+      <span class="sec-tag">tools I reach for</span>
+    </div>
+    <h2 class="section-title flow-obstacle">Every good garage has the <em>right tools</em> within reach.</h2>
+
+    <div class="stack-grid">
+      <div class="stack-group">
+        <h4>data &amp; warehousing</h4>
+        <ul>
+          <li>Snowflake</li>
+          <li>ETL pipelines</li>
+          <li>Data lake / staging</li>
+          <li>Data modeling</li>
+          <li>PySpark</li>
+          <li>Pandas · NumPy</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h4>cloud &amp; ops</h4>
+        <ul>
+          <li>Azure Blob · SFTP</li>
+          <li>CI/CD</li>
+          <li>Service Principal auth</li>
+          <li>TWS Scheduler</li>
+          <li>Databricks (fundamentals)</li>
+          <li>Azure AI-900</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h4>languages</h4>
+        <ul>
+          <li>Python</li>
+          <li>SQL</li>
+          <li>TypeScript</li>
+          <li>C++ · STL</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h4>backend &amp; systems</h4>
+        <ul>
+          <li>Spring Boot</li>
+          <li>REST APIs</li>
+          <li>Microservices</li>
+          <li>Event-driven design</li>
+          <li>MongoDB</li>
+          <li>Scrapy</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sector-divider" aria-hidden="true">
+    <span class="s-green"></span><span class="s-green"></span><span class="s-gold"></span>
+    <span class="s-violet"></span><span class="s-gold"></span><span class="s-green"></span>
+  </div>
+
+  <!-- CERTIFICATIONS -->
+  <section id="certs" class="reveal">
+    <div class="section-label">
+      <span class="sec-num">S06</span>
+      <span class="sec-name">Superlicense</span>
+      <span class="sec-tag">5 endorsements</span>
+    </div>
+    <h2 class="section-title flow-obstacle">Endorsements I&rsquo;ve earned <em>along the track</em>.</h2>
+
+    <div class="certs">
+      <div class="cert" data-lic="LIC-01 · 2026">
+        <div class="cert-badge">A</div>
+        <div class="cert-body">
+          <div class="cert-title">AI Fluency — Framework &amp; Foundations</div>
+          <div class="cert-issuer"><strong>Anthropic</strong> · Apr 2026</div>
+        </div>
+      </div>
+      <div class="cert" data-lic="LIC-02 · 2025">
+        <div class="cert-badge">LC</div>
+        <div class="cert-body">
+          <div class="cert-title">Functions, Tools &amp; Agents — LangChain</div>
+          <div class="cert-issuer"><strong>DeepLearning.AI</strong> · Jul 2025</div>
+        </div>
+      </div>
+      <div class="cert" data-lic="LIC-03 · DB">
+        <div class="cert-badge">DB</div>
+        <div class="cert-body">
+          <div class="cert-title">Databricks Fundamentals</div>
+          <div class="cert-issuer"><strong>Databricks</strong></div>
+        </div>
+      </div>
+      <div class="cert" data-lic="LIC-04 · AZ">
+        <div class="cert-badge">AZ</div>
+        <div class="cert-body">
+          <div class="cert-title">Azure AI-900</div>
+          <div class="cert-issuer"><strong>Microsoft</strong></div>
+        </div>
+      </div>
+      <div class="cert" data-lic="LIC-05 · 2021">
+        <div class="cert-badge">MS</div>
+        <div class="cert-body">
+          <div class="cert-title">Microsoft Learn Student Ambassador</div>
+          <div class="cert-issuer"><strong>Microsoft</strong> · Nov 2021</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sector-divider" aria-hidden="true">
+    <span class="s-green"></span><span class="s-green"></span><span class="s-gold"></span>
+    <span class="s-violet"></span><span class="s-gold"></span><span class="s-green"></span>
+  </div>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact reveal">
+    <div class="section-label">
+      <span class="sec-num">S07</span>
+      <span class="sec-name">Pit Radio</span>
+      <span class="sec-tag">channel open</span>
+    </div>
+    <div class="contact-note">the channel is open.</div>
+    <div class="contact-lead flow-obstacle">
+      Working on something with <em>messy data</em> or a <em>pipeline that keeps breaking</em>? Send a radio call. I&rsquo;m listening.
+    </div>
+    <div class="contact-links">
+      <a href="mailto:sjkholood@gmail.com"><span>email</span>sjkholood@gmail.com</a>
+      <a href="https://www.linkedin.com/in/kholood-jenan-sajid" target="_blank" rel="noopener"><span>linkedin</span>/in/kholood-jenan-sajid</a>
+      <a href="https://github.com/KholoodJenanSajid" target="_blank" rel="noopener"><span>github</span>/KholoodJenanSajid</a>
+      <a href="tel:+918299819282"><span>phone</span>+91 82998 19282</a>
+    </div>
+  </section>
+
+  <footer>
+    <div>© <span id="year"></span> Kholood Jenan Sajid</div>
+    <div>built <span class="heart">with care</span> · Pune, India</div>
+  </footer>
+
+</div>
+
+<!-- Scroll cat: walks the bottom of the viewport as you scroll -->
+<div id="scroll-cat" aria-hidden="true">
+  <div class="cat-bubble"></div>
+  <div class="sparkles">
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+    <span class="sparkle"></span>
+  </div>
+  <div class="cat-flip">
+    <svg class="cat-svg" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+      <!-- Tail (drawn first so it sits behind the body) -->
+      <path class="cat-tail" d="M 24 52 Q 10 46 8 32 Q 8 22 16 20"
+            fill="none" stroke="#e8a95c" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 12 26 L 10 30" stroke="#a67539" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M 15 34 L 13 37" stroke="#a67539" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+      <!-- Back legs -->
+      <ellipse class="leg leg-bl" cx="30" cy="66" rx="3.6" ry="6" fill="#a67539"/>
+      <ellipse class="leg leg-br" cx="39" cy="66" rx="3.6" ry="6" fill="#c88a3a"/>
+
+      <!-- Body -->
+      <ellipse class="cat-body" cx="43" cy="55" rx="22" ry="12" fill="#e8a95c"/>
+      <!-- Body stripes -->
+      <path d="M 32 48 Q 33 55 32 62" stroke="#a67539" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M 40 46 Q 41 55 40 64" stroke="#a67539" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M 49 47 Q 50 55 49 63" stroke="#a67539" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <!-- White belly patch -->
+      <ellipse cx="46" cy="60" rx="14" ry="6" fill="#f5e6cc"/>
+
+      <!-- Front legs -->
+      <ellipse class="leg leg-fl" cx="51" cy="66" rx="3.6" ry="6" fill="#c88a3a"/>
+      <ellipse class="leg leg-fr" cx="59" cy="66" rx="3.6" ry="6" fill="#a67539"/>
+
+      <!-- Head -->
+      <circle class="cat-head" cx="63" cy="34" r="17" fill="#e8a95c"/>
+
+      <!-- Ears (outer) -->
+      <path d="M 51 22 L 48 9 L 59 20 Z" fill="#e8a95c" stroke="#a67539" stroke-width="0.8"/>
+      <path d="M 75 22 L 78 9 L 67 20 Z" fill="#e8a95c" stroke="#a67539" stroke-width="0.8"/>
+      <!-- Ears (inner pink) -->
+      <path d="M 52 20 L 51 13 L 56 19 Z" fill="#f5a789"/>
+      <path d="M 74 20 L 75 13 L 70 19 Z" fill="#f5a789"/>
+
+      <!-- Head stripes -->
+      <path d="M 56 19 Q 57 24 56 27" stroke="#a67539" stroke-width="1.5" fill="none"/>
+      <path d="M 63 17 L 63 23" stroke="#a67539" stroke-width="1.5" fill="none"/>
+      <path d="M 70 19 Q 69 24 70 27" stroke="#a67539" stroke-width="1.5" fill="none"/>
+
+      <!-- Cheek fluff -->
+      <ellipse cx="55" cy="42" rx="4" ry="2.6" fill="#f5e6cc" opacity="0.85"/>
+      <ellipse cx="71" cy="42" rx="4" ry="2.6" fill="#f5e6cc" opacity="0.85"/>
+
+      <!-- Glasses -->
+      <circle cx="57" cy="36" r="6" fill="rgba(255,255,255,0.06)" stroke="#ede2c8" stroke-width="1.4"/>
+      <circle cx="69" cy="36" r="6" fill="rgba(255,255,255,0.06)" stroke="#ede2c8" stroke-width="1.4"/>
+      <line x1="62.5" y1="36" x2="63.5" y2="36" stroke="#ede2c8" stroke-width="1.4"/>
+
+      <!-- Eyes (in groups so pupils + shine can track the cursor together) -->
+      <g class="cat-eye-wrapper" data-eye-idx="0">
+        <circle class="cat-eye" cx="57" cy="36" r="1.8" fill="#1a1a10"/>
+        <circle cx="57.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+      </g>
+      <g class="cat-eye-wrapper" data-eye-idx="1">
+        <circle class="cat-eye" cx="69" cy="36" r="1.8" fill="#1a1a10"/>
+        <circle cx="69.7" cy="35.3" r="0.5" fill="#ede2c8"/>
+      </g>
+
+      <!-- Nose -->
+      <path d="M 61 42 L 65 42 L 63 44.6 Z" fill="#c76a6a"/>
+      <!-- Mouth -->
+      <path d="M 63 45 Q 61 47 59 46.5" stroke="#7a4a2a" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+      <path d="M 63 45 Q 65 47 67 46.5" stroke="#7a4a2a" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Bug Hunt Mini-Game HUD -->
+<div id="bug-hud" aria-hidden="true">
+  <div class="hud-header">
+    <span class="hud-title">Debug Mode</span>
+    <button class="hud-close" aria-label="Close debug mode" title="Close">×</button>
+  </div>
+  <div class="hud-row">
+    <span class="hud-label">// caught</span>
+    <span class="hud-value" id="bug-count">0x00</span>
+  </div>
+  <div class="hud-row" id="bug-best-row" style="display:none;">
+    <span class="hud-label">// best</span>
+    <span class="hud-value" id="bug-best">0x00</span>
+  </div>
+  <div class="hud-combo" id="bug-combo"></div>
+  <div class="hud-hint" id="bug-hint">click errors to squash ↗</div>
+</div>
+
+<!-- Chat Widget -->
+<div id="chat-widget">
+  <button id="chat-toggle" aria-label="Open chat" title="Chat with the cat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      <circle cx="8" cy="12" r="0.8" fill="currentColor"/>
+      <circle cx="12" cy="12" r="0.8" fill="currentColor"/>
+      <circle cx="16" cy="12" r="0.8" fill="currentColor"/>
+    </svg>
+  </button>
+  <div id="chat-panel" role="dialog" aria-labelledby="chat-title-text">
+    <div class="chat-header">
+      <div class="chat-title" id="chat-title-el">
+        <span class="chat-avatar">K</span>
+        <span id="chat-title-text">ask the cat</span>
+        <span class="chat-status">online</span>
+        <span class="ai-badge" title="LLM mode active">AI</span>
+      </div>
+      <div class="chat-actions">
+        <button class="chat-icon-btn" id="chat-settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="chat-icon-btn" id="chat-mute" aria-label="Toggle sound" title="Toggle sound"></button>
+        <button class="chat-icon-btn" id="chat-close" aria-label="Close chat" title="Close">×</button>
+      </div>
+    </div>
+    <div class="chat-settings-pane" id="chat-settings-pane" hidden>
+      <h4>upgrade to LLM chat</h4>
+      <p>paste a free Groq API key (get one at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>) to unlock real conversational AI. key stays in your browser only.</p>
+      <input type="password" id="groq-key-input" placeholder="gsk_..." autocomplete="off" spellcheck="false">
+      <div class="settings-actions">
+        <button type="button" id="groq-clear">clear key</button>
+        <button type="button" id="groq-save">save &amp; enable</button>
+      </div>
+      <p class="settings-status" id="groq-status">no key set · using rule-based responses</p>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-quick" id="chat-quick"></div>
+    <form class="chat-input" id="chat-form">
+      <input type="text" id="chat-text" placeholder="ask anything about kholood..." autocomplete="off" maxlength="200">
+      <button type="submit" aria-label="Send message">↵</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  /* ---------- Audio (Web Audio API, no assets) ---------- */
+  let __audioCtx = null;
+  let __muted = false;
+  try { __muted = localStorage.getItem('audioMuted') === '1'; } catch (_) {}
+
+  function __getAudioCtx() {
+    if (__audioCtx) return __audioCtx;
+    try { __audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (_) { __audioCtx = null; }
+    return __audioCtx;
+  }
+
+  function __setMuted(m) {
+    __muted = !!m;
+    try { localStorage.setItem('audioMuted', __muted ? '1' : '0'); } catch (_) {}
+  }
+
+  /* Two-syllable synthesized meow */
+  function __playMeow() {
+    if (__muted) return;
+    const ctx = __getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1500;
+    filter.Q.value = 4;
+    filter.connect(ctx.destination);
+
+    // "me" — rising
+    const osc1 = ctx.createOscillator();
+    const g1 = ctx.createGain();
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(620, now);
+    osc1.frequency.linearRampToValueAtTime(780, now + 0.08);
+    g1.gain.setValueAtTime(0, now);
+    g1.gain.linearRampToValueAtTime(0.12, now + 0.02);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    osc1.connect(g1).connect(filter);
+    osc1.start(now);
+    osc1.stop(now + 0.15);
+
+    // "ow" — falling, longer
+    const osc2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    osc2.type = 'sawtooth';
+    osc2.frequency.setValueAtTime(560, now + 0.09);
+    osc2.frequency.exponentialRampToValueAtTime(280, now + 0.36);
+    g2.gain.setValueAtTime(0, now + 0.08);
+    g2.gain.linearRampToValueAtTime(0.13, now + 0.11);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+    osc2.connect(g2).connect(filter);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.4);
+  }
+
+  /* Ascending 3-note chime (rare bug bonus) */
+  function __playChime() {
+    if (__muted) return;
+    const ctx = __getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 987.77];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = now + i * 0.07;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.09, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.42);
+    });
+  }
+
+  /* Short click blip (bug catch) */
+  function __playBlip() {
+    if (__muted) return;
+    const ctx = __getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(680, now);
+    osc.frequency.exponentialRampToValueAtTime(1180, now + 0.055);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  }
+
+  const turbineEl = document.querySelector('.turbine');
+  // Debounce burst-per-element so rapid scroll doesn't strobe
+  const __lastBurstAt = new WeakMap();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        // Entering viewport: flap IN
+        e.target.classList.remove('gone-up');
+        e.target.classList.add('in');
+
+        // Pit-stop burst (debounced: max once per 900 ms per element)
+        const nowMs = performance.now();
+        const last = __lastBurstAt.get(e.target) || 0;
+        if (nowMs - last > 900) {
+          __lastBurstAt.set(e.target, nowMs);
+          if (typeof window.__flowBurst === 'function') {
+            const rect = e.target.getBoundingClientRect();
+            const headerY = Math.max(60, rect.top + 32);
+            window.__flowBurst(rect.left + 40, headerY, 14);
+            window.__flowBurst(rect.left + Math.min(rect.width - 40, 260), headerY, 10);
+          }
+          if (turbineEl) {
+            turbineEl.classList.remove('revved');
+            void turbineEl.offsetWidth;
+            turbineEl.classList.add('revved');
+            document.documentElement.style.setProperty('--turbine-scale', '1.18');
+            setTimeout(() => document.documentElement.style.setProperty('--turbine-scale', '1'), 380);
+          }
+          // Grid-lights: after all 5 pips are lit (~1.0s), throw a wide spark burst
+          // across the gantry — the "lights out, go go go!" moment.
+          if (e.target.classList.contains('sector-divider') &&
+              typeof window.__flowBurst === 'function') {
+            setTimeout(() => {
+              const r = e.target.getBoundingClientRect();
+              if (r.bottom < 0 || r.top > window.innerHeight) return;   // off-screen — skip
+              const cy = r.top + r.height / 2;
+              const x0 = r.left + 20;
+              const x1 = r.right - 20;
+              const span = Math.max(80, x1 - x0);
+              // Distribute 5 sparks across the rail
+              for (let i = 0; i < 5; i++) {
+                const x = x0 + (span * i) / 4;
+                window.__flowBurst(x, cy, 8 + Math.random() * 4);
+              }
+            }, 1050);
+          }
+        }
+      } else {
+        // Leaving viewport: flap OUT (direction-aware)
+        e.target.classList.remove('in');
+        if (e.boundingClientRect.top < 0) {
+          // Scrolled past (above viewport) → rotate away upward
+          e.target.classList.add('gone-up');
+        } else {
+          // Below viewport → revert to default entry pose (from below)
+          e.target.classList.remove('gone-up');
+        }
+      }
+    });
+  }, {
+    // Fire earlier so partially-visible sections snap out of the off-track pose
+    threshold: 0.04,
+    rootMargin: '0px 0px -8% 0px'
+  });
+  // Sector-divider strips get a lighter fade reveal so they never hang alone
+  document.querySelectorAll('.sector-divider').forEach(el => el.classList.add('reveal'));
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ---- Sector-time chips: inject a broadcast timing strip under each
+     section title. Values are cosmetic — mock F1 sector times per stint. */
+  (function injectSectorChips() {
+    const SECTOR_DATA = [
+      // idx: [S1, S2, S3, LAP, s1Class, s2Class, s3Class]
+      ['24.712', '31.418', '28.905', '1:25.035', 'sc-best', '',         ''       ],  // now
+      ['22.184', '30.912', '27.418', '1:20.514', 'sc-pb',   'sc-best',  ''       ],  // work
+      ['25.001', '32.207', '29.115', '1:26.323', '',        '',         'sc-best'],  // story
+      ['21.842', '29.601', '26.998', '1:18.441', 'sc-pb',   'sc-pb',    'sc-best'],  // stack
+      ['23.918', '31.007', '28.318', '1:23.243', 'sc-best', '',         ''       ],  // certs
+      ['22.918', '30.518', '27.712', '1:21.148', 'sc-best', 'sc-best',  'sc-pb'  ]   // contact
+    ];
+    let idx = 0;
+    document.querySelectorAll('section.reveal').forEach(sec => {
+      const title = sec.querySelector('.section-title');
+      if (!title) return;
+      const d = SECTOR_DATA[idx % SECTOR_DATA.length];
+      idx++;
+      const strip = document.createElement('div');
+      strip.className = 'sector-chips';
+      strip.setAttribute('aria-hidden', 'true');
+      strip.innerHTML = `
+        <span class="sc-chip ${d[4]}"><span class="sc-k">S1</span><span class="sc-v">${d[0]}</span>${d[4] ? '<span class="sc-tri"></span>' : ''}</span>
+        <span class="sc-chip ${d[5]}"><span class="sc-k">S2</span><span class="sc-v">${d[1]}</span>${d[5] ? '<span class="sc-tri"></span>' : ''}</span>
+        <span class="sc-chip ${d[6]}"><span class="sc-k">S3</span><span class="sc-v">${d[2]}</span>${d[6] ? '<span class="sc-tri"></span>' : ''}</span>
+        <span class="sc-chip sc-lap"><span class="sc-k">LAP</span><span class="sc-v">${d[3]}</span></span>
+      `;
+      title.insertAdjacentElement('afterend', strip);
+    });
+  })();
+
+  /* ---- Race-status strip live toggler: cycles pill values on random intervals
+     so the UI feels like a live broadcast feed. Values are cosmetic only. */
+  (function raceStatusLoop() {
+    const $ = (id) => document.getElementById(id);
+    const drsEl  = $('rsDrs'),  ersEl = $('rsErs'), modeEl = $('rsMode');
+    const tireEl = $('rsTire'), flagEl = $('rsFlag');
+    const flagPill = document.querySelector('.rs-pill.rs-flag');
+    if (!drsEl) return;
+
+    const DRS  = ['OPEN', 'DETECT', 'ACTIVE', 'CLOSED'];
+    const ERS  = ['DEPLOY', 'HARVEST', 'MEDIUM', 'HOTLAP', 'OVERTAKE'];
+    const MODES= ['QUALI', 'RACE', 'PUSH', 'STRAT-2', 'STRAT-4', 'ATTACK'];
+    const TIRES= [
+      { v: 'SOFT · L14',  cls: 'rs-tire-soft' },
+      { v: 'MEDIUM · L02',cls: 'rs-tire-med'  },
+      { v: 'INTER · L08', cls: 'rs-tire-int'  },
+      { v: 'SOFT · L21',  cls: 'rs-tire-soft' }
+    ];
+    const FLAGS = [
+      { v: 'GREEN',  yellow: false },
+      { v: 'GREEN',  yellow: false },
+      { v: 'GREEN',  yellow: false },
+      { v: 'YELLOW', yellow: true  }
+    ];
+    let i = 0;
+    function tick() {
+      i++;
+      // Rotate different pills on different beats so it feels alive, not synced
+      if (i % 3 === 0) drsEl.textContent   = DRS  [ Math.floor(Math.random() * DRS.length ) ];
+      if (i % 4 === 1) ersEl.textContent   = ERS  [ Math.floor(Math.random() * ERS.length ) ];
+      if (i % 5 === 2) modeEl.textContent  = MODES[ Math.floor(Math.random() * MODES.length) ];
+      if (i % 6 === 3) {
+        const t = TIRES[Math.floor(Math.random() * TIRES.length)];
+        tireEl.textContent = t.v;
+      }
+      if (i % 7 === 4 && flagEl && flagPill) {
+        const f = FLAGS[Math.floor(Math.random() * FLAGS.length)];
+        flagEl.textContent = f.v;
+        flagPill.classList.toggle('rs-yellow', f.yellow);
+      }
+      setTimeout(tick, 2200 + Math.random() * 1800);
+    }
+    setTimeout(tick, 1400);
+  })();
+
+  const stages = document.querySelectorAll('.stage');
+  let idx = 3;
+  setInterval(() => {
+    stages.forEach(s => s.classList.remove('active'));
+    idx = (idx + 1) % stages.length;
+    stages[idx].classList.add('active');
+  }, 2600);
+
+  /* Scroll Cat — walks with you, tracks the cursor, topples, and meows on click */
+  (function () {
+    const cat = document.getElementById('scroll-cat');
+    if (!cat) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const bubble = cat.querySelector('.cat-bubble');
+    const eyes = cat.querySelectorAll('.cat-eye-wrapper');
+    const svg = cat.querySelector('.cat-svg');
+
+    let lastY = window.scrollY;
+    let toppleAccumulator = 0;
+    let toppling = false;
+    let hopping = false;
+    let idleTimer = null;
+    let mouseX = null, mouseY = null;
+    let bubbleTimer = null;
+
+    const CAT_MARGIN = 24;
+    const TOPPLE_THRESHOLD = 900;
+    const MEOWS = ['meow~', 'purr', 'mrrp', 'nya~', ':3', 'hi!'];
+    const MAX_PUPIL_OFFSET = 1.4;
+
+    function showBubble(text, duration = 1400) {
+      bubble.textContent = text;
+      bubble.classList.remove('show');
+      void bubble.offsetWidth;
+      bubble.classList.add('show');
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(() => bubble.classList.remove('show'), duration);
+    }
+    window.__catSay = showBubble;
+
+    function updateEyes() {
+      if (toppling || hopping) return;
+      if (mouseX === null) return;
+      const rect = cat.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const flipped = cat.classList.contains('reversed');
+      const faceX = rect.left + 0.63 * rect.width;
+      const faceY = rect.top + 0.44 * rect.height;
+      let dx = mouseX - faceX;
+      let dy = mouseY - faceY;
+      const mag = Math.hypot(dx, dy);
+      if (mag < 1) {
+        eyes[0].style.transform = '';
+        eyes[1].style.transform = '';
+        return;
+      }
+      const nx = dx / mag;
+      const ny = dy / mag;
+      const sx = flipped ? -1 : 1;
+      const tx = sx * nx * MAX_PUPIL_OFFSET;
+      const ty = ny * MAX_PUPIL_OFFSET;
+      eyes[0].style.transform = `translate(${tx}px, ${ty}px)`;
+      eyes[1].style.transform = `translate(${tx}px, ${ty}px)`;
+    }
+
+    function resetEyes() {
+      eyes[0].style.transform = '';
+      eyes[1].style.transform = '';
+    }
+
+    function updateCat() {
+      const y = window.scrollY;
+      const delta = y - lastY;
+      const absDelta = Math.abs(delta);
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(1, Math.max(0, y / scrollable)) : 0;
+
+      const catWidth = cat.offsetWidth;
+      const maxLeft = window.innerWidth - catWidth - CAT_MARGIN;
+      cat.style.left = (CAT_MARGIN + (maxLeft - CAT_MARGIN) * progress) + 'px';
+
+      if (delta > 0) cat.classList.remove('reversed');
+      else if (delta < -2) cat.classList.add('reversed');
+
+      if (!toppling && !hopping && absDelta > 1) {
+        cat.classList.add('walking');
+        toppleAccumulator += absDelta;
+        if (toppleAccumulator > TOPPLE_THRESHOLD) {
+          toppleAccumulator = 0;
+          topple();
+        }
+      }
+
+      lastY = y;
+
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { cat.classList.remove('walking'); }, 160);
+
+      updateEyes();
+    }
+
+    function topple() {
+      if (toppling) return;
+      toppling = true;
+      cat.classList.remove('walking');
+      cat.classList.add('toppling');
+      resetEyes();
+      showBubble('!', 1400);
+      setTimeout(() => {
+        cat.classList.remove('toppling');
+        toppling = false;
+      }, 1500);
+    }
+
+    function hop() {
+      if (toppling || hopping) return;
+      hopping = true;
+      cat.classList.remove('walking');
+      cat.classList.add('hopping');
+      resetEyes();
+      showBubble(MEOWS[Math.floor(Math.random() * MEOWS.length)], 1400);
+      if (typeof __playMeow === 'function') __playMeow();
+      setTimeout(() => {
+        cat.classList.remove('hopping');
+        hopping = false;
+      }, 550);
+    }
+
+    let scrollTicking = false;
+    window.addEventListener('scroll', () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(() => { updateCat(); scrollTicking = false; });
+        scrollTicking = true;
+      }
+    }, { passive: true });
+
+    let mouseTicking = false;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (!mouseTicking) {
+        requestAnimationFrame(() => { updateEyes(); mouseTicking = false; });
+        mouseTicking = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+      mouseX = mouseY = null;
+      resetEyes();
+    });
+
+    svg.addEventListener('click', hop);
+
+    updateCat();
+  })();
+
+  /* Bug Hunt — click falling error codes to catch bad data before it hits your pipeline */
+  (function BugHunt() {
+    const hud = document.getElementById('bug-hud');
+    if (!hud) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const countEl = document.getElementById('bug-count');
+    const bestEl  = document.getElementById('bug-best');
+    const bestRow = document.getElementById('bug-best-row');
+    const comboEl = document.getElementById('bug-combo');
+    const hintEl  = document.getElementById('bug-hint');
+    const closeBtn = hud.querySelector('.hud-close');
+
+    const BUGS = [
+      'NULL_0x3F', 'SCHEMA_ERR', 'TIMEOUT_ERR', 'TYPE_ERR!',
+      'MISMATCH[3]', 'DUP_GUID!', 'ORPHAN_ROW', '0xFF_BRK',
+      '???_FEED', 'STAGE_FAIL', 'CAST_ERR', 'NULL_KEY', 'DRIFT_WARN',
+      'NAN_ROW', '0xa8_BROK'
+    ];
+    const RARE_BUGS = ['!CORRUPT!', 'DATA_LOSS', 'KAFKA_LOST', 'SCHEMA_DRIFT'];
+    const CAT_REACTIONS = ['wow!', 'nice!', 'purr~', 'meow!'];
+
+    const STORAGE_KEY = 'bugHuntBest';
+    const toHex = n => '0x' + n.toString(16).toUpperCase().padStart(2, '0');
+
+    let score = 0;
+    let best = 0;
+    try { best = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0; } catch (_) {}
+    let combo = 0;
+    let comboTimer = null;
+    let spawnTimer = null;
+    let active = true;
+    let started = false;
+    let firstCatch = true;
+
+    function updateHud() {
+      countEl.textContent = toHex(score);
+      bestEl.textContent  = toHex(best);
+      bestRow.style.display = best > 0 ? '' : 'none';
+    }
+
+    function popValue(el) {
+      el.classList.remove('pop');
+      void el.offsetWidth;
+      el.classList.add('pop');
+    }
+
+    function spawnBug() {
+      if (!active) return;
+      const activeBugs = document.querySelectorAll('.bug-drop:not(.popping)').length;
+      if (activeBugs >= 2) { scheduleNextSpawn(); return; }
+
+      const isRare = Math.random() < 0.09;
+      const pool = isRare ? RARE_BUGS : BUGS;
+      const code = pool[Math.floor(Math.random() * pool.length)];
+
+      const bug = document.createElement('div');
+      bug.className = 'bug-drop' + (isRare ? ' rare' : '');
+      bug.dataset.value = isRare ? '5' : '1';
+      bug.textContent = code;
+
+      const w = window.innerWidth;
+      let leftPct;
+      if (w > 1240) {
+        leftPct = Math.random() < 0.5
+          ? 1 + Math.random() * 7
+          : 92 + Math.random() * 7;
+      } else if (w > 900) {
+        leftPct = Math.random() < 0.5
+          ? 2 + Math.random() * 12
+          : 86 + Math.random() * 12;
+      } else {
+        leftPct = 6 + Math.random() * 82;
+      }
+      bug.style.left = leftPct + '%';
+
+      const tilt = (Math.random() - 0.5) * 14;
+      bug.style.setProperty('--tilt', tilt + 'deg');
+      const fallDur = (isRare ? 18 : 22) + Math.random() * 8;
+      bug.style.setProperty('--fall-duration', fallDur + 's');
+
+      bug.addEventListener('click', catchBug);
+      document.body.appendChild(bug);
+
+      const missTimer = setTimeout(() => {
+        if (bug.parentNode && !bug.classList.contains('popping')) {
+          bug.remove();
+          resetCombo();
+        }
+      }, fallDur * 1000 + 200);
+      bug._missTimer = missTimer;
+
+      scheduleNextSpawn();
+    }
+
+    function scheduleNextSpawn() {
+      clearTimeout(spawnTimer);
+      const nextIn = 5500 + Math.random() * 6500;
+      spawnTimer = setTimeout(spawnBug, nextIn);
+    }
+
+    function catchBug(e) {
+      const bug = e.currentTarget;
+      if (bug.classList.contains('popping')) return;
+      clearTimeout(bug._missTimer);
+
+      const val = parseInt(bug.dataset.value, 10) || 1;
+      const isRare = bug.classList.contains('rare');
+
+      score += val;
+      if (score > best) {
+        best = score;
+        try { localStorage.setItem(STORAGE_KEY, String(best)); } catch (_) {}
+      }
+      updateHud();
+      popValue(countEl);
+
+      combo += 1;
+      clearTimeout(comboTimer);
+      if (combo >= 3) {
+        comboEl.textContent = combo + '\u00d7 combo!';
+        comboEl.classList.remove('active');
+        void comboEl.offsetWidth;
+        comboEl.classList.add('active');
+      }
+      comboTimer = setTimeout(resetCombo, 8000);
+
+      const rect = bug.getBoundingClientRect();
+      const float = document.createElement('div');
+      float.className = 'score-float' + (isRare ? ' rare' : '');
+      float.textContent = '+' + val;
+      float.style.left = (rect.left + rect.width / 2 - 10) + 'px';
+      float.style.top = (rect.top - 6) + 'px';
+      document.body.appendChild(float);
+      setTimeout(() => float.remove(), 900);
+
+      if (firstCatch) {
+        firstCatch = false;
+        hintEl.classList.add('gone');
+      }
+
+      if (isRare) {
+        if (typeof __playChime === 'function') __playChime();
+        if (typeof window.__catSay === 'function') {
+          window.__catSay(CAT_REACTIONS[Math.floor(Math.random() * CAT_REACTIONS.length)], 1400);
+        }
+      } else {
+        if (typeof __playBlip === 'function') __playBlip();
+      }
+
+      bug.classList.add('popping');
+      setTimeout(() => bug.remove(), 450);
+    }
+
+    function resetCombo() {
+      combo = 0;
+      comboEl.classList.remove('active');
+    }
+
+    closeBtn.addEventListener('click', () => {
+      active = false;
+      clearTimeout(spawnTimer);
+      clearTimeout(comboTimer);
+      document.querySelectorAll('.bug-drop').forEach(b => b.remove());
+      hud.classList.remove('show');
+      hud.setAttribute('aria-hidden', 'true');
+    });
+
+    function start() {
+      if (started || !active) return;
+      started = true;
+      updateHud();
+      hud.classList.add('show');
+      hud.setAttribute('aria-hidden', 'false');
+      setTimeout(spawnBug, 3000);
+    }
+
+    // Debug game is opt-in only — no auto-start; kept in code for a future toggle
+    // setTimeout(start, 6000);
+    // window.addEventListener('scroll', () => { if (window.scrollY > 200) start(); }, { passive: true });
+  })();
+
+  /* ---------- Chatbot v2: context-aware + optional Groq LLM ---------- */
+  (function ChatBot() {
+    const widget       = document.getElementById('chat-widget');
+    if (!widget) return;
+    const toggle       = document.getElementById('chat-toggle');
+    const closeBtn     = document.getElementById('chat-close');
+    const muteBtn      = document.getElementById('chat-mute');
+    const settingsBtn  = document.getElementById('chat-settings');
+    const settingsPane = document.getElementById('chat-settings-pane');
+    const groqInput    = document.getElementById('groq-key-input');
+    const groqSave     = document.getElementById('groq-save');
+    const groqClear    = document.getElementById('groq-clear');
+    const groqStatus   = document.getElementById('groq-status');
+    const titleEl      = document.getElementById('chat-title-el');
+    const messagesEl   = document.getElementById('chat-messages');
+    const quickEl      = document.getElementById('chat-quick');
+    const form         = document.getElementById('chat-form');
+    const input        = document.getElementById('chat-text');
+
+    const SPEAKER_ON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+    const SPEAKER_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+
+    // ================= Knowledge Base =================
+    // Each topic has: keywords, summary, optional detail (for "tell me more"), followUps.
+    const TOPICS = {
+      hello: {
+        keywords: ['hi', 'hello', 'hey', 'yo', 'hola', 'namaste', 'sup', 'howdy'],
+        summary: ["meow! what would you like to know?", "*yawns* hey. what's on your mind?", "hi there. type a question or click one of the chips below."],
+        followUps: ['who is kholood?', 'her work', 'projects', 'contact']
+      },
+      who: {
+        keywords: ['who', 'about', 'yourself', 'kholood', 'introduce', 'tell me who', 'her name', 'sajid'],
+        summary: "*preens* kholood jenan sajid — data engineer at amdocs, based in pune, india. B.Tech IT from bharati vidyapeeth (CGPA 9.64). she builds pipelines that don't wake anyone up at 3 AM, and she's currently *open to work*.",
+        detail: "she started with backend + DSA (250+ LeetCode, a scrappy 3rd place in a 2024 coding challenge), realized the *most interesting bug in any system is usually a data bug*, and now lives in the unglamorous middle of the stack — staging layers, data lakes, validation.",
+        followUps: ['her work', 'her stack', 'her story', 'contact']
+      },
+      work: {
+        keywords: ['work', 'job', 'amdocs', 'current', 'role', 'position', 'company', 'employer', 'day job'],
+        summary: "at amdocs (aug 2024 → present), she's a data engineer shipping production pipelines on snowflake, azure & python for high-volume transactional workloads.",
+        detail: "specifically: she landed 10+ upstream feeds (payments, tax, inventory, revenue) into a snowflake data lake via azure blob and SFTP. built 20+ automated QC + risk validation checks that cut production data defects. tuned ETL and complex joins to reduce end-to-end latency. also owns SPN-based auth so pipelines run fully automated across environments — no human in the loop.",
+        followUps: ['tell me more', 'her stack', 'the metrics', 'other projects']
+      },
+      skills: {
+        keywords: ['skill', 'stack', 'tech', 'tool', 'language', 'framework', 'expertise', 'proficient'],
+        summary: "her stack:\n· data — snowflake, ETL, data lake, pyspark, pandas, numpy\n· cloud — azure blob/SFTP, CI/CD, SPN auth, databricks, TWS scheduler\n· languages — python, SQL, typescript, C++ STL\n· backend — spring boot, REST APIs, microservices, event-driven",
+        detail: "plus AI-adjacent: langchain, tensorflow. and DSA is solid — 250+ LeetCode problems, ranked 3rd in a 2024 coding challenge. she also holds certs from anthropic (AI fluency), langchain (deeplearning.ai), databricks fundamentals, and azure AI-900.",
+        followUps: ['her certs', 'her data specialty', 'projects']
+      },
+      projects: {
+        keywords: ['project', 'portfolio', 'case', 'study', 'built', 'shipped', 'made', 'created'],
+        summary: "5 case studies live on this site:\n1. amdocs enterprise data platform (snowflake, data lake)\n2. real-time analytics engine (C++ multi-threading @ BVP)\n3. officeslang — NLP jargon translator (1-month sprint)\n4. distributed event-driven order system (stripe integration)\n5. scalable scrapers @ let us code (95% accuracy)",
+        followUps: ['officeslang', 'the c++ project', 'order system', 'let us code']
+      },
+      officeslang: {
+        keywords: ['officeslang', 'offices lang', 'jargon', 'nlp translator'],
+        summary: "officeslang — a linguistic intelligence tool that translates dense workplace jargon into clear, human language. she shipped it end-to-end in a *one-month sprint*, from NLP prototyping to a usable interface.",
+        followUps: ['other projects', 'her NLP skills', 'why she built it']
+      },
+      realtime: {
+        keywords: ['real-time', 'real time', 'analytics engine', 'multi-thread', 'multithread', 'threading', 'c++ project', 'cpp'],
+        summary: "real-time analytics — a multi-threaded C++ engine at bharati vidyapeeth. focused on cache-friendly data structures, contention-aware locking, and tight STL usage to squeeze predictable performance out of commodity hardware. *where she learned to respect the CPU.*",
+        followUps: ['other projects', 'her C++ level', 'her stack']
+      },
+      order: {
+        keywords: ['order', 'stripe', 'event-driven', 'event driven', 'distributed', 'lifecycle', 'order system'],
+        summary: "a distributed event-driven order system — REST APIs, async task execution, full order lifecycle from placement to fulfillment. wired in stripe for real payment capture. streaming-style architecture similar to kafka/event hub.",
+        followUps: ['other projects', 'why event-driven', 'her backend stack']
+      },
+      lus: {
+        keywords: ['let us code', 'scrapy', 'scraper', 'mongodb', 'internship', 'intern'],
+        summary: "at let us code (nov 2023 → jul 2024), she built scalable scraping systems handling multi-category product datasets with 95% data accuracy. automated ingestion, optimized MongoDB storage for query performance and deduplication. *first taste of scale.*",
+        followUps: ['other projects', 'her mongodb', 'her python']
+      },
+      contact: {
+        keywords: ['contact', 'email', 'reach', 'phone', 'linkedin', 'call', 'dm', 'message', 'get in touch', 'how to contact'],
+        summary: "fastest ways to reach her:\n· sjkholood@gmail.com\n· linkedin.com/in/kholood-jenan-sajid\n· github.com/KholoodJenanSajid\n· +91 82998 19282\n\nshe's *open to work.*",
+        followUps: ['availability', 'resume', 'timezone']
+      },
+      resume: {
+        keywords: ['resume', 'cv', 'download resume'],
+        summary: "her resume is on linkedin — /in/kholood-jenan-sajid. or email sjkholood@gmail.com and she'll send the latest PDF directly.",
+        followUps: ['contact', 'her skills', 'her work']
+      },
+      hire: {
+        keywords: ['hire', 'hiring', 'available', 'opportunit', 'open to work', 'onboard', 'looking for'],
+        summary: "she's very much open to work — data engineering, ETL, snowflake, real-time systems, or anything at the intersection of code and messy data. email sjkholood@gmail.com or ping /in/kholood-jenan-sajid on linkedin.",
+        followUps: ['contact', 'her stack', 'her location']
+      },
+      location: {
+        keywords: ['where', 'location', 'based', 'pune', 'city', 'india', 'remote', 'onsite', 'hybrid', 'timezone'],
+        summary: "pune, india (IST, UTC+5:30). open to on-site, hybrid, or remote — depending on the role.",
+        followUps: ['contact', 'availability']
+      },
+      education: {
+        keywords: ['education', 'study', 'degree', 'college', 'university', 'school', 'cgpa', 'bharati', 'leetcode', 'graduated'],
+        summary: "B.Tech in Information Technology from Bharati Vidyapeeth Deemed University, pune. CGPA 9.64. graduated may 2024. she also solved 250+ LeetCode problems and ranked 3rd in a 2024 coding challenge.",
+        followUps: ['her stack', 'certs', 'work history']
+      },
+      certs: {
+        keywords: ['cert', 'certification', 'langchain', 'anthropic', 'databricks', 'azure ai', 'ambassador', 'ai fluency'],
+        summary: "her certs:\n· AI Fluency — Anthropic (Apr 2026)\n· Functions, Tools & Agents — LangChain / DeepLearning.AI (Jul 2025)\n· Databricks Fundamentals\n· Azure AI-900 — Microsoft\n· Microsoft Learn Student Ambassador (Nov 2021)",
+        followUps: ['her stack', 'her AI experience', 'projects']
+      },
+      snowflake: {
+        keywords: ['snowflake'],
+        summary: "snowflake is her daily driver at amdocs. she designs staging layers, tunes complex joins on large datasets, and handles cross-schema GUID mapping across payments, tax, inventory, and revenue feeds.",
+        followUps: ['amdocs work', 'her SQL level', 'other data tools']
+      },
+      pipeline: {
+        keywords: ['pipeline', 'ingest', 'etl', 'stage', 'data lake', 'transform', 'validate', 'kafka', 'event hub', 'streaming', 'ingestion'],
+        summary: "she builds ingestion pipelines for high-volume transactional data — SFTP/blob → snowflake staging → transformation → QC → downstream. every hop has validation. see the live pipeline chip at the top of the page.",
+        detail: "the QC layer is where she spends real energy — schema drift checks, null-key guards, duplicate GUID detection, cross-schema mapping validation. the goal is a pipeline that fails loudly and early, never silently.",
+        followUps: ['more detail', 'the QC checks', 'amdocs']
+      },
+      data: {
+        keywords: ['data', 'data eng', 'data engineering'],
+        summary: "data engineering is her main gig. she thinks the *most interesting bugs are data bugs*, and lives in the unglamorous middle of the stack — staging layers, data lakes, validation. the small checks between raw upstream files and dashboards someone actually trusts.",
+        followUps: ['her stack', 'amdocs', 'projects']
+      },
+      python: {
+        keywords: ['python', 'py'],
+        summary: "python is her primary daily language — at amdocs for ETL and validation, and across all her projects. she uses pandas, numpy, pyspark, and scrapy. also solid on OOP principles from her internship.",
+        followUps: ['her stack', 'other languages', 'projects']
+      },
+      values: {
+        keywords: ['why', 'philosophy', 'values', 'approach', 'opinion', 'believe', 'principle', 'philosophy'],
+        summary: "she likes *pipelines that fail loudly*, code that reads like prose, and systems where the next engineer — including future her — doesn't need a map to change something.",
+        followUps: ['her story', 'projects', 'her stack']
+      },
+      story: {
+        keywords: ['story', 'journey', 'how did', 'started', 'begin', 'origin', 'path', 'background'],
+        summary: "she fell into data by accident, then obsession. started with backend + DSA (250+ LeetCode, a scrappy 3rd place in a 2024 coding challenge), then realized the *most interesting bug in any system is usually a data bug*. now she lives in the unglamorous middle of the stack.",
+        followUps: ['her values', 'projects', 'her work']
+      },
+      cat: {
+        keywords: ['cat', 'kitty', 'kitten', 'feline', 'paw', 'meow', 'purr', 'mascot'],
+        summary: "*preens* yes, I'm the cat. I walk when you scroll, topple when you scroll too much, and my eyes follow your cursor. try clicking me — I'll actually meow now. try scrolling fast. try catching the falling red bugs.",
+        followUps: ['about kholood', 'debug mode', 'her projects']
+      },
+      bugs: {
+        keywords: ['bug', 'debug', 'game', 'catch', 'squash', 'highscore', 'score', 'error codes'],
+        summary: "the falling error codes? that's Debug Mode — click them to squash bad data. green ★ bugs are rare, worth +5 each, and I get excited when you catch them. your highscore is saved in your browser.",
+        followUps: ['about kholood', 'the cat', 'her projects']
+      },
+      ai: {
+        keywords: ['ai', 'artificial intelligence', 'llm', 'gpt', 'chatbot', 'ml', 'machine learning', 'genai'],
+        summary: "her AI story is legit: langchain cert from deeplearning.ai, anthropic AI fluency, azure AI-900, plus tensorflow and pyspark in the stack. also, well, she built me — and I'm a chatbot, so.",
+        detail: "if you paste a Groq API key in the settings (gear icon top-right of this chat), I'll actually run on llama 3.3 70B and get properly smart. right now I'm running on carefully-hand-written rules.",
+        followUps: ['her certs', 'her stack', 'projects']
+      },
+      hobbies: {
+        keywords: ['hobby', 'hobbies', 'free time', 'weekend', 'fun', 'outside work', 'personal', 'interest'],
+        summary: "besides work? competitive programming (LeetCode is a habit), reading, and apparently building small pipelines for fun. also: adopted me. clearly a person of taste.",
+        followUps: ['her story', 'projects', 'why data eng']
+      },
+      site: {
+        keywords: ['site', 'website', 'portfolio site', 'this page', 'this website'],
+        summary: "this site is hand-built — HTML/CSS/vanilla JS, no framework. dark editorial theme (instrument serif + jetbrains mono + inter + a bit of caveat). the pipeline chip, the falling bugs, the cat, and me are all custom.",
+        followUps: ['who is kholood?', 'the cat', 'debug mode']
+      },
+      thanks: {
+        keywords: ['thank', 'thanks', 'ty', 'appreciate'],
+        summary: ["*purrs* anytime~ come back if you have more questions.", "you're welcome. tell kholood I said hi."],
+        followUps: ['contact', 'resume', 'projects']
+      },
+      bye: {
+        keywords: ['bye', 'cya', 'later', 'goodbye', 'gotta go', 'ttyl'],
+        summary: "*stretches* bye~ don't forget to say hi to kholood if you like what you see.",
+        followUps: []
+      },
+      smalltalk: {
+        keywords: ['how are you', "what's up", 'whats up', "how's it going", 'hows it going', 'how do you do'],
+        summary: "*yawns* just watching everyone scroll through the site. you?",
+        followUps: ['about kholood', 'the site', 'the cat']
+      },
+      joke: {
+        keywords: ['joke', 'funny', 'humor', 'make me laugh'],
+        summary: ["why did the SQL developer go to therapy?\n\nbecause they had too many *inner join* issues.\n\n*licks paw smugly*", "how many data engineers does it take to change a lightbulb?\n\nnone. it's a hardware problem. *ignores you*"],
+        followUps: ['another one', 'about kholood', 'her work']
+      },
+      you: {
+        keywords: ['what are you', 'who are you', "you're a bot", 'chatbot', 'are you real'],
+        summary: "*preens* I am a very-official cat spokesperson written in vanilla JavaScript. I know a lot about kholood. what's your question?",
+        followUps: ['who is kholood?', 'the site', 'the cat']
+      }
+    };
+
+    // ================= Utilities =================
+    function levenshtein(a, b) {
+      if (a === b) return 0;
+      const al = a.length, bl = b.length;
+      if (al === 0) return bl;
+      if (bl === 0) return al;
+      let prev = new Array(bl + 1);
+      for (let i = 0; i <= bl; i++) prev[i] = i;
+      for (let i = 1; i <= al; i++) {
+        const cur = [i];
+        for (let j = 1; j <= bl; j++) {
+          cur[j] = Math.min(
+            prev[j] + 1,
+            cur[j - 1] + 1,
+            prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+          );
+        }
+        prev = cur;
+      }
+      return prev[bl];
+    }
+
+    function fuzzyHit(text, keyword) {
+      const kw = keyword.toLowerCase();
+      const t = text.toLowerCase();
+      if (t.includes(kw)) return 2;
+      if (kw.length < 4) return 0;
+      const words = t.split(/\s+/);
+      for (const w of words) {
+        if (Math.abs(w.length - kw.length) > 2) continue;
+        if (levenshtein(w, kw) <= 1) return 1;
+      }
+      return 0;
+    }
+
+    const pick = arr => Array.isArray(arr) ? arr[Math.floor(Math.random() * arr.length)] : arr;
+
+    // ================= Classifier =================
+    let lastTopic = null;
+    let history = []; // {role, content}
+
+    const CONTINUATION_RE = /^(more|tell me more|elaborate|why|how|expand|continue|and\??|go on|okay and|ok and)\b/i;
+
+    function classify(text) {
+      const clean = text.toLowerCase().trim();
+      if (CONTINUATION_RE.test(clean) && lastTopic) {
+        return { key: lastTopic, isDetail: true };
+      }
+      let best = null, bestScore = 0;
+      for (const [key, topic] of Object.entries(TOPICS)) {
+        let score = 0;
+        for (const kw of topic.keywords) {
+          const hit = fuzzyHit(clean, kw);
+          // longer keywords weigh more
+          score += hit * Math.min(3, Math.ceil(kw.length / 4));
+        }
+        if (score > bestScore) { bestScore = score; best = key; }
+      }
+      return { key: best, score: bestScore, isDetail: false };
+    }
+
+    function respondRules(text) {
+      const { key, isDetail } = classify(text);
+      if (!key) return null;
+      const topic = TOPICS[key];
+      lastTopic = key;
+      const body = isDetail && topic.detail ? topic.detail : topic.summary;
+      return { text: pick(body), followUps: topic.followUps || [] };
+    }
+
+    function fallbackReply(text) {
+      const clean = text.toLowerCase();
+      // Try to be helpful: guess based on partial hits
+      const guesses = [];
+      for (const [key, topic] of Object.entries(TOPICS)) {
+        for (const kw of topic.keywords) {
+          if (kw.length >= 3 && (clean.includes(kw.slice(0, 3)) || fuzzyHit(clean, kw))) {
+            guesses.push(key); break;
+          }
+        }
+      }
+      const hint = guesses.length > 0
+        ? "did you mean something about *" + guesses.slice(0, 2).join('* or *') + "*? "
+        : "";
+      return {
+        text: hint + "*tilts head* I'm not sure I follow. try one of these:",
+        followUps: ['who is kholood?', 'her work', 'skills', 'projects', 'contact']
+      };
+    }
+
+    // ================= Renderer =================
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function formatMsg(s) {
+      return escapeHtml(s).replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+    }
+    function addMessage(text, who) {
+      const msg = document.createElement('div');
+      msg.className = 'msg ' + who;
+      msg.innerHTML = formatMsg(text);
+      messagesEl.appendChild(msg);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      history.push({ role: who === 'user' ? 'user' : 'assistant', content: text });
+      if (history.length > 12) history = history.slice(-12);
+    }
+    function addTyping() {
+      const t = document.createElement('div');
+      t.className = 'typing';
+      t.id = 'typing-indicator';
+      t.innerHTML = '<span></span><span></span><span></span>';
+      messagesEl.appendChild(t);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    function removeTyping() {
+      const t = document.getElementById('typing-indicator');
+      if (t) t.remove();
+    }
+    function setChips(chips) {
+      quickEl.innerHTML = '';
+      if (!chips || !chips.length) { quickEl.classList.add('hidden'); return; }
+      quickEl.classList.remove('hidden');
+      chips.forEach(label => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quick-chip';
+        btn.textContent = label;
+        btn.addEventListener('click', () => ask(label));
+        quickEl.appendChild(btn);
+      });
+    }
+
+    // ================= Groq LLM =================
+    const GROQ_KEY_STORAGE = 'groqApiKey';
+    const GROQ_MODEL = 'llama-3.3-70b-versatile';
+    const GROQ_SYSTEM = [
+      "You are the cat mascot on Kholood Jenan Sajid's portfolio website. Speak in first person as her cat spokesperson. Be playful, warm, concise. Occasionally use *actions* like *purrs*, *tilts head*, *licks paw*. Use lowercase mostly. Keep replies under 4 short sentences unless asked for detail.",
+      "",
+      "About Kholood:",
+      "- Data Engineer at Amdocs (Aug 2024 → Present), based in Pune, India (IST, UTC+5:30)",
+      "- B.Tech IT from Bharati Vidyapeeth Deemed University (CGPA 9.64, graduated May 2024)",
+      "- Currently OPEN TO WORK",
+      "- Stack: Snowflake, Python, SQL, Azure Blob/SFTP, CI/CD, PySpark, Pandas, NumPy, Spring Boot, REST APIs, Microservices, Event-driven, C++ STL, TypeScript, MongoDB, Scrapy, TensorFlow, LangChain, TWS Scheduler",
+      "- At Amdocs: designed reusable pipelines landing 10+ upstream feeds (payments, tax, inventory, revenue) into a Snowflake data lake via Azure Blob/SFTP. Built 20+ automated QC + risk validation checks. Cut end-to-end latency. Uses SPN auth for zero-touch automated ingestion. Handles cross-schema GUID mapping.",
+      "- Projects (5 case studies):",
+      "  1. Amdocs enterprise data platform (Snowflake, data lake, ETL)",
+      "  2. Real-time analytics — multi-threaded C++ engine @ BVP",
+      "  3. OfficesLang — NLP jargon-to-clarity translator, shipped in a 1-month sprint",
+      "  4. Distributed event-driven order system with Stripe integration",
+      "  5. Scalable Scrapy-based scrapers @ Let Us Code Systems (2023-2024 intern), 95% accuracy, MongoDB storage",
+      "- Certifications: AI Fluency (Anthropic, Apr 2026), Functions/Tools/Agents on LangChain (DeepLearning.AI, Jul 2025), Databricks Fundamentals, Azure AI-900, Microsoft Learn Student Ambassador (Nov 2021)",
+      "- Contact: sjkholood@gmail.com · linkedin.com/in/kholood-jenan-sajid · github.com/KholoodJenanSajid · +91 82998 19282",
+      "- Also: 250+ LeetCode problems, 3rd place in a 2024 coding challenge",
+      "- Design values: 'pipelines that fail loudly, code that reads like prose, systems the next engineer doesn't need a map to change'",
+      "",
+      "If asked something you don't have info about, say so — DO NOT invent facts about her. Redirect to email sjkholood@gmail.com."
+    ].join('\n');
+
+    function getGroqKey() {
+      try { return localStorage.getItem(GROQ_KEY_STORAGE) || ''; } catch (_) { return ''; }
+    }
+    function setGroqKey(v) {
+      try {
+        if (v) localStorage.setItem(GROQ_KEY_STORAGE, v);
+        else   localStorage.removeItem(GROQ_KEY_STORAGE);
+      } catch (_) {}
+    }
+    function llmActive() { return !!getGroqKey(); }
+
+    async function askLLM(userMsg) {
+      const key = getGroqKey();
+      const msgs = [
+        { role: 'system', content: GROQ_SYSTEM },
+        ...history.slice(-8),
+        { role: 'user', content: userMsg }
+      ];
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: GROQ_MODEL, messages: msgs,
+          temperature: 0.75, max_tokens: 300, top_p: 0.95
+        })
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error('groq ' + res.status + ' ' + errText.slice(0, 120));
+      }
+      const data = await res.json();
+      return (data.choices && data.choices[0] && data.choices[0].message.content || '').trim();
+    }
+
+    // ================= Main ask handler =================
+    async function ask(text) {
+      const clean = text.trim();
+      if (!clean) return;
+      addMessage(clean, 'user');
+      input.value = '';
+      quickEl.classList.add('hidden');
+      addTyping();
+
+      // Rule-based classifier always runs (for chips)
+      const ruleResult = respondRules(clean);
+
+      if (llmActive()) {
+        try {
+          const reply = await askLLM(clean);
+          removeTyping();
+          if (!reply) throw new Error('empty reply');
+          addMessage(reply, 'bot');
+          setChips(ruleResult ? ruleResult.followUps : ['who is kholood?', 'her work', 'skills', 'contact']);
+          return;
+        } catch (e) {
+          console.warn('LLM failed, falling back to rules:', e.message);
+          setGroqStatus('LLM failed — using rule-based · check your key', 'error');
+          // fall through to rule-based
+        }
+      }
+
+      const delay = 380 + Math.random() * 420;
+      setTimeout(() => {
+        removeTyping();
+        const reply = ruleResult || fallbackReply(clean);
+        addMessage(reply.text, 'bot');
+        setChips(reply.followUps);
+      }, delay);
+    }
+
+    // ================= Settings =================
+    function refreshAiBadge() {
+      if (llmActive()) titleEl.classList.add('ai-active');
+      else titleEl.classList.remove('ai-active');
+    }
+    function setGroqStatus(msg, type) {
+      groqStatus.textContent = msg;
+      groqStatus.classList.remove('active', 'error');
+      if (type === 'active') groqStatus.classList.add('active');
+      if (type === 'error')  groqStatus.classList.add('error');
+    }
+    function refreshSettings() {
+      const key = getGroqKey();
+      if (key) {
+        groqInput.value = key.slice(0, 6) + '••••' + key.slice(-4);
+        setGroqStatus('LLM active · llama 3.3 70B via groq', 'active');
+      } else {
+        groqInput.value = '';
+        setGroqStatus('no key set · using rule-based responses', null);
+      }
+      refreshAiBadge();
+    }
+    settingsBtn.addEventListener('click', () => {
+      settingsPane.hidden = !settingsPane.hidden;
+      if (!settingsPane.hidden) {
+        refreshSettings();
+        setTimeout(() => groqInput.focus(), 100);
+      }
+    });
+    groqSave.addEventListener('click', () => {
+      const v = groqInput.value.trim();
+      if (!v || v.includes('••••')) { setGroqStatus('paste a valid key first', 'error'); return; }
+      if (!v.startsWith('gsk_')) { setGroqStatus('groq keys start with "gsk_"', 'error'); return; }
+      setGroqKey(v);
+      refreshSettings();
+      settingsPane.hidden = true;
+    });
+    groqClear.addEventListener('click', () => {
+      setGroqKey('');
+      refreshSettings();
+    });
+
+    // ================= Open / close / etc =================
+    const OPENING_LINE = "*stretches* meow~ I'm kholood's very official spokescat. ask me anything about her — work, projects, or how to reach her.";
+    const INITIAL_CHIPS = ['who is kholood?', 'her work', 'skills', 'projects', 'contact'];
+    let opened = false;
+    function openChat() {
+      widget.classList.add('open');
+      if (!opened) {
+        opened = true;
+        addMessage(OPENING_LINE, 'bot');
+        setChips(INITIAL_CHIPS);
+        if (typeof __playMeow === 'function') __playMeow();
+      }
+      setTimeout(() => input.focus(), 260);
+    }
+    function closeChat() { widget.classList.remove('open'); }
+
+    function refreshMuteBtn() {
+      muteBtn.innerHTML = __muted ? SPEAKER_OFF : SPEAKER_ON;
+      muteBtn.setAttribute('title', __muted ? 'Sound off — click to enable' : 'Sound on — click to mute');
+    }
+    refreshMuteBtn();
+    refreshAiBadge();
+
+    toggle.addEventListener('click', openChat);
+    closeBtn.addEventListener('click', closeChat);
+    muteBtn.addEventListener('click', () => {
+      __setMuted(!__muted);
+      refreshMuteBtn();
+      if (!__muted && typeof __playBlip === 'function') __playBlip();
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      ask(input.value);
+    });
+  })();
+</script>
+
+<script>
+/* ---------- F1 Aero / CFD kinetics ----------------------------------------
+   Not a decoration — an actual (toy) fluid simulation:
+     • Base horizontal wind flow (left → right)
+     • Migrating vortex sources create swirling eddies
+     • Cursor = aero body: particles curve around and shed a wake
+     • Streamlines: each particle draws a velocity vector (length ∝ speed)
+     • Heat-map coloring by speed (deep amber → gold → white → red)
+     • Motion-blur trails via destination-out fade (CFD-standard rendering)
+     • Click = "throttle blip": velocity injection + vortex + spark burst
+     • Live telemetry HUD (V.AVG, V.MAX, N, Θ, Re, STATE)
+   Respects prefers-reduced-motion. Pauses on tab hide.
+---------------------------------------------------------------------------- */
+(() => {
+  const canvas = document.getElementById('particle-canvas');
+  if (!canvas) return;
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let W = 0, H = 0;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', () => {
+    resize();
+    // Reposition vortices proportionally so the flow field doesn't drift off-screen
+    vortices.forEach(v => { v.x = v.rx * W; v.y = v.ry * H; });
+  });
+
+  const isMobile = W < 640;
+  const N = isMobile ? 140 : Math.min(380, Math.floor((W * H) / 4200));
+
+  // ---- Aero constants ----
+  const BASE_WIND = 0.55;          // left→right base flow (brighter, more visible)
+  const VISCOSITY = 0.985;         // per-frame velocity retention
+  const BODY_RADIUS = isMobile ? 60 : 90;   // cursor "aero body" radius
+  const TORCH_R = isMobile ? 130 : 200;
+
+  // ---- Vortex generators (create eddies in the flow) ----
+  // Each stores relative x/y so it scales with viewport.
+  const vortices = [];
+  const VORTEX_COUNT = isMobile ? 2 : 4;
+  for (let i = 0; i < VORTEX_COUNT; i++) {
+    const rx = 0.15 + Math.random() * 0.7;
+    const ry = 0.15 + Math.random() * 0.7;
+    vortices.push({
+      rx: rx, ry: ry,
+      x: rx * W, y: ry * H,
+      strength: (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.random() * 0.8),
+      radius: 180 + Math.random() * 180,
+      driftX: (Math.random() - 0.5) * 0.05,
+      driftY: (Math.random() - 0.5) * 0.05,
+      life: Infinity   // permanent ambient vortices
+    });
+  }
+
+  // ---- Text obstacles — hero copy that air flows around ----
+  // Read the bounding rects of any element with class `.flow-obstacle`.
+  // Refreshed on scroll & resize so the flow tracks the layout live.
+  const obstacles = [];
+  function refreshObstacles() {
+    obstacles.length = 0;
+    document.querySelectorAll('.flow-obstacle').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 20 || r.height < 12) return;
+      if (r.bottom < -80 || r.top > H + 80) return;   // off-screen skip
+      const padX = 18, padY = 12;
+      obstacles.push({
+        cx: r.left + r.width * 0.5,
+        cy: r.top  + r.height * 0.5,
+        rx: r.width * 0.5 + padX,
+        ry: r.height * 0.5 + padY
+      });
+    });
+  }
+  refreshObstacles();
+  window.addEventListener('scroll',  refreshObstacles, { passive: true });
+  window.addEventListener('resize',  refreshObstacles);
+  // Also refresh once fonts have settled (elements shift after webfont load)
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(refreshObstacles);
+  }
+
+  // ---- Particle streamlines ----
+  const particles = [];
+  for (let i = 0; i < N; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: BASE_WIND + Math.random() * 0.4,
+      vy: (Math.random() - 0.5) * 0.3,
+      life: 0.7 + Math.random() * 0.6
+    });
+  }
+
+  const mouse = { x: W * 0.5, y: H * 0.5, active: false, vx: 0, vy: 0 };
+  const sparks = [];
+  const MAX_SPARKS = 120;
+
+  // Public API: spawn a burst of sparks at (x, y) — used by scroll reveal.
+  window.__flowBurst = function (x, y, count) {
+    const n = count || 18;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const s = 2.5 + Math.random() * 5;
+      sparks.push({
+        x: x, y: y,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s,
+        life: 1,
+        hot: 1
+      });
+    }
+    while (sparks.length > MAX_SPARKS) sparks.shift();
+  };
+
+  // Scroll velocity → drives turbine spin AND cinematic camera tilt
+  let scrollVel = 0;                 // magnitude, decays each frame
+  let __scrollSigned = 0;            // signed delta (down positive), decays each frame
+  let __lastScrollY = window.scrollY || 0;
+  // Cache the LAP number readouts (dial + race-status strip)
+  const __dialLapNum = document.getElementById('dialLapNum');
+  const __rsLap      = document.getElementById('rsLap');
+  const __rsTotal    = document.querySelector('.rs-pill.rs-lap .rs-total');
+  const __sections   = Array.from(document.querySelectorAll('section.reveal, header.hero'));
+  // Set total lap count once
+  if (__rsTotal) __rsTotal.textContent = String(__sections.length).padStart(2, '0');
+  window.addEventListener('scroll', () => {
+    const cur = window.scrollY || 0;
+    const dy = cur - __lastScrollY;
+    scrollVel = Math.min(60, scrollVel + Math.abs(dy) * 0.9);
+    __scrollSigned = Math.max(-45, Math.min(45, __scrollSigned + dy * 0.6));
+    __lastScrollY = cur;
+    // Track rail lap progress: 0 → 100% mapped to document scroll range
+    const scrollMax = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+    const lapPct = Math.max(0, Math.min(100, (cur / scrollMax) * 100));
+    document.documentElement.style.setProperty('--lap-pct', lapPct.toFixed(2) + '%');
+    // Also expose numeric version for the dial arc dashoffset calc
+    document.documentElement.style.setProperty('--lap-pct-num', lapPct.toFixed(2));
+    // Current section number (1-based) for the LAP readout in dial + race-status
+    if (__sections.length) {
+      const viewportMid = cur + window.innerHeight * 0.5;
+      let idx = 1;
+      for (let i = 0; i < __sections.length; i++) {
+        const s = __sections[i];
+        if (s.offsetTop <= viewportMid) idx = i + 1;
+      }
+      const lapStr = String(Math.min(idx, 99)).padStart(2, '0');
+      if (__dialLapNum && __dialLapNum.textContent !== lapStr) __dialLapNum.textContent = lapStr;
+      if (__rsLap      && __rsLap.textContent      !== lapStr) __rsLap.textContent      = lapStr;
+    }
+  }, { passive: true });
+
+  // ---- The Car — cursor becomes an F1 car that drives through the wind ----
+  const car = {
+    x: W * 0.5, y: H * 0.5,   // eased position (follows cursor smoothly)
+    angle: 0,                  // radians — heading
+    targetAngle: 0,
+    speed: 0                   // pixels/frame
+  };
+  const CAR_LEN = 44;     // nose-to-tail length in pixels
+  const CAR_WID = 18;
+
+  // ---- Throttle: auto-derived from car speed ----
+  let throttle = 0;              // 0..1, target based on speed
+  let throttleSmoothed = 0;      // smoothed for physics use
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.vx = e.clientX - mouse.x;
+    mouse.vy = e.clientY - mouse.y;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    mouse.active = true;
+    if (Math.abs(mouse.vx) + Math.abs(mouse.vy) > 3) dismissHint();
+  }, { passive: true });
+  window.addEventListener('mouseleave', () => { mouse.active = false; });
+  window.addEventListener('touchmove', (e) => {
+    if (!e.touches.length) return;
+    const t = e.touches[0];
+    mouse.vx = t.clientX - mouse.x;
+    mouse.vy = t.clientY - mouse.y;
+    mouse.x = t.clientX;
+    mouse.y = t.clientY;
+    mouse.active = true;
+    dismissHint();
+  }, { passive: true });
+  window.addEventListener('touchend', () => { mouse.active = false; });
+
+  let running = true;
+  document.addEventListener('visibilitychange', () => {
+    running = !document.hidden;
+    if (running) { lastTime = performance.now(); requestAnimationFrame(loop); }
+  });
+
+  // ---- Heat-map palette by speed ----
+  // Deep amber → gold → white-hot → red glow at extremes
+  function speedColor(v, alpha) {
+    // v normalized 0..1 by mapping speed 0..10 → 0..1
+    const t = Math.min(1, v / 8);
+    let h, s, l;
+    if (t < 0.35) {
+      // amber → gold
+      const k = t / 0.35;
+      h = 32 + k * 10;      // 32→42
+      s = 65 + k * 20;      // 65→85
+      l = 40 + k * 22;      // 40→62
+    } else if (t < 0.75) {
+      // gold → white-hot
+      const k = (t - 0.35) / 0.4;
+      h = 42 + k * 12;      // 42→54
+      s = 85 - k * 5;
+      l = 62 + k * 28;      // 62→90
+    } else {
+      // white-hot → red-orange (blows out into red at high speed)
+      const k = (t - 0.75) / 0.25;
+      h = 54 - k * 40;      // 54→14 (into red)
+      s = 80 + k * 20;
+      l = 90 - k * 25;      // 90→65
+    }
+    return 'hsla(' + h + ',' + s + '%,' + l + '%,' + alpha + ')';
+  }
+
+  // ---- Broadcast ticker: telemetry rolls horizontally at the bottom ----
+  const tickerTrack = document.querySelector('#broadcast-ticker [data-ticker-track]');
+  const liveTelemetry = {
+    state: 'IDLE',
+    vavg: 0, vmax: 0, theta: 0, re: 0, n: 0,
+    narrator: 'freestream · warming up'
+  };
+  // Static F1-flavoured messages that always cycle through
+  const staticMessages = [
+    ['STATUS',   'STINT ACTIVE', 'live'],
+    ['SESSION',  'S01 · PIT WALL'],
+    ['TEAM',     'KJS · AMDOCS'],
+    ['STACK',    'SNOWFLAKE · AZURE · PYTHON'],
+    ['FEEDS',    '10+ UPSTREAM', 'live'],
+    ['QC',       '20+ CHECKS'],
+    ['UPTIME',   '95 → 100%', 'live'],
+    ['LAP',      '18 MO'],
+    ['LOCATION', 'PUNE · IST +05:30'],
+    ['MOTTO',    'PIPELINES THAT DON\u2019T WAKE ANYONE UP AT 3 AM']
+  ];
+
+  function buildTicker() {
+    if (!tickerTrack) return;
+    // Build the segment: live telemetry chips + static chips
+    const parts = [];
+    // Live values first
+    parts.push(['FLOW',   liveTelemetry.state, liveTelemetry.state === 'THROTTLE' ? 'hot' : (liveTelemetry.state === 'IDLE' ? 'live' : '')]);
+    parts.push(['V.AVG',  liveTelemetry.vavg + ' km/h']);
+    parts.push(['V.MAX',  liveTelemetry.vmax + ' km/h']);
+    parts.push(['Θ',      liveTelemetry.theta + '°']);
+    parts.push(['Re',     liveTelemetry.re]);
+    parts.push(['N',      liveTelemetry.n]);
+    parts.push(['//',     liveTelemetry.narrator]);
+    // Static chips
+    staticMessages.forEach(m => parts.push(m));
+
+    // Build one segment of HTML
+    const seg = parts.map(([k, v, cls]) =>
+      '<span class="ticker-item' + (cls ? ' ' + cls : '') + '">' +
+        '<span class="k">' + k + '</span>' +
+        '<span class="v">' + v + '</span>' +
+      '</span><span class="sep"></span>'
+    ).join('');
+    // Duplicate to enable seamless -50% translation loop
+    tickerTrack.innerHTML = seg + seg;
+  }
+
+  buildTicker();
+  // Rebuild the ticker text every 3 seconds so live values refresh without
+  // disrupting the CSS scroll animation.
+  setInterval(buildTicker, 3000);
+
+  let hudTick = 0;
+  let vAvgSmoothed = 0, vMaxSmoothed = 0, thetaSmoothed = 0;
+
+  // ---- Narrator: describes what's happening in plain English ----
+  let narratorHoldUntil = 0;
+  function say(text, holdMs) {
+    if (!hudEls.narrator) return;
+    hudEls.narrator.textContent = text;
+    hudEls.narrator.classList.add('event');
+    narratorHoldUntil = performance.now() + (holdMs || 1400);
+  }
+
+  // ---- First-load hint (auto-hide on first interaction) ----
+  const hintEl = document.getElementById('flow-hint');
+  let hintDismissed = false;
+  try { hintDismissed = localStorage.getItem('flowHintSeen') === '1'; } catch (_) {}
+  if (hintEl && !hintDismissed) {
+    setTimeout(() => hintEl.classList.add('show'), 1200);
+  }
+  function dismissHint() {
+    if (hintDismissed || !hintEl) return;
+    hintDismissed = true;
+    hintEl.classList.remove('show');
+    setTimeout(() => hintEl.remove(), 600);
+    try { localStorage.setItem('flowHintSeen', '1'); } catch (_) {}
+  }
+
+  // ---- Motion trail: the ONLY visible thing at the cursor position.
+  // No vehicle drawn — just a warm plume behind the cursor when it moves.
+  function drawMotionTrail(car, thr) {
+    if (thr < 0.03) return;
+    ctx.save();
+    ctx.translate(car.x, car.y);
+    ctx.rotate(car.angle);
+
+    const heatLen = 30 + thr * 60;
+    const g = ctx.createLinearGradient(0, 0, -heatLen, 0);
+    g.addColorStop(0,   'hsla(20, 100%, 62%, ' + Math.min(0.7, thr * 0.85) + ')');
+    g.addColorStop(0.5, 'hsla(40,  95%, 72%, ' + Math.min(0.4,  thr * 0.5)  + ')');
+    g.addColorStop(1,   'hsla(45,  95%, 80%, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(0, -3);
+    ctx.lineTo(-heatLen, -1.2);
+    ctx.lineTo(-heatLen,  1.2);
+    ctx.lineTo(0,  3);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  let lastTime = performance.now();
+
+  function loop(now) {
+    if (!running) return;
+    now = now || performance.now();
+    const dt = Math.min(now - lastTime, 33);
+    const ds = dt / 16;
+    lastTime = now;
+
+    // Motion-blur fade (CFD-standard render): erase pixels by a small alpha
+    // instead of clearing. Preserves streaks naturally.
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0,0,0,0.14)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // ---- Car update: ease toward cursor, angle follows velocity ----
+    car.x += (mouse.x - car.x) * 0.22;
+    car.y += (mouse.y - car.y) * 0.22;
+    const cvx = mouse.x - car.x + mouse.vx * 0.3;
+    const cvy = mouse.y - car.y + mouse.vy * 0.3;
+    car.speed = Math.hypot(mouse.vx, mouse.vy);       // instant cursor speed
+    if (Math.abs(cvx) + Math.abs(cvy) > 0.4) {
+      car.targetAngle = Math.atan2(cvy, cvx);
+    }
+    let dA = car.targetAngle - car.angle;
+    while (dA >  Math.PI) dA -= Math.PI * 2;
+    while (dA < -Math.PI) dA += Math.PI * 2;
+    car.angle += dA * 0.20;
+
+    // Engine combustion sparks — emitted from tailpipe when throttle is high
+    if (throttleSmoothed > 0.35 && Math.random() < throttleSmoothed * 0.6) {
+      const rearX = car.x - Math.cos(car.angle) * CAR_LEN * 0.55;
+      const rearY = car.y - Math.sin(car.angle) * CAR_LEN * 0.55;
+      const back = car.angle + Math.PI;
+      const jitter = (Math.random() - 0.5) * 0.9;
+      const spd = 3 + Math.random() * 4 + throttleSmoothed * 3;
+      sparks.push({
+        x: rearX, y: rearY,
+        vx: Math.cos(back + jitter) * spd,
+        vy: Math.sin(back + jitter) * spd,
+        life: 1,
+        hot: 1
+      });
+      while (sparks.length > MAX_SPARKS) sparks.shift();
+    }
+
+    // ---- Throttle auto-derived from car speed ----
+    // Cursor speed 0..30+ px/frame → throttle 0..1.4
+    const throttleTarget = Math.min(1.4, car.speed * 0.055);
+    throttle = throttleTarget;
+    throttleSmoothed = throttleSmoothed * 0.85 + throttle * 0.15;
+    if (throttleSmoothed < 0.002) throttleSmoothed = 0;
+
+    const windX = BASE_WIND * (1 + throttleSmoothed * 2.2);
+    const visc = VISCOSITY - throttleSmoothed * 0.005;
+
+    // Drift ambient vortices around
+    for (let i = vortices.length - 1; i >= 0; i--) {
+      const v = vortices[i];
+      if (v.life !== Infinity) {
+        v.life -= 0.006 * ds;
+        if (v.life <= 0) { vortices.splice(i, 1); continue; }
+      } else {
+        v.x += v.driftX * ds;
+        v.y += v.driftY * ds;
+        // Wrap
+        if (v.x < -100) v.x = W + 100;
+        else if (v.x > W + 100) v.x = -100;
+        if (v.y < -100) v.y = H + 100;
+        else if (v.y > H + 100) v.y = -100;
+      }
+    }
+
+    // ---- Physics + streamline draw ----
+    let vSum = 0, vMax = 0, thetaSum = 0;
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      // Base wind (left→right)
+      p.vx += windX * 0.04 * ds;
+
+      // Vortex forces (tangential — creates swirl)
+      for (let vi = 0; vi < vortices.length; vi++) {
+        const v = vortices[vi];
+        const dx = p.x - v.x, dy = p.y - v.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < v.radius * v.radius && d2 > 0.5) {
+          const d = Math.sqrt(d2);
+          const falloff = 1 - d / v.radius;
+          const s = v.strength * falloff * (v.life === Infinity ? 1 : v.life) * 0.09;
+          // Perpendicular vector = (-dy, dx) — tangential to radial
+          p.vx += (-dy / d) * s * ds;
+          p.vy += (dx / d) * s * ds;
+          // Slight radial pull (compresses air into vortex core)
+          p.vx -= (dx / d) * s * 0.15 * ds;
+          p.vy -= (dy / d) * s * 0.15 * ds;
+        }
+      }
+
+      // Text obstacles — air flows around the hero copy
+      for (let oi = 0; oi < obstacles.length; oi++) {
+        const o = obstacles[oi];
+        const dx = p.x - o.cx;
+        const dy = p.y - o.cy;
+        // Normalized distance inside ellipse coords
+        const nx = dx / o.rx;
+        const ny = dy / o.ry;
+        const d2 = nx * nx + ny * ny;
+        if (d2 < 1 && d2 > 0.0001) {
+          const nd = Math.sqrt(d2);
+          const falloff = 1 - nd;
+          const realD = Math.sqrt(dx * dx + dy * dy) || 0.01;
+
+          // Radial pressure (soft boundary)
+          const pressure = falloff * 3.2;
+          p.vx += (dx / realD) * pressure * ds;
+          p.vy += (dy / realD) * pressure * ds;
+
+          // Tangential deflection (streamline curve)
+          const tx = -dy / realD, ty = dx / realD;
+          const dot = p.vx * tx + p.vy * ty;
+          const sign = dot >= 0 ? 1 : -1;
+          p.vx += tx * falloff * 1.4 * sign * ds;
+          p.vy += ty * falloff * 1.4 * sign * ds;
+        }
+      }
+
+      // Car "aero body" — particles flow around the F1 car
+      if (mouse.active) {
+        const dx = p.x - car.x, dy = p.y - car.y;
+        const d2 = dx * dx + dy * dy;
+        const bR = BODY_RADIUS + 25;
+        if (d2 < bR * bR && d2 > 0.5) {
+          const d = Math.sqrt(d2);
+          const falloff = 1 - d / bR;
+
+          // Radial pressure push (soft boundary)
+          const pressure = falloff * 2.4;
+          p.vx += (dx / d) * pressure * ds;
+          p.vy += (dy / d) * pressure * ds;
+
+          // Tangential deflection — "flows around" behavior
+          const tx1 = -dy / d, ty1 = dx / d;
+          const dot = p.vx * tx1 + p.vy * ty1;
+          const sign = dot >= 0 ? 1 : -1;
+          const tanForce = falloff * 1.8 * sign;
+          p.vx += tx1 * tanForce * ds;
+          p.vy += ty1 * tanForce * ds;
+
+          // Slipstream: mouse-motion drags air behind the car
+          p.vx += mouse.vx * 0.05 * falloff * ds;
+          p.vy += mouse.vy * 0.05 * falloff * ds;
+        }
+      }
+
+      // Viscosity
+      p.vx *= visc;
+      p.vy *= visc;
+      p.vy *= 0.995; // extra vertical damping keeps streamlines horizontal-ish
+
+      // Integrate
+      const oldX = p.x, oldY = p.y;
+      p.x += p.vx * ds;
+      p.y += p.vy * ds;
+
+      // Wrap or respawn on exit (left→right dominant, so respawn at left)
+      let respawn = false;
+      if (p.x > W + 30) { p.x = -30; p.y = Math.random() * H; respawn = true; }
+      else if (p.x < -30) { p.x = W + 30; respawn = true; }
+      if (p.y < -30) { p.y = H + 30; respawn = true; }
+      else if (p.y > H + 30) { p.y = -30; respawn = true; }
+      if (respawn) {
+        p.vx = BASE_WIND + Math.random() * 0.4;
+        p.vy = (Math.random() - 0.5) * 0.3;
+        continue;
+      }
+
+      // Compute speed
+      const sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+      vSum += sp;
+      if (sp > vMax) vMax = sp;
+      thetaSum += Math.atan2(p.vy, p.vx);
+
+      // Draw streamline: short line segment along velocity vector
+      const streakLen = Math.min(34, 4 + sp * 3.4);
+      const tailX = p.x - (p.vx / (sp || 1)) * streakLen;
+      const tailY = p.y - (p.vy / (sp || 1)) * streakLen;
+
+      const alpha = Math.min(0.98, 0.68 + sp * 0.09);
+      const color = speedColor(sp, alpha);
+
+      ctx.lineCap = 'round';
+      ctx.lineWidth = Math.min(2.8, 1.1 + sp * 0.18);
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+
+      // Head glow for fast particles (looks like combustion sparks)
+      if (sp > 3) {
+        const glowR = Math.min(14, sp * 1.4);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
+        g.addColorStop(0, speedColor(sp, Math.min(0.9, sp * 0.09)));
+        g.addColorStop(1, speedColor(sp, 0));
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // ---- Sparks (click injection) ----
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      s.life -= 0.014 * ds;
+      s.hot *= Math.pow(0.94, ds);
+      if (s.life <= 0) { sparks.splice(i, 1); continue; }
+      s.x += s.vx * ds;
+      s.y += s.vy * ds;
+      s.vx *= 0.97;
+      s.vy *= 0.97;
+      s.vy += 0.02 * ds;  // faint gravity
+
+      const sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy);
+      const alpha = s.life * 0.9;
+      const streak = Math.min(28, 4 + sp * 3);
+      const tailX = s.x - (s.vx / (sp || 1)) * streak;
+      const tailY = s.y - (s.vy / (sp || 1)) * streak;
+
+      // Hot particles are white → cool to gold → fade
+      const h = 20 + (1 - s.hot) * 30;
+      const l = 60 + s.hot * 30;
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 1.2 + s.hot * 0.8;
+      ctx.strokeStyle = 'hsla(' + h + ',95%,' + l + '%,' + alpha + ')';
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(s.x, s.y);
+      ctx.stroke();
+    }
+
+    // ---- Motion trail behind the cursor (no vehicle drawn) ----
+    drawMotionTrail(car, throttleSmoothed);
+
+    // Decay mouse velocity (drops when the mouse stops moving)
+    mouse.vx *= 0.85;
+    mouse.vy *= 0.85;
+
+    // ---- Telemetry HUD (throttled to ~5 Hz to avoid text-flicker) ----
+    hudTick += dt;
+    const vAvg = vSum / particles.length;
+    vAvgSmoothed = vAvgSmoothed * 0.85 + vAvg * 0.15;
+    vMaxSmoothed = vMaxSmoothed * 0.75 + vMax * 0.25;
+    thetaSmoothed = thetaSmoothed * 0.9 + (thetaSum / particles.length) * 0.1;
+
+    if (hudTick > 250) {
+      hudTick = 0;
+      const kmh = Math.round(car.speed * 15);
+      const vmaxKmh = Math.round(vMaxSmoothed * 45);
+      // Fix: normalise theta into 0-360 range (was leaking negative / >360 values)
+      const rawDeg = car.angle * 180 / Math.PI;
+      const thetaDeg = ((Math.round(rawDeg) % 360) + 360) % 360;
+      const re = (vAvgSmoothed * 120) / 0.0015;
+
+      let state = 'IDLE';
+      let msg = 'freestream · ' + obstacles.length + ' obstacles in tunnel';
+      if (throttleSmoothed > 0.45) {
+        state = 'THROTTLE';
+        msg = 'downforce · ' + kmh + ' km/h · wake forming';
+      } else if (throttleSmoothed > 0.15) {
+        state = 'CRUISING';
+        msg = 'cruising · ' + kmh + ' km/h · air deflecting';
+      } else if (mouse.active && car.speed > 0.4) {
+        state = 'IDLE';
+        msg = 'coasting · ' + kmh + ' km/h';
+      } else if (!mouse.active) {
+        msg = 'freestream · hover the page to disturb';
+      }
+
+      liveTelemetry.state = state;
+      liveTelemetry.vavg  = kmh;
+      liveTelemetry.vmax  = vmaxKmh;
+      liveTelemetry.theta = thetaDeg;
+      liveTelemetry.re    = re.toExponential(1).replace('+', '');
+      liveTelemetry.n     = particles.length;
+      if (now > narratorHoldUntil) liveTelemetry.narrator = msg;
+
+    }
+    // Decay + apply combined turbine speed every frame (higher-freq than HUD)
+    scrollVel *= 0.90;
+    if (scrollVel < 0.05) scrollVel = 0;
+    const throttleFactor = Math.min(2.0, throttleSmoothed * 1.8);
+    const scrollFactor   = Math.min(1.8, scrollVel * 0.05);
+    const turbineDur = Math.max(0.28, 2.4 - Math.max(throttleFactor, scrollFactor));
+    document.documentElement.style.setProperty('--turbine-duration', turbineDur.toFixed(2) + 's');
+
+    // Horizontal 360 panorama: scroll drives Z-roll, Y-yaw and X-drift together.
+    // Scroll down = camera pans right along the 360° track and yaws with it.
+    const wheelRoll  = Math.max(-3.5, Math.min(3.5, __scrollSigned * 0.08));
+    const wheelYaw   = Math.max(-6.0, Math.min(6.0, __scrollSigned * 0.14));
+    const wheelDrift = Math.max(-40,  Math.min(40,  __scrollSigned * 0.9));
+    // Telemetry-dial needle — reads signed scroll velocity as a deflection
+    // Base angle = -90° (points up), amplified by scroll delta for a strong swing
+    const needleAngle = Math.max(-70, Math.min(70, __scrollSigned * 1.8));
+    __scrollSigned *= 0.84;                             // decay towards 0
+    if (Math.abs(__scrollSigned) < 0.05) __scrollSigned = 0;
+    document.documentElement.style.setProperty('--wheel-roll',   wheelRoll.toFixed(2)  + 'deg');
+    document.documentElement.style.setProperty('--wheel-yaw',    wheelYaw.toFixed(2)   + 'deg');
+    document.documentElement.style.setProperty('--wheel-drift',  wheelDrift.toFixed(1) + 'px');
+    document.documentElement.style.setProperty('--needle-angle', needleAngle.toFixed(2) + 'deg');
+
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>

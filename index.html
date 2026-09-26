@@ -3,69 +3,594 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Kholood — Portfolio</title>
-  <meta name="description" content="Kholood Jenan Sajid — engineer building end-to-end systems." />
+  <title>Kholood Jenan Sajid &mdash; Data &amp; Full-Stack Engineer</title>
+  <meta name="description" content="Kholood Jenan Sajid — data engineer at Amdocs. Snowflake pipelines, event-driven backends, and systems that don't lie about the data." />
+  <meta name="theme-color" content="#a7241d" />
 
-  <!-- Fonts -->
+  <!-- Frame version: bump when regenerating public/frames/*.webp so browsers
+       can't serve stale cached frames after a character change. -->
+  <meta name="frame-ver" content="v3" />
+
+  <meta property="og:title" content="Kholood Jenan Sajid — Data &amp; Full-Stack Engineer" />
+  <meta property="og:description" content="Snowflake pipelines, event-driven backends, and systems that don't lie about the data." />
+  <meta property="og:type" content="website" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet"
   />
 
-  <!-- Preload character frames for zero-lag initial render -->
-  <link rel="preload" as="image" href="public/frames/center.webp" />
-  <link rel="preload" as="image" href="public/frames/frame_00.webp" />
-  <link rel="preload" as="image" href="public/frames/frame_16.webp" />
-  <link rel="preload" as="image" href="public/frames/frame_32.webp" />
-  <link rel="preload" as="image" href="public/frames/frame_48.webp" />
-
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v4" />
 </head>
 <body>
-  <!-- Full-viewport canvas: the character lives here, driven by cursor angle -->
-  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <!-- ================================================================
+       HERO — full-viewport character, ALWAYS visible
+       ================================================================ -->
+  <section class="hero" id="top">
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="scrim" aria-hidden="true"></div>
 
-  <!-- Bottom scrim: darkens the lower portion so hero copy stays legible over
-       the character's dress. Only visible on tablet/mobile via media queries. -->
-  <div class="scrim" aria-hidden="true"></div>
+    <!-- Floating nav pill (fixed; clicking opens an overlay panel) -->
+    <nav class="pill-nav" aria-label="Primary">
+      <button class="nav-btn" data-open="work">WORK</button>
+      <button class="nav-btn" data-open="about">ABOUT</button>
+      <button class="nav-btn" data-open="contact">CONTACT</button>
+    </nav>
 
-  <!-- Floating frosted-glass nav pill -->
-  <nav class="pill-nav" aria-label="Primary">
-    <a href="#work">WORK</a>
-    <a href="#about">ABOUT</a>
-    <a href="#contact">CONTACT</a>
-  </nav>
-
-  <!-- Hero copy: bottom-left -->
-  <section class="hero-copy">
-    <span class="greeting">Hi, I&rsquo;m</span>
-    <h1 class="name">Kholood</h1>
-    <p class="bio">
-      Full-stack engineer with a data-engineering heart. I ship end-to-end
-      systems &mdash; pipelines, backends, and interfaces that don&rsquo;t lie
-      about the data.
-    </p>
-    <div class="ctas">
-      <a href="#resume" class="btn btn-solid" data-magnetic>
-        <span>Resume</span>
-        <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M5 12h14" />
-          <path d="M13 6l6 6-6 6" />
-        </svg>
-      </a>
-      <a href="#contact" class="btn btn-ghost" data-magnetic>Let&rsquo;s Talk</a>
+    <!-- HOME: greeting + name + bio + CTAs. Hidden while an overlay is open. -->
+    <div class="hero-copy" data-panel="home">
+      <span class="greeting">Hi, I&rsquo;m</span>
+      <h1 class="name">Kholood</h1>
+      <p class="bio">
+        Data &amp; full-stack engineer at <strong>Amdocs</strong>. I ship end-to-end
+        systems &mdash; Snowflake pipelines, event-driven backends, and
+        interfaces that don&rsquo;t lie about the data.
+      </p>
+      <div class="ctas">
+        <button class="btn btn-solid" data-open="work" data-magnetic>
+          <span>See Work</span>
+          <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14" />
+            <path d="M13 6l6 6-6 6" />
+          </svg>
+        </button>
+        <button class="btn btn-ghost" data-open="contact" data-magnetic>Let&rsquo;s Talk</button>
+      </div>
     </div>
   </section>
 
-  <!-- Custom magnetic cursor: dot + trailing ring -->
+  <!-- ================================================================
+       OVERLAYS — full-screen frosted-glass panels that pop up when nav
+       is clicked. Character stays visible underneath (blurred slightly).
+       ================================================================ -->
+  <div class="overlay-root" aria-hidden="true">
+
+    <!-- ============ WORK PANEL ============ -->
+    <section class="overlay" id="panel-work" data-panel="work" role="dialog" aria-modal="true" aria-labelledby="work-title" hidden>
+      <button class="overlay-close" aria-label="Close" data-close>&times;</button>
+      <div class="overlay-inner">
+        <header class="overlay-head">
+          <span class="overlay-tag">WORK</span>
+          <h2 class="overlay-title" id="work-title">A short list of the systems I&rsquo;ve <em>built</em>, <em>broken</em>, and <em>quietly fixed</em>.</h2>
+        </header>
+
+        <div class="cases">
+
+          <!-- Case 1: Amdocs -->
+          <article class="case">
+            <header class="case-head">
+              <span class="case-num">01</span>
+              <div class="case-meta">
+                <span class="case-role">Data Engineer</span>
+                <span class="case-year">2024 &mdash; Present</span>
+                <span class="case-org">Amdocs</span>
+              </div>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                Snowflake pipelines that <em>don&rsquo;t wake anyone up at 3&nbsp;AM.</em>
+              </h3>
+              <p>
+                Designed and maintained reusable ingestion pipelines in Python + SQL
+                landing <strong>10+ upstream feeds</strong> from external systems into a
+                <strong>Snowflake data lake</strong> via Azure Blob and SFTP. Built
+                <strong>20+ automated DQ &amp; risk-validation checks</strong> that cut data
+                defects in production, and tuned ETL logic &amp; complex joins for
+                high-throughput jobs.
+              </p>
+              <ul class="case-tags">
+                <li>Snowflake</li><li>Azure Blob / SFTP</li><li>Python</li>
+                <li>SQL</li><li>Data Lake</li><li>CI/CD</li><li>SPN Auth</li>
+              </ul>
+              <ul class="case-metrics">
+                <li><strong>10+</strong><span>upstream feeds</span></li>
+                <li><strong>20+</strong><span>QC / risk checks</span></li>
+                <li><strong>&darr;</strong><span>end-to-end latency</span></li>
+                <li><strong>&darr;&darr;</strong><span>production defects</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Case 2: Device Sales Cube Reconciliation -->
+          <article class="case case-featured">
+            <header class="case-head">
+              <span class="case-num">02</span>
+              <div class="case-meta">
+                <span class="case-role">Data Reconciliation Lead</span>
+                <span class="case-year">2025</span>
+                <span class="case-org">Amdocs &middot; Deep-Dive</span>
+              </div>
+              <span class="case-badge">NEW</span>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                Device Sales cube reconciliation &mdash; <em>separating loss from measurement.</em>
+              </h3>
+              <p>
+                Led end-to-end reconciliation of a production <strong>Device Sales analytical
+                cube</strong> (Databricks gold vs legacy warehouse) whose grain is one
+                current IMEI-sale after SCD-2, with retail / store / online branches and a
+                27-month date window.
+              </p>
+              <p>
+                Isolated cube <strong>COUNT</strong> (current dimension rows) from
+                <strong>measures</strong> &mdash; <code>SalePrice</code>, discount, list/unit
+                cost, retail price, OEM &amp; channel subsidies, protect tier &mdash; that
+                attach through a one-row-per-IMEI DeviceActivity rank. That way a matching
+                order on a different device id can pass inventory checks and still fail
+                dollars.
+              </p>
+              <p>
+                Classified residuals into <strong>SCD current-to-history flips</strong>,
+                <strong>late IMEI assignment</strong>, and <strong>same-order IMEI twins</strong>.
+                Proved a multi-day window had <strong>zero missing sales vs source</strong>
+                (<code>true_miss = 0</code>) while documenting why IMEI-keyed sums and
+                distinct-device counts still diverged.
+              </p>
+              <p>
+                Turned it into a repeatable <strong>certify pattern</strong> (business-date
+                keys, not ETL stamps) that stakeholders now use to separate real loss from
+                measure/join effects.
+              </p>
+              <ul class="case-tags">
+                <li>Databricks</li><li>Warehouse Reconciliation</li><li>SCD-2</li>
+                <li>Analytical Cubes</li><li>Root-Cause Analysis</li><li>SQL</li>
+              </ul>
+              <ul class="case-metrics">
+                <li><strong>27 mo</strong><span>date window audited</span></li>
+                <li><strong>true_miss = 0</strong><span>proven vs source</span></li>
+                <li><strong>3</strong><span>residual classes named</span></li>
+                <li><strong>repeatable</strong><span>certify pattern</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Case 3: Freshline -->
+          <article class="case case-featured">
+            <header class="case-head">
+              <span class="case-num">03</span>
+              <div class="case-meta">
+                <span class="case-role">Founder &middot; Builder</span>
+                <span class="case-year">2026</span>
+                <span class="case-org">Freshline</span>
+              </div>
+              <span class="case-badge">LIVE</span>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                Freshline &mdash; an <em>expiry-risk engine</em> for quick-commerce dark stores.
+              </h3>
+              <p>
+                Dark stores now carry 3&ndash;4x more SKUs than two years ago, but catching
+                perishable stock before it expires is still mostly manual. I built
+                <strong>Freshline</strong> to flag at-risk inventory days in advance using a
+                <em>transparent formula</em> (days-to-sell-out vs. days-to-expiry) instead
+                of a black box &mdash; with automated actions like discounting, B2B offload,
+                and donation routing, plus an upgrade path to a velocity-prediction ML model.
+              </p>
+              <p>
+                What makes it stand out: I grounded it in <strong>real public filings</strong>
+                instead of assumptions, and packaged it as an actual <strong>30-day pilot
+                proposal</strong>, not just a demo.
+              </p>
+              <p>
+                This mirrors how I work at Amdocs &mdash; tracing issues to root cause and
+                designing <em>auditable</em> fixes, not quick patches. Freshline reflects
+                that flexibility: I keep pairing what I&rsquo;m learning, like AI integration,
+                with production-grade discipline.
+              </p>
+              <ul class="case-tags">
+                <li>Inventory Systems</li><li>Forecasting</li><li>Pilot Design</li>
+                <li>Product Thinking</li><li>ML Roadmap</li>
+              </ul>
+              <ul class="case-metrics">
+                <li><strong>3&ndash;4&times;</strong><span>SKU growth addressed</span></li>
+                <li><strong>30 day</strong><span>pilot proposal</span></li>
+                <li><strong>public</strong><span>data-grounded</span></li>
+              </ul>
+              <a class="case-link" href="https://kholoodjenansajid.github.io/freshline-site" target="_blank" rel="noopener" data-magnetic>
+                Live demo
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 17L17 7"/><path d="M8 7h9v9"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- Case 4: C++ Real-Time -->
+          <article class="case">
+            <header class="case-head">
+              <span class="case-num">04</span>
+              <div class="case-meta">
+                <span class="case-role">Systems Builder</span>
+                <span class="case-year">2023</span>
+                <span class="case-org">Bharati Vidyapeeth</span>
+              </div>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                C++ threads pushing data <em>faster than they should.</em>
+              </h3>
+              <p>
+                A multi-threaded C++ engine for high-throughput, low-latency analytics.
+                Focused on <strong>cache-friendly data structures</strong>,
+                <strong>contention-aware locking</strong>, and tight STL usage to squeeze
+                predictable performance out of commodity hardware.
+              </p>
+              <ul class="case-tags">
+                <li>C++ &middot; STL</li><li>Multi-threading</li><li>Real-Time</li><li>Performance</li>
+              </ul>
+              <ul class="case-metrics">
+                <li><strong>Low</strong><span>latency</span></li>
+                <li><strong>High</strong><span>throughput</span></li>
+                <li><strong>Thread-safe</strong><span>by design</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Case 5: Order Processing -->
+          <article class="case">
+            <header class="case-head">
+              <span class="case-num">05</span>
+              <div class="case-meta">
+                <span class="case-role">Builder</span>
+                <span class="case-year">2024</span>
+                <span class="case-org">Personal Project</span>
+              </div>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                A distributed order system that <em>behaves like real infra.</em>
+              </h3>
+              <p>
+                An event-driven backend simulating an integrated order workflow &mdash;
+                REST APIs, asynchronous task execution, and a full order lifecycle from
+                placement to fulfillment. Wired in <strong>Stripe</strong> for live payment
+                capture &mdash; a reference architecture for streaming-style flows similar
+                to <strong>Event Hub / Kafka</strong>.
+              </p>
+              <ul class="case-tags">
+                <li>Python</li><li>REST APIs</li><li>Async / Events</li>
+                <li>Stripe</li><li>Distributed Systems</li>
+              </ul>
+              <ul class="case-metrics">
+                <li><strong>+70%</strong><span>functional coverage</span></li>
+                <li><strong>end-to-end</strong><span>order lifecycle</span></li>
+                <li><strong>live</strong><span>payment capture</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Case 6: OfficesLang -->
+          <article class="case">
+            <header class="case-head">
+              <span class="case-num">06</span>
+              <div class="case-meta">
+                <span class="case-role">Builder</span>
+                <span class="case-year">2024</span>
+                <span class="case-org">1-month sprint</span>
+              </div>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                OfficesLang &mdash; <em>bridging jargon</em> and human clarity.
+              </h3>
+              <p>
+                A linguistic intelligence tool that translates dense workplace jargon into
+                clear, human language. Shipped end-to-end in a <strong>one-month sprint</strong>
+                &mdash; from NLP prototyping to a usable interface.
+              </p>
+              <ul class="case-tags">
+                <li>Python</li><li>NLP</li><li>1-month ship</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Case 7: Let Us Code -->
+          <article class="case">
+            <header class="case-head">
+              <span class="case-num">07</span>
+              <div class="case-meta">
+                <span class="case-role">SWE Intern</span>
+                <span class="case-year">2023 &mdash; 2024</span>
+                <span class="case-org">Let Us Code Systems</span>
+              </div>
+            </header>
+            <div class="case-body">
+              <h3 class="case-title">
+                Scrapers that <em>don&rsquo;t lie</em> about the data.
+              </h3>
+              <p>
+                Scalable scraping systems handling multi-category product datasets with a
+                <strong>95% accuracy rate</strong>. Automated ingestion, removed manual
+                steps, redesigned MongoDB storage for faster queries and less duplication.
+              </p>
+              <ul class="case-tags">
+                <li>Python</li><li>Scrapy</li><li>Pandas</li><li>MongoDB</li><li>OOP &middot; DSA</li>
+              </ul>
+              <ul class="case-metrics">
+                <li><strong>95%</strong><span>data accuracy</span></li>
+                <li><strong>&darr;</strong><span>manual intervention</span></li>
+                <li><strong>&uarr;</strong><span>query performance</span></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT PANEL ============ -->
+    <section class="overlay" id="panel-about" data-panel="about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
+      <button class="overlay-close" aria-label="Close" data-close>&times;</button>
+      <div class="overlay-inner">
+        <header class="overlay-head">
+          <span class="overlay-tag">ABOUT</span>
+          <h2 class="overlay-title" id="about-title">The story, briefly.</h2>
+        </header>
+
+        <div class="about-grid">
+          <div class="about-copy">
+            <p>
+              I fell into data the way most engineers do &mdash; by accident, then
+              obsession. I started with backend code and DSA (<strong>250+ LeetCode</strong>
+              problems, a scrappy <strong>3rd place</strong> in a 2024 coding challenge),
+              and somewhere along the way I realised the <em>most interesting bug in any
+              system is usually a data bug</em>.
+            </p>
+            <p>
+              These days I spend my time on the unglamorous middle of the stack &mdash;
+              ETL, staging layers, data lakes, orchestration, and the hundred small
+              checks that stand between raw upstream files and a dashboard someone
+              actually trusts.
+            </p>
+            <p>
+              I like pipelines that <em>fail loudly</em>, code that reads like prose,
+              and systems where the next engineer &mdash; including future me &mdash;
+              doesn&rsquo;t need a map to change something.
+            </p>
+            <div class="signature">Kholood, from Pune</div>
+          </div>
+
+          <aside class="about-facts">
+            <div class="fact">
+              <span class="fact-k">Currently</span>
+              <span class="fact-v">Data Engineer @ <strong>Amdocs</strong></span>
+              <span class="fact-sub">Aug 2024 &mdash; Present &middot; Pune, IN</span>
+            </div>
+            <div class="fact">
+              <span class="fact-k">Education</span>
+              <span class="fact-v">B.Tech Information Technology<br><strong>Bharati Vidyapeeth Deemed University</strong>, Pune</span>
+              <span class="fact-sub">CGPA 9.64 &middot; May 2024</span>
+            </div>
+            <div class="fact">
+              <span class="fact-k">Extra</span>
+              <span class="fact-v">250+ LeetCode &middot; 3rd place, 2024 coding challenge</span>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Stack -->
+        <section class="overlay-sub">
+          <h3 class="overlay-subtitle">Stack.</h3>
+          <div class="stack-grid">
+            <div class="stack-col">
+              <h4>Data &amp; Warehousing</h4>
+              <ul>
+                <li>Snowflake</li><li>Databricks</li><li>ETL pipelines</li>
+                <li>Data lake / staging</li><li>Data modeling &middot; SCD-2</li>
+                <li>PySpark</li><li>Pandas &middot; NumPy</li>
+              </ul>
+            </div>
+            <div class="stack-col">
+              <h4>Cloud &amp; Ops</h4>
+              <ul>
+                <li>Azure Blob &middot; SFTP</li><li>CI/CD</li>
+                <li>Service Principal auth</li><li>TWS Scheduler</li>
+                <li>Azure AI-900</li>
+              </ul>
+            </div>
+            <div class="stack-col">
+              <h4>Languages</h4>
+              <ul>
+                <li>Python</li><li>SQL</li><li>TypeScript</li><li>C++ &middot; STL</li>
+              </ul>
+            </div>
+            <div class="stack-col">
+              <h4>Backend &amp; Systems</h4>
+              <ul>
+                <li>Spring Boot</li><li>REST APIs</li><li>Microservices</li>
+                <li>Event-driven design</li><li>MongoDB</li><li>Scrapy</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Certifications -->
+        <section class="overlay-sub">
+          <h3 class="overlay-subtitle">Endorsements.</h3>
+          <div class="certs-grid">
+            <div class="cert">
+              <div class="cert-badge">A</div>
+              <div class="cert-body">
+                <div class="cert-title">AI Fluency &mdash; Framework &amp; Foundations</div>
+                <div class="cert-issuer">Anthropic &middot; Apr 2026</div>
+              </div>
+            </div>
+            <div class="cert">
+              <div class="cert-badge">LC</div>
+              <div class="cert-body">
+                <div class="cert-title">Functions, Tools &amp; Agents &mdash; LangChain</div>
+                <div class="cert-issuer">DeepLearning.AI &middot; Jul 2025</div>
+              </div>
+            </div>
+            <div class="cert">
+              <div class="cert-badge">DB</div>
+              <div class="cert-body">
+                <div class="cert-title">Databricks Fundamentals</div>
+                <div class="cert-issuer">Databricks</div>
+              </div>
+            </div>
+            <div class="cert">
+              <div class="cert-badge">AZ</div>
+              <div class="cert-body">
+                <div class="cert-title">Azure AI-900</div>
+                <div class="cert-issuer">Microsoft</div>
+              </div>
+            </div>
+            <div class="cert">
+              <div class="cert-badge">MS</div>
+              <div class="cert-body">
+                <div class="cert-title">Microsoft Learn Student Ambassador</div>
+                <div class="cert-issuer">Microsoft &middot; Nov 2021</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT PANEL ============ -->
+    <section class="overlay" id="panel-contact" data-panel="contact" role="dialog" aria-modal="true" aria-labelledby="contact-title" hidden>
+      <button class="overlay-close" aria-label="Close" data-close>&times;</button>
+      <div class="overlay-inner overlay-inner--contact">
+        <header class="overlay-head">
+          <span class="overlay-tag">CONTACT</span>
+          <h2 class="overlay-title" id="contact-title">The channel is open.</h2>
+          <p class="overlay-lede">
+            Working on something with messy data or a pipeline that keeps breaking?
+            Send a note. I&rsquo;m listening.
+          </p>
+        </header>
+        <div class="contact-links">
+          <a href="mailto:sjkholood@gmail.com" data-magnetic>
+            <span class="cl-k">Email</span>
+            <span class="cl-v">sjkholood@gmail.com</span>
+          </a>
+          <a href="https://www.linkedin.com/in/kholood-jenan-sajid" target="_blank" rel="noopener" data-magnetic>
+            <span class="cl-k">LinkedIn</span>
+            <span class="cl-v">/in/kholood-jenan-sajid</span>
+          </a>
+          <a href="https://github.com/KholoodJenanSajid" target="_blank" rel="noopener" data-magnetic>
+            <span class="cl-k">GitHub</span>
+            <span class="cl-v">/KholoodJenanSajid</span>
+          </a>
+          <a href="tel:+918299819282" data-magnetic>
+            <span class="cl-k">Phone</span>
+            <span class="cl-v">+91 82998 19282</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Custom magnetic cursor -->
   <div class="cursor-dot" aria-hidden="true"></div>
   <div class="cursor-ring" aria-hidden="true"></div>
 
   <!-- Loader shroud (fades out once frames are decoded) -->
   <div id="loader" aria-hidden="true"></div>
 
-  <script src="hero.js" defer></script>
+  <script>
+    // ============================================================
+    // Overlay controller: nav buttons open panels, close returns
+    // to the hero. Character stays visible underneath.
+    // ============================================================
+    (() => {
+      const body = document.body;
+      const overlays = document.querySelectorAll('.overlay');
+      const openTriggers = document.querySelectorAll('[data-open]');
+      const closeTriggers = document.querySelectorAll('[data-close]');
+      const overlayRoot = document.querySelector('.overlay-root');
+      let activePanel = null;
+
+      function openPanel(name) {
+        const panel = document.querySelector(`.overlay[data-panel="${name}"]`);
+        if (!panel) return;
+        // Hide any currently open panel first
+        overlays.forEach((o) => {
+          if (o !== panel) { o.hidden = true; o.classList.remove('is-open'); }
+        });
+        panel.hidden = false;
+        // Two rAFs so the browser sees `hidden = false` before we add the transition class
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          panel.classList.add('is-open');
+        }));
+        overlayRoot.setAttribute('aria-hidden', 'false');
+        body.classList.add('overlay-open');
+        activePanel = panel;
+        // Focus the close button so keyboard users can dismiss immediately
+        const closeBtn = panel.querySelector('[data-close]');
+        if (closeBtn) closeBtn.focus({ preventScroll: true });
+        // Update hash without triggering a scroll
+        history.replaceState(null, '', `#${name}`);
+      }
+
+      function closePanel() {
+        if (!activePanel) return;
+        activePanel.classList.remove('is-open');
+        const panel = activePanel;
+        activePanel = null;
+        // Wait for transition, then unmount
+        setTimeout(() => {
+          panel.hidden = true;
+        }, 400);
+        overlayRoot.setAttribute('aria-hidden', 'true');
+        body.classList.remove('overlay-open');
+        history.replaceState(null, '', '#');
+      }
+
+      openTriggers.forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          openPanel(el.dataset.open);
+        });
+      });
+      closeTriggers.forEach((el) => {
+        el.addEventListener('click', closePanel);
+      });
+
+      // Click on the frosted backdrop area (not the inner content) closes
+      overlayRoot.addEventListener('click', (e) => {
+        if (e.target === overlayRoot || e.target.classList.contains('overlay')) {
+          closePanel();
+        }
+      });
+
+      // Escape closes
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activePanel) closePanel();
+      });
+
+      // Deep-link support: #work, #about, #contact opens the matching panel on load
+      const hash = window.location.hash.slice(1);
+      if (['work', 'about', 'contact'].includes(hash)) {
+        // Delay so the character has a chance to paint first
+        setTimeout(() => openPanel(hash), 300);
+      }
+    })();
+  </script>
+  <script src="hero.js?v4" defer></script>
 </body>
 </html>

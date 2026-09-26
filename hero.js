@@ -17,9 +17,9 @@
   const LERP_FACTOR      = 0.26;      // ~35ms tracking response
   const DEADZONE_PCT     = 0.12;      // 12% of min(vw, vh)
   const FRAMES_DIR       = 'public/frames';
-  // Initial guess; overwritten at runtime by auto-calibration from the loaded
-  // center frame so page + canvas bg match EXACTLY (zero visible seam).
-  let bgCss = '#9b1f19';
+  // Bg fill for the brief moment before the character image paints on top.
+  // Value came from scripts/extract_frames.py for the landscape source.
+  let bgCss = '#a7241d';
   // Rotation calibration: tweak if the head faces the wrong direction.
   //  FRAME_OFFSET shifts which frame index corresponds to cursor "UP".
   //  DIRECTION    flips clockwise vs counter-clockwise mapping.
@@ -35,13 +35,15 @@
   let dpr = 1;
 
   function resizeCanvas() {
-    vw  = window.innerWidth;
-    vh  = window.innerHeight;
+    // Canvas now lives inside .hero (100vh section), not the whole viewport.
+    // Measure the canvas's own rendered size instead of using innerWidth/Height.
+    const rect = canvas.getBoundingClientRect();
+    vw  = Math.max(1, Math.round(rect.width));
+    vh  = Math.max(1, Math.round(rect.height));
     dpr = Math.min(window.devicePixelRatio || 1, 2);  // cap for perf
-    canvas.width        = Math.round(vw * dpr);
-    canvas.height       = Math.round(vh * dpr);
-    canvas.style.width  = vw + 'px';
-    canvas.style.height = vh + 'px';
+    canvas.width  = Math.round(vw * dpr);
+    canvas.height = Math.round(vh * dpr);
+    // Do NOT set canvas.style.width/height — the CSS rule (100% of .hero) drives layout.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -65,21 +67,35 @@
   }, { passive: true });
 
   // ---------- Layout: where does the character sit on screen? ---------------
-  // Character is centered horizontally at object-fit: contain scale. The face
-  // sits at ~30% down the viewport (head-and-shoulders framing).
+  // Landscape source: character sits right-of-center in the 1280x720 frame.
+  //   In source coords: face is at ~(62% x, 42% y).
+  // We use object-fit: cover so the image fills the viewport with no letterbox.
+  // Layout hooks return the on-screen face position so the cursor-angle math
+  // can pivot around the actual face location, not the geometric viewport centre.
+  const FACE_X_IMG = 0.62;   // face X within the source frame (0..1)
+  const FACE_Y_IMG = 0.42;   // face Y within the source frame (0..1)
+
   function getLayout() {
-    return {
-      faceX: vw * 0.5,
-      faceY: vh * 0.30,
-      xPct:  0.5
-    };
+    if (!drawGeom) {
+      return { faceX: vw * FACE_X_IMG, faceY: vh * FACE_Y_IMG, xPct: FACE_X_IMG };
+    }
+    // Map (FACE_X_IMG, FACE_Y_IMG) from source-image space to viewport space
+    // using the cached draw geometry.
+    const faceX = drawGeom.dx + drawGeom.dw * FACE_X_IMG;
+    const faceY = drawGeom.dy + drawGeom.dh * FACE_Y_IMG;
+    return { faceX, faceY, xPct: faceX / vw };
   }
 
   // ---------- Frame preload --------------------------------------------------
+  // Version bust: read from meta[name="frame-ver"] so we can bump it in ONE place.
+  // Force-refresh guarantee: every page load computes a fresh session ID and
+  // appends it, so no browser can ever serve a cached WebP from a previous run.
+  const metaTag = document.querySelector('meta[name="frame-ver"]');
+  const FRAME_VER = (metaTag ? metaTag.content : 'v3') + '-' + Date.now();
   const framePaths = Array.from({ length: FRAME_COUNT }, (_, i) =>
-    `${FRAMES_DIR}/frame_${String(i).padStart(2, '0')}.webp`
+    `${FRAMES_DIR}/frame_${String(i).padStart(2, '0')}.webp?${FRAME_VER}`
   );
-  const centerPath = `${FRAMES_DIR}/center.webp`;
+  const centerPath = `${FRAMES_DIR}/center.webp?${FRAME_VER}`;
 
   function loadImage(src) {
     return new Promise((resolve, reject) => {
@@ -102,14 +118,22 @@
 
   // Cached character draw geometry (recomputed on resize)
   let drawGeom = null;
+
+  // Landscape source is 1280x720. On a wide desktop viewport (16:9-ish) the
+  // scale factor is close to 1 and the entire frame fits with barely any crop.
+  // On narrow/tall viewports we scale up to cover, cropping the sides slightly.
   function computeDrawGeom(img) {
     const iw = img.naturalWidth  || img.width;
     const ih = img.naturalHeight || img.height;
-    const scale = vh / ih;
+    // object-fit: cover — fill both dimensions, crop the overflow axis.
+    const scale = Math.max(vw / iw, vh / ih);
     const dw    = iw * scale;
-    const dh    = vh;
+    const dh    = ih * scale;
+    // Center horizontally, but bias vertical so the face (at ~42% of source
+    // height) lands at ~42% of the viewport height regardless of aspect ratio.
     const dx    = (vw - dw) / 2;
-    const dy    = 0;
+    const overflowY = dh - vh;
+    const dy    = -overflowY * FACE_Y_IMG;   // keep face anchored to viewport 42%
     return { iw, ih, dw, dh, dx, dy };
   }
 
@@ -119,25 +143,7 @@
     if (!g.iw || !g.ih) return;
 
     ctx.globalAlpha = 1;
-
-    // ---- 1) PURE-BG BACKDROP: take a thin top strip of the frame (pure red
-    // background, no character features) and stretch it to fill the whole
-    // viewport with a heavy blur. Because we sample only above the head,
-    // no character silhouette can appear in the backdrop. Because the source
-    // is the same image drawn through the same pipeline, the color matches
-    // the character rectangle mathematically — zero possible seam.
-    ctx.save();
-    ctx.filter = 'blur(80px)';
-    // Sample only the top 8% of the source image (guaranteed pure bg).
-    const srcStripH = Math.max(2, Math.floor(g.ih * 0.08));
-    ctx.drawImage(
-      img,
-      0, 0, g.iw, srcStripH,        // source: top strip only
-      -80, -80, vw + 160, vh + 160  // dest: full viewport + overscan so blur has no dark edge
-    );
-    ctx.restore();
-
-    // ---- 2) Crisp character on top, exactly centered.
+    // Cover-mode: image fills the viewport, no letterbox, no seam possible.
     ctx.drawImage(img, g.dx, g.dy, g.dw, g.dh);
 
     state.lastImg = img;
@@ -151,8 +157,11 @@
   let currentAngle = 0;
 
   function onPointerMove(e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    // Translate viewport-relative cursor coords into canvas-local coords, since
+    // the canvas lives inside the hero section and may be scrolled off-screen.
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
     mouseSeen = true;
   }
   window.addEventListener('pointermove', onPointerMove, { passive: true });
@@ -177,6 +186,8 @@
   }
 
   // ---------- Main loop ------------------------------------------------------
+  // Character is always visible (position: fixed hero, single-view SPA),
+  // so we always run the render loop.
   function loop() {
     if (!state.ready) {
       requestAnimationFrame(loop);
