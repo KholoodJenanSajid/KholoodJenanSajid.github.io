@@ -1,0 +1,39 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node / build (in case you add tooling later)
+node_modules/
+dist/
+build/
+.cache/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+
+# Separate project — lives in its own GitHub repo
+blobslash/
+
+# Other unrelated sub-projects in this workspace
+databricks-nasa-exoplanets/
+drawboard/
+
+# Source videos at workspace root (site uses public/frames/*.webp at runtime)
+Woman_moving_head_and_eyes_*.mp4
+Woman_tracking_with_eye_movement_*.mp4
+*.mp4
+!public/character.mp4
