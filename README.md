@@ -6,17 +6,14 @@ Personal portfolio — a data engineer's site.
 
 ## Stack
 
-Plain HTML + CSS + a sprinkle of vanilla JS. No build step, no framework.
-Fonts are loaded from Google Fonts:
-
-- **JetBrains Mono** — structural / techy
-- **Instrument Serif** (italic) — accent words
-- **Inter** — body text
-- **Caveat** — handwritten notes & signature
+A single self-contained HTML file: canvas 2D for the pixel map, Three.js r128
+(cdnjs) for the 3D voxel view. No build step, no framework.
+Fonts from Google Fonts: **Press Start 2P** and **VT323**.
 
 ## Files
 
-- `index.html` — the portfolio site (live at `/`)
+- `index.html` — KJS World Map: pixel-art / Three.js explorable map (live at `/`)
+- `classic.html` — the previous colored character hero (archived, unlinked)
 - `pipeline.html` — the previous "PIPELINE.EXE" retro-terminal portfolio (archived, live at `/pipeline.html`)
 - `funcam.html` — an older interactive camera studio project (archived)
 - `preview.png`, `favicon.ico`, `favicon-*.png`, `apple-touch-icon.png` — site metadata assets

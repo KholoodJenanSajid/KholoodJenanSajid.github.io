@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>Kick It Live — Data Ball Adventure</title>
+  <meta name="theme-color" content="#06070b" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="kick.css?v4" />
+</head>
+<body>
+  <div id="world" class="world" data-stage="0">
+    <canvas id="pitch" aria-label="Data ball pitch — click to kick toward the next pipeline node"></canvas>
+
+    <div class="ui-layer">
+      <a class="ui-back" href="index.html">Home</a>
+      <p class="ui-brand">KICK IT LIVE</p>
+      <p class="ui-call" id="ui-call">Roll the data ball…</p>
+      <p class="ui-kicks">Kick <strong id="kick-n">0</strong> of 5</p>
+      <a class="ui-goal" id="ui-goal" href="index.html" hidden>Goal — back home</a>
+    </div>
+
+    <div class="boot-flash" id="boot-flash" aria-hidden="true"></div>
+  </div>
+  <script src="kick.js?v4" defer></script>
+</body>
+</html>

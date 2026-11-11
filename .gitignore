@@ -37,3 +37,5 @@ Woman_moving_head_and_eyes_*.mp4
 Woman_tracking_with_eye_movement_*.mp4
 *.mp4
 !public/character.mp4
+
+.cert/

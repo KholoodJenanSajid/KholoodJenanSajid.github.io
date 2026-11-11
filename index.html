@@ -1,545 +1,333 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Kholood Jenan Sajid &mdash; Data Engineer</title>
-  <meta name="description" content="Creative data engineer — pipelines, reconciliation, and systems that fail loudly and heal quietly." />
-  <meta name="theme-color" content="#948e6d" />
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KJS World Map — Kholood Jenan Sajid</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<meta name="description" content="Kholood Jenan Sajid, data engineer in Pune. Explore a pixel world map of my work, projects and credentials.">
+<meta name="theme-color" content="#050814">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%23050814'/%3E%3Crect x='1' y='1' width='6' height='6' fill='%235fae4f'/%3E%3Crect x='1' y='4' width='6' height='1' fill='%232563c9'/%3E%3Crect x='3' y='2' width='2' height='1' fill='%23ffd23f'/%3E%3C/svg%3E">
+<style>
+:root{--panel:rgba(9,13,32,.9);--line:#2e3a70;--line-hi:#6f7bb0;--ok:#4dffb0;--gold:#ffd23f;--hi:#e6ecff;--mute:#8f9bc7;--gap:10px;color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#050814;overflow:hidden}
+body{color:var(--hi);font:19px/1.3 'VT323',monospace}
+.app{position:fixed;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#18224d 0,#0b1020 55%,#050814 100%)}
+#c,#c3{position:absolute;inset:0;width:100%;height:100%;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;image-rendering:pixelated;display:block}
+#c{object-fit:contain;cursor:pointer}#c3{display:none;touch-action:none;cursor:grab}#c3:active{cursor:grabbing}
+.app::after{content:'';position:absolute;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 140px rgba(0,0,0,.6);background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.05) 2px 3px)}
 
-  <!-- Bump when regenerating frames from a new video (python scripts/extract_frames.py). -->
-  <meta name="frame-ver" content="v6-eye" />
+/* HUD: one grid so panels never collide, whatever the header wraps to */
+.hud{position:absolute;inset:0;z-index:5;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto minmax(0,1fr) auto;gap:var(--gap);padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));pointer-events:none}
+.hud>*{pointer-events:auto}
 
-  <meta property="og:title" content="Kholood Jenan Sajid — Data &amp; Full-Stack Engineer" />
-  <meta property="og:description" content="Snowflake pipelines, event-driven backends, and systems that don't lie about the data." />
-  <meta property="og:type" content="website" />
+.gl{position:relative;background:var(--panel);border:2px solid var(--line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035),4px 4px 0 rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.gl::before{content:'';position:absolute;inset:-2px;pointer-events:none;--c:var(--line-hi);background:
+ linear-gradient(var(--c) 0 0) 0 0/10px 2px,linear-gradient(var(--c) 0 0) 0 0/2px 10px,
+ linear-gradient(var(--c) 0 0) 100% 0/10px 2px,linear-gradient(var(--c) 0 0) 100% 0/2px 10px,
+ linear-gradient(var(--c) 0 0) 0 100%/10px 2px,linear-gradient(var(--c) 0 0) 0 100%/2px 10px,
+ linear-gradient(var(--c) 0 0) 100% 100%/10px 2px,linear-gradient(var(--c) 0 0) 100% 100%/2px 10px;background-repeat:no-repeat}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet"
-  />
+.top{grid-column:1/-1;grid-row:1;display:flex;flex-wrap:wrap;gap:var(--gap);align-items:stretch;pointer-events:none}.top>*{pointer-events:auto}
+.brand{padding:10px 14px;display:flex;flex-direction:column;justify-content:center}
+.brand h1{font:11px/1.4 'Press Start 2P',monospace;margin:0;color:var(--ok);letter-spacing:1px;text-shadow:2px 2px 0 #0a3a28}
+.brand p{margin:4px 0 0;color:var(--mute);font-size:18px}
+.stats,.ml{display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px;padding:10px 14px;font-size:18px;color:var(--mute)}
+.stats b,.ml b{color:var(--ok);font-weight:400}
+#hs{color:var(--gold)}
+.pips{display:inline-flex;gap:3px;margin-left:8px;vertical-align:1px}
+.pips i{width:8px;height:8px;background:#141c40;box-shadow:inset 0 0 0 1px var(--line-hi)}
+.pips i.on{background:var(--gold);box-shadow:0 0 6px rgba(255,210,63,.6)}
+.ml canvas{width:120px;height:20px;background:rgba(0,0,0,.3)}
+.live{display:flex;align-items:center;gap:10px;padding:10px 14px;color:var(--mute);font-size:18px;text-decoration:none}
+.live:hover,.live:focus-visible{border-color:var(--ok);color:var(--hi)}
+.live b{font:8px/1.4 'Press Start 2P',monospace;color:var(--gold)}
+.live i{width:8px;height:8px;flex:none;background:var(--gold)}
+.live.on b{color:var(--ok)}.live.on i{background:var(--ok);animation:lv 1.6s steps(2) infinite}
+.live.off b{color:var(--mute)}.live.off i{background:#5a6390}
+@keyframes lv{50%{opacity:.35}}
 
-  <link rel="stylesheet" href="styles.css?v6d" />
-</head>
-<body>
-  <!-- Shared ambient field (home + portal pages use the same lighting) -->
-  <div class="ambient-field" aria-hidden="true">
-    <div class="ambient-orb ambient-orb--warm"></div>
-    <div class="ambient-orb ambient-orb--rose"></div>
-    <div class="ambient-vignette"></div>
-    <div class="ambient-grain"></div>
-  </div>
+button{font:9px/1 'Press Start 2P',monospace;background:#0e1530;color:var(--hi);border:2px solid var(--line-hi);padding:9px 12px;cursor:pointer;touch-action:manipulation;box-shadow:2px 2px 0 rgba(0,0,0,.55);transition:transform .08s,box-shadow .08s,border-color .12s,color .12s}
+button:hover{color:var(--ok);border-color:var(--ok);transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(0,0,0,.55)}
+button:active{transform:translate(1px,1px);box-shadow:none}
+button:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+button:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;color:var(--hi);border-color:var(--line-hi)}
+button.done{color:var(--gold);border-color:var(--gold)}
+#sk{background:var(--ok);color:#04140c;border-color:var(--ok)}#sk:hover{background:#7dffc6}
 
-  <!-- Soft light pool: follows where her gaze lands (updated from hero.js) -->
-  <div class="gaze-light" id="gaze-light" aria-hidden="true"></div>
-  <div class="gaze-specular" id="gaze-specular" aria-hidden="true"></div>
-  <div class="face-halo" id="face-halo" aria-hidden="true"></div>
+.quest{grid-column:1;grid-row:2;align-self:start;width:210px;padding:12px;display:none}.quest.on{display:block}
+.quest h3{font:8px 'Press Start 2P',monospace;color:var(--mute);margin:0 0 10px;letter-spacing:1px}
+#ft{display:flex;flex-direction:column;gap:6px}
+#ft button{width:100%;text-align:left}
 
-  <!-- Black-hole portal ring (expands from gaze point into WORK / ABOUT / CONTACT) -->
-  <div class="singularity" id="singularity" aria-hidden="true">
-    <div class="singularity-core"></div>
-    <div class="singularity-ring"></div>
-  </div>
+.card{grid-column:3;grid-row:2;align-self:start;width:min(400px,calc(100vw - 24px));max-height:100%;overflow:auto;padding:16px 18px 14px;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
+.card.off{display:none}
+.card .x{position:sticky;top:0;float:right;margin:-6px -8px 4px 10px;padding:6px 7px;font-size:8px}
+#pn h2{font:11px/1.6 'Press Start 2P',monospace;margin:0 0 6px;color:var(--ok)}
+#pn .s{color:var(--mute);margin:0 0 10px}
+#pn ul{list-style:none;margin:0;padding:0}
+#pn li{position:relative;padding-left:18px;margin:7px 0}
+#pn li::before{content:'';position:absolute;left:2px;top:.5em;width:6px;height:6px;background:var(--gold)}
+#pn a{color:var(--ok);text-decoration:underline dotted;text-underline-offset:3px}
+#pn a:hover{text-decoration-style:solid}
+#pn b{font-weight:400}
 
-  <!-- ================================================================
-       HERO — full-viewport character, ALWAYS visible
-       ================================================================ -->
-  <section class="hero" id="top">
-    <canvas id="hero-canvas" aria-hidden="true"></canvas>
-    <div class="scrim" aria-hidden="true"></div>
+.dp{display:none;grid-column:1;grid-row:3;align-self:end;grid-template:repeat(2,48px)/repeat(3,48px);gap:4px}
+.dp button{font-size:13px;padding:0}.dp .u{grid-area:1/2}.dp .l{grid-area:2/1}.dp .d{grid-area:2/2}.dp .r{grid-area:2/3}
+.cam{grid-column:2;grid-row:3;justify-self:center;align-self:end;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;padding:8px}
+.cam span{color:var(--mute);font-size:16px;padding:0 6px}
+.mini{grid-column:3;grid-row:3;justify-self:end;align-self:end;padding:8px;display:none}.mini.on{display:block}
+.mini canvas{display:block;width:200px;height:auto;image-rendering:pixelated;cursor:pointer;box-shadow:0 0 0 1px var(--line)}
+.mini span{display:block;font:6px 'Press Start 2P',monospace;color:var(--mute);margin-top:7px;text-align:center;letter-spacing:1px}
 
-    <!-- Floating nav pill (fixed; clicking opens an overlay panel) -->
-    <nav class="pill-nav" aria-label="Primary">
-      <button class="nav-btn" data-open="work">WORK</button>
-      <button class="nav-btn" data-open="about">ABOUT</button>
-      <button class="nav-btn" data-open="contact">CONTACT</button>
-    </nav>
+@media(pointer:coarse){.dp{display:grid}}
+@media(max-width:1000px){.cam span{display:none}}
+@media(max-width:720px){
+ :root{--gap:8px}
+ .hud{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto auto}
+ .hud>*{min-width:0;grid-column:1}
+ .brand p,.ml .arch{display:none}
+ .stats,.ml{gap:2px 12px;padding:8px 10px;font-size:16px}
+ .mini{grid-row:2;justify-self:end;align-self:start}.mini canvas{width:104px}.mini span{display:none}
+ .dp{grid-row:2;justify-self:end;align-self:end;grid-template:repeat(2,42px)/repeat(3,42px)}
+ .cam{grid-row:3;justify-self:center;padding:6px;gap:4px}.cam button{padding:8px 9px}
+ .card{grid-row:4;width:auto;max-height:36dvh}
+ .quest{grid-row:5;width:auto;padding:8px}.quest h3{display:none}
+ #ft{flex-direction:row;overflow-x:auto;scrollbar-width:none}#ft button{width:auto;flex:none;white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){button{transition:none}button:hover{transform:none}}
+</style></head><body>
+<div class="app">
+<canvas id="c" role="img" aria-label="Pixel map portfolio. Click the map, use arrow keys, or pick a quest to travel."></canvas>
+<canvas id="c3" width="480" height="300" role="img" aria-label="3D pixel world. Drag to orbit, scroll or pinch to zoom, click the ground or use arrow keys to walk."></canvas>
+<div class="hud">
+<header class="top">
+<div class="brand gl"><h1>KJS WORLD MAP</h1><p>Kholood Jenan Sajid · Data Engineer · Pune</p></div>
+<div class="stats gl"><span>DISCOVERED <b id="hd">0/5</b><span class="pips" id="pips" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></span><span>PACKETS LOADED <b id="hp">0</b></span><span id="hs">STAGE 1/2 · TF-IDF + K-MEANS ON MY RESUME…</span></div>
+<a class="live gl" id="lv" href="pune.html" hidden><i aria-hidden="true"></i><b id="lvs">LIVE MAP</b><span id="lvt">PUNE</span></a>
+<div class="ml gl"><span class="arch">NEURAL FIELD 40→48→48→10 · ADAM</span><span>EPOCH <b id="mep">0</b></span><span>LOSS <b id="mls">–</b></span><span>ACC <b id="mac">0%</b></span><canvas id="lc" width="120" height="20"></canvas><button id="sk" onclick="skip()">SKIP ▶</button></div>
+</header>
+<nav class="quest gl"><h3>QUESTS</h3><div id="ft"></div></nav>
+<div class="mini gl"><canvas id="mm" width="160" height="104"></canvas><span>CLICK MAP TO TRAVEL</span></div>
+<aside class="card gl"><button class="x" onclick="this.parentNode.classList.add('off')" aria-label="Close">✕</button><div id="pn" aria-live="polite"></div></aside>
+<div class="cam gl" id="cam" hidden><button onclick="cz(.8)">＋</button><button onclick="cz(1.25)">－</button><button onclick="bird()">BIRD VIEW</button><button onclick="follow()">FOLLOW</button><button onclick="cr(-.785)">⟲</button><button onclick="cr(.785)">⟳</button><span>DRAG ORBIT · WHEEL ZOOM · Q/E ROTATE · CLICK GROUND TO WALK</span></div>
+<div class="dp"><button class="u" data-d="0,-1" aria-label="Up">▲</button><button class="l" data-d="-1,0" aria-label="Left">◀</button><button class="d" data-d="0,1" aria-label="Down">▼</button><button class="r" data-d="1,0" aria-label="Right">▶</button></div>
+</div>
+</div>
+<script src="live-config.js"></script>
+<script src="live.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const T=16,W=20,H=13,C=document.getElementById('c'),x=C.getContext('2d');C.width=W*T;C.height=H*T;
+const $=i=>document.getElementById(i);
+const R=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a|0,b|0,w,h)};
+const K=(a,b)=>a+','+b,hs=(i,j)=>((i*73856093)^(j*19349663))>>>0;
+const POI=[
+{id:'amdocs',n:'AMDOCS',k:'castle',bx:2,by:1,lab:[24,-3],t:'Amdocs — Warehouse Castle',s:'Data Engineer · Aug 2024 – Present · Pune',i:['Built ETL pipelines in Python, SQL and Snowflake for high-volume production workloads','Ingested 10+ upstream feeds (payments, tax, inventory, revenue) from Azure Blob/SFTP into Snowflake staging','Engineered 20+ automated data quality and risk validation checks','Secured workflows with SPN auth, RBAC and CI/CD; built an event-driven backend aligned with Kafka/Event Hub patterns']},
+{id:'luc',n:'LET US CODE',k:'village',bx:15,by:1,lab:[24,-3],t:'Let Us Code — Scraper Village',s:'Software Engineering Intern · Nov 2023 – Jul 2024 · Jaipur',i:['Built scalable scraping systems over multi-category product datasets at 95% data accuracy','Automated workflow pipelines to cut manual intervention and speed up ingestion','Optimised MongoDB storage design for faster queries and less duplication','Applied DSA and OOP to keep backend components maintainable']},
+{id:'proj',n:'PROJECTS',k:'lab',bx:2,by:8,lab:[24,-3],t:'Projects — The Lab',s:'Things I built to learn out loud',i:['Real-Time Analytics Platform — C++ multi-threading and performance tuning for high-throughput processing','Distributed Order Processing — event-driven backend, REST APIs, async tasks, Stripe gateway (70% functionality uplift)','officeSlang — a tool bridging corporate jargon and plain language, shipped in a one-month sprint']},
+{id:'cert',n:'CERTS',k:'lib',bx:15,by:8,lab:[24,-3],t:'Credentials — The Library',s:'Certifications, rankings and education',i:['Anthropic — AI Fluency: Framework &amp; Foundations (Apr 2026)','DeepLearning.AI — Functions, Tools and Agents with LangChain (Jul 2025)','Databricks Fundamentals · Azure AI-900','250+ LeetCode problems · Rank 3/50+ in the 2024 Coding Challenge','B.Tech IT, Bharati Vidyapeeth · CGPA 9.64']},
+{id:'contact',n:'CONTACT',k:'light',bx:8,by:0,lab:[52,14,'left'],t:'Contact — The Lighthouse',s:'Open to work · Hybrid / on-site · Pune +3 locations',i:['Email: <a href="mailto:sjkholood@gmail.com">sjkholood@gmail.com</a>','LinkedIn: <a href="https://www.linkedin.com/in/kholood-jenan-sajid" target="_blank" rel="noopener">kholood-jenan-sajid</a>','GitHub: <a href="https://github.com/KholoodJenanSajid" target="_blank" rel="noopener">KholoodJenanSajid</a>','Phone: +91 82998 19282']}
+];
+const solid=new Set(),path=[],pset=new Set(),res=new Set(),trees=[],seen=new Set();
+for(let j=6;j<8;j++)for(let i=0;i<W;i++)if(i!=9)solid.add(K(i,j));
+for(let j=2;j<=11;j++)path.push([9,j]);
+for(let i=3;i<=16;i++){path.push([i,3]);path.push([i,10]);}
+path.forEach(p=>pset.add(K(p[0],p[1])));
+POI.forEach(p=>{p.dx=p.bx+1;p.dy=p.by+2;for(let i=0;i<3;i++)for(let j=0;j<2;j++)solid.add(K(p.bx+i,p.by+j));for(let i=-1;i<4;i++)for(let j=-1;j<4;j++)res.add(K(p.bx+i,p.by+j));});
+for(let j=0;j<H;j++)for(let i=0;i<W;i++){const k=K(i,j);if(j==6||j==7||solid.has(k)||pset.has(k)||res.has(k))continue;if(hs(i,j)%8==0){trees.push([i,j]);solid.add(k);}}
 
-    <!-- HOME: greeting + name + bio + CTAs. Hidden while an overlay is open. -->
-    <div class="hero-copy" data-panel="home">
-      <span class="greeting">Data engineer &middot; pipeline poet</span>
-      <h1 class="name">Kholood</h1>
-      <p class="bio">
-        I build the quiet middle of the stack &mdash; lakes, lineage, and checks
-        that turn messy upstream truth into something dashboards can trust.
-        Follow my gaze into the work.
-      </p>
-      <div class="ctas">
-        <button class="btn btn-solid" data-open="work" data-magnetic>
-          <span>See Work</span>
-          <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </button>
-        <button class="btn btn-ghost" data-open="contact" data-magnetic>Let&rsquo;s Talk</button>
-      </div>
-    </div>
-  </section>
+const P={tx:9,ty:10,sx:9,sy:10,px:144,py:160,t:0,m:false};
+let held=null,loaded=0,pk=[],acc=0;
+const pn=$('pn');
+function hud(){$('hd').textContent=seen.size+'/5';document.querySelectorAll('#pips i').forEach((e,i)=>e.classList.toggle('on',i<seen.size));$('hp').textContent=loaded;if(seen.size==5)$('hs').textContent='PIPELINE COMPLETE ✓';}
+function intro(){pn.innerHTML='<h2>Welcome, traveller</h2><p class="s">The river is a live pipeline: raw → transform → load.</p><ul><li>Walk with arrow keys or WASD — or click the world, the minimap or a quest to auto-walk.</li><li>Step on a glowing gold tile to enter a location.</li><li>Discover all 5 places to complete the pipeline.</li></ul>';}
+let liveLine='see where I am on the live Pune map';
+if(window.KJSLive)KJSLive.subscribe(s=>{const el=$('lv');el.hidden=false;
+ const st=s.demo||!s.fix?'LIVE MAP':s.live?'LIVE NOW':s.paused?'PAUSED':'LAST SEEN';
+ const where=s.demo||!s.fix?'PUNE':(s.area||'PUNE')+(s.live?'':' · '+KJSLive.ago(s.age));
+ el.className='live gl '+(s.demo||!s.fix?'':s.live?'on':'off');$('lvs').textContent=st;$('lvt').textContent=where;
+ el.setAttribute('aria-label',s.demo||!s.fix?'Open the live Pune map':(s.live?'Live now in ':'Last seen in ')+where);
+ liveLine=s.demo||!s.fix?'see where I am on the live Pune map':(s.live?'live in ':'last seen in ')+where.toLowerCase();},{area:!KJSLive.DEMO});
+function open(p){seen.add(p.id);hud();if(p.btn){p.btn.textContent='★ '+p.n;p.btn.classList.add('done');}pn.innerHTML='<h2>'+p.t+'</h2><p class="s">'+p.s+'</p><ul>'+p.i.map(v=>'<li>'+v+'</li>').join('')+(p.id=='contact'?'<li>Right now: <a href="pune.html">'+liveLine+'</a></li>':'')+'</ul>'+(seen.size==5?'<p class="s">★ All 5 locations resolved — raw data, trusted output. Say hello at the lighthouse.</p>':'');}
+pn.innerHTML='<h2>Stage 1 — Clustering my skills</h2><p class="s">24 skills from my profile, each a 5-D vector (DATA · CLOUD · BACKEND · AI · CRAFT). k-means (k=5, k-means++ init) groups them live.</p><ul><li>Dots = skills, squares = centroids. Watch them settle.</li><li>The clusters become part of the portfolio. Stage 2 then trains a neural net to draw the world. Or hit SKIP.</li></ul>';
+POI.forEach(p=>{const b=document.createElement('button');b.textContent='▶ '+p.n;b.disabled=true;b.onclick=()=>goTo(p.dx,p.dy);p.btn=b;$('ft').appendChild(b);});
 
-  <!-- ================================================================
-       OVERLAYS — full-screen frosted-glass panels that pop up when nav
-       is clicked. Character stays visible underneath (blurred slightly).
-       ================================================================ -->
-  <div class="overlay-root" aria-hidden="true">
+const D={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]};
+const gd=e=>D[e.key]||D[e.key.toLowerCase()];
+addEventListener('keydown',e=>{const d=gd(e);if(d){held=d;e.preventDefault();}});
+addEventListener('keyup',e=>{const d=gd(e);if(d&&held===d)held=null;});
+document.querySelectorAll('.dp button').forEach(b=>{const d=b.dataset.d.split(',').map(Number);b.onpointerdown=e=>{e.preventDefault();held=d;};['onpointerup','onpointerleave','onpointercancel'].forEach(h=>b[h]=()=>{held=null;});});
 
-    <!-- ============ WORK PANEL ============ -->
-    <section class="overlay" id="panel-work" data-panel="work" role="dialog" aria-modal="true" aria-labelledby="work-title" hidden>
-      <div class="overlay-backdrop" aria-hidden="true"></div>
-      <button class="overlay-close" aria-label="Close" data-close>&times;</button>
-      <div class="overlay-inner">
-        <div class="overlay-scroll">
-        <header class="overlay-head">
-          <span class="overlay-tag">WORK</span>
-          <h2 class="overlay-title" id="work-title">A short list of the systems I&rsquo;ve <em>built</em>, <em>broken</em>, and <em>quietly fixed</em>.</h2>
-        </header>
-
-        <div class="cases">
-
-          <!-- Case 1: Amdocs -->
-          <article class="case">
-            <header class="case-head">
-              <span class="case-num">01</span>
-              <div class="case-meta">
-                <span class="case-role">Data Engineer</span>
-                <span class="case-year">2024 &mdash; Present</span>
-                <span class="case-org">Amdocs</span>
-              </div>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                Snowflake pipelines that <em>don&rsquo;t wake anyone up at 3&nbsp;AM.</em>
-              </h3>
-              <p>
-                Designed and maintained reusable ingestion pipelines in Python + SQL
-                landing <strong>10+ upstream feeds</strong> from external systems into a
-                <strong>Snowflake data lake</strong> via Azure Blob and SFTP. Built
-                <strong>20+ automated DQ &amp; risk-validation checks</strong> that cut data
-                defects in production, and tuned ETL logic &amp; complex joins for
-                high-throughput jobs.
-              </p>
-              <ul class="case-tags">
-                <li>Snowflake</li><li>Azure Blob / SFTP</li><li>Python</li>
-                <li>SQL</li><li>Data Lake</li><li>CI/CD</li><li>SPN Auth</li>
-              </ul>
-              <ul class="case-metrics">
-                <li><strong>10+</strong><span>upstream feeds</span></li>
-                <li><strong>20+</strong><span>QC / risk checks</span></li>
-                <li><strong>&darr;</strong><span>end-to-end latency</span></li>
-                <li><strong>&darr;&darr;</strong><span>production defects</span></li>
-              </ul>
-            </div>
-          </article>
-
-          <!-- Case 2: Device Sales Cube Reconciliation -->
-          <article class="case case-featured">
-            <header class="case-head">
-              <span class="case-num">02</span>
-              <div class="case-meta">
-                <span class="case-role">Data Reconciliation Lead</span>
-                <span class="case-year">2025</span>
-                <span class="case-org">Amdocs &middot; Deep-Dive</span>
-              </div>
-              <span class="case-badge">NEW</span>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                Device Sales cube reconciliation &mdash; <em>separating loss from measurement.</em>
-              </h3>
-              <p>
-                Led end-to-end reconciliation of a production <strong>Device Sales analytical
-                cube</strong> (Databricks gold vs legacy warehouse) whose grain is one
-                current IMEI-sale after SCD-2, with retail / store / online branches and a
-                27-month date window.
-              </p>
-              <p>
-                Isolated cube <strong>COUNT</strong> (current dimension rows) from
-                <strong>measures</strong> &mdash; <code>SalePrice</code>, discount, list/unit
-                cost, retail price, OEM &amp; channel subsidies, protect tier &mdash; that
-                attach through a one-row-per-IMEI DeviceActivity rank. That way a matching
-                order on a different device id can pass inventory checks and still fail
-                dollars.
-              </p>
-              <p>
-                Classified residuals into <strong>SCD current-to-history flips</strong>,
-                <strong>late IMEI assignment</strong>, and <strong>same-order IMEI twins</strong>.
-                Proved a multi-day window had <strong>zero missing sales vs source</strong>
-                (<code>true_miss = 0</code>) while documenting why IMEI-keyed sums and
-                distinct-device counts still diverged.
-              </p>
-              <p>
-                Turned it into a repeatable <strong>certify pattern</strong> (business-date
-                keys, not ETL stamps) that stakeholders now use to separate real loss from
-                measure/join effects.
-              </p>
-              <ul class="case-tags">
-                <li>Databricks</li><li>Warehouse Reconciliation</li><li>SCD-2</li>
-                <li>Analytical Cubes</li><li>Root-Cause Analysis</li><li>SQL</li>
-              </ul>
-              <ul class="case-metrics">
-                <li><strong>27 mo</strong><span>date window audited</span></li>
-                <li><strong>true_miss = 0</strong><span>proven vs source</span></li>
-                <li><strong>3</strong><span>residual classes named</span></li>
-                <li><strong>repeatable</strong><span>certify pattern</span></li>
-              </ul>
-            </div>
-          </article>
-
-          <!-- Case 3: Freshline -->
-          <article class="case case-featured">
-            <header class="case-head">
-              <span class="case-num">03</span>
-              <div class="case-meta">
-                <span class="case-role">Founder &middot; Builder</span>
-                <span class="case-year">2026</span>
-                <span class="case-org">Freshline</span>
-              </div>
-              <span class="case-badge">LIVE</span>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                Freshline &mdash; an <em>expiry-risk engine</em> for quick-commerce dark stores.
-              </h3>
-              <p>
-                Dark stores now carry 3&ndash;4x more SKUs than two years ago, but catching
-                perishable stock before it expires is still mostly manual. I built
-                <strong>Freshline</strong> to flag at-risk inventory days in advance using a
-                <em>transparent formula</em> (days-to-sell-out vs. days-to-expiry) instead
-                of a black box &mdash; with automated actions like discounting, B2B offload,
-                and donation routing, plus an upgrade path to a velocity-prediction ML model.
-              </p>
-              <p>
-                What makes it stand out: I grounded it in <strong>real public filings</strong>
-                instead of assumptions, and packaged it as an actual <strong>30-day pilot
-                proposal</strong>, not just a demo.
-              </p>
-              <p>
-                This mirrors how I work at Amdocs &mdash; tracing issues to root cause and
-                designing <em>auditable</em> fixes, not quick patches. Freshline reflects
-                that flexibility: I keep pairing what I&rsquo;m learning, like AI integration,
-                with production-grade discipline.
-              </p>
-              <ul class="case-tags">
-                <li>Inventory Systems</li><li>Forecasting</li><li>Pilot Design</li>
-                <li>Product Thinking</li><li>ML Roadmap</li>
-              </ul>
-              <ul class="case-metrics">
-                <li><strong>3&ndash;4&times;</strong><span>SKU growth addressed</span></li>
-                <li><strong>30 day</strong><span>pilot proposal</span></li>
-                <li><strong>public</strong><span>data-grounded</span></li>
-              </ul>
-              <a class="case-link" href="https://kholoodjenansajid.github.io/freshline-site" target="_blank" rel="noopener" data-magnetic>
-                Live demo
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M7 17L17 7"/><path d="M8 7h9v9"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-          <!-- Case 4: C++ Real-Time -->
-          <article class="case">
-            <header class="case-head">
-              <span class="case-num">04</span>
-              <div class="case-meta">
-                <span class="case-role">Systems Builder</span>
-                <span class="case-year">2023</span>
-                <span class="case-org">Bharati Vidyapeeth</span>
-              </div>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                C++ threads pushing data <em>faster than they should.</em>
-              </h3>
-              <p>
-                A multi-threaded C++ engine for high-throughput, low-latency analytics.
-                Focused on <strong>cache-friendly data structures</strong>,
-                <strong>contention-aware locking</strong>, and tight STL usage to squeeze
-                predictable performance out of commodity hardware.
-              </p>
-              <ul class="case-tags">
-                <li>C++ &middot; STL</li><li>Multi-threading</li><li>Real-Time</li><li>Performance</li>
-              </ul>
-              <ul class="case-metrics">
-                <li><strong>Low</strong><span>latency</span></li>
-                <li><strong>High</strong><span>throughput</span></li>
-                <li><strong>Thread-safe</strong><span>by design</span></li>
-              </ul>
-            </div>
-          </article>
-
-          <!-- Case 5: Order Processing -->
-          <article class="case">
-            <header class="case-head">
-              <span class="case-num">05</span>
-              <div class="case-meta">
-                <span class="case-role">Builder</span>
-                <span class="case-year">2024</span>
-                <span class="case-org">Personal Project</span>
-              </div>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                A distributed order system that <em>behaves like real infra.</em>
-              </h3>
-              <p>
-                An event-driven backend simulating an integrated order workflow &mdash;
-                REST APIs, asynchronous task execution, and a full order lifecycle from
-                placement to fulfillment. Wired in <strong>Stripe</strong> for live payment
-                capture &mdash; a reference architecture for streaming-style flows similar
-                to <strong>Event Hub / Kafka</strong>.
-              </p>
-              <ul class="case-tags">
-                <li>Python</li><li>REST APIs</li><li>Async / Events</li>
-                <li>Stripe</li><li>Distributed Systems</li>
-              </ul>
-              <ul class="case-metrics">
-                <li><strong>+70%</strong><span>functional coverage</span></li>
-                <li><strong>end-to-end</strong><span>order lifecycle</span></li>
-                <li><strong>live</strong><span>payment capture</span></li>
-              </ul>
-            </div>
-          </article>
-
-          <!-- Case 6: OfficesLang -->
-          <article class="case">
-            <header class="case-head">
-              <span class="case-num">06</span>
-              <div class="case-meta">
-                <span class="case-role">Builder</span>
-                <span class="case-year">2024</span>
-                <span class="case-org">1-month sprint</span>
-              </div>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                OfficesLang &mdash; <em>bridging jargon</em> and human clarity.
-              </h3>
-              <p>
-                A linguistic intelligence tool that translates dense workplace jargon into
-                clear, human language. Shipped end-to-end in a <strong>one-month sprint</strong>
-                &mdash; from NLP prototyping to a usable interface.
-              </p>
-              <ul class="case-tags">
-                <li>Python</li><li>NLP</li><li>1-month ship</li>
-              </ul>
-            </div>
-          </article>
-
-          <!-- Case 7: Let Us Code -->
-          <article class="case">
-            <header class="case-head">
-              <span class="case-num">07</span>
-              <div class="case-meta">
-                <span class="case-role">SWE Intern</span>
-                <span class="case-year">2023 &mdash; 2024</span>
-                <span class="case-org">Let Us Code Systems</span>
-              </div>
-            </header>
-            <div class="case-body">
-              <h3 class="case-title">
-                Scrapers that <em>don&rsquo;t lie</em> about the data.
-              </h3>
-              <p>
-                Scalable scraping systems handling multi-category product datasets with a
-                <strong>95% accuracy rate</strong>. Automated ingestion, removed manual
-                steps, redesigned MongoDB storage for faster queries and less duplication.
-              </p>
-              <ul class="case-tags">
-                <li>Python</li><li>Scrapy</li><li>Pandas</li><li>MongoDB</li><li>OOP &middot; DSA</li>
-              </ul>
-              <ul class="case-metrics">
-                <li><strong>95%</strong><span>data accuracy</span></li>
-                <li><strong>&darr;</strong><span>manual intervention</span></li>
-                <li><strong>&uarr;</strong><span>query performance</span></li>
-              </ul>
-            </div>
-          </article>
-        </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ ABOUT PANEL ============ -->
-    <section class="overlay" id="panel-about" data-panel="about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
-      <div class="overlay-backdrop" aria-hidden="true"></div>
-      <button class="overlay-close" aria-label="Close" data-close>&times;</button>
-      <div class="overlay-inner">
-        <div class="overlay-scroll">
-        <header class="overlay-head">
-          <span class="overlay-tag">ABOUT</span>
-          <h2 class="overlay-title" id="about-title">The story, briefly.</h2>
-        </header>
-
-        <div class="about-grid">
-          <div class="about-copy">
-            <p>
-              I fell into data the way most engineers do &mdash; by accident, then
-              obsession. I started with backend code and DSA (<strong>250+ LeetCode</strong>
-              problems, a scrappy <strong>3rd place</strong> in a 2024 coding challenge),
-              and somewhere along the way I realised the <em>most interesting bug in any
-              system is usually a data bug</em>.
-            </p>
-            <p>
-              These days I spend my time on the unglamorous middle of the stack &mdash;
-              ETL, staging layers, data lakes, orchestration, and the hundred small
-              checks that stand between raw upstream files and a dashboard someone
-              actually trusts.
-            </p>
-            <p>
-              I like pipelines that <em>fail loudly</em>, code that reads like prose,
-              and systems where the next engineer &mdash; including future me &mdash;
-              doesn&rsquo;t need a map to change something.
-            </p>
-            <div class="signature">Kholood, from Pune</div>
-          </div>
-
-          <aside class="about-facts">
-            <div class="fact">
-              <span class="fact-k">Currently</span>
-              <span class="fact-v">Data Engineer @ <strong>Amdocs</strong></span>
-              <span class="fact-sub">Aug 2024 &mdash; Present &middot; Pune, IN</span>
-            </div>
-            <div class="fact">
-              <span class="fact-k">Education</span>
-              <span class="fact-v">B.Tech Information Technology<br><strong>Bharati Vidyapeeth Deemed University</strong>, Pune</span>
-              <span class="fact-sub">CGPA 9.64 &middot; May 2024</span>
-            </div>
-            <div class="fact">
-              <span class="fact-k">Extra</span>
-              <span class="fact-v">250+ LeetCode &middot; 3rd place, 2024 coding challenge</span>
-            </div>
-          </aside>
-        </div>
-
-        <!-- Stack -->
-        <section class="overlay-sub">
-          <h3 class="overlay-subtitle">Stack.</h3>
-          <div class="stack-grid">
-            <div class="stack-col">
-              <h4>Data &amp; Warehousing</h4>
-              <ul>
-                <li>Snowflake</li><li>Databricks</li><li>ETL pipelines</li>
-                <li>Data lake / staging</li><li>Data modeling &middot; SCD-2</li>
-                <li>PySpark</li><li>Pandas &middot; NumPy</li>
-              </ul>
-            </div>
-            <div class="stack-col">
-              <h4>Cloud &amp; Ops</h4>
-              <ul>
-                <li>Azure Blob &middot; SFTP</li><li>CI/CD</li>
-                <li>Service Principal auth</li><li>TWS Scheduler</li>
-                <li>Azure AI-900</li>
-              </ul>
-            </div>
-            <div class="stack-col">
-              <h4>Languages</h4>
-              <ul>
-                <li>Python</li><li>SQL</li><li>TypeScript</li><li>C++ &middot; STL</li>
-              </ul>
-            </div>
-            <div class="stack-col">
-              <h4>Backend &amp; Systems</h4>
-              <ul>
-                <li>Spring Boot</li><li>REST APIs</li><li>Microservices</li>
-                <li>Event-driven design</li><li>MongoDB</li><li>Scrapy</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <!-- Certifications -->
-        <section class="overlay-sub">
-          <h3 class="overlay-subtitle">Endorsements.</h3>
-          <div class="certs-grid">
-            <div class="cert">
-              <div class="cert-badge">A</div>
-              <div class="cert-body">
-                <div class="cert-title">AI Fluency &mdash; Framework &amp; Foundations</div>
-                <div class="cert-issuer">Anthropic &middot; Apr 2026</div>
-              </div>
-            </div>
-            <div class="cert">
-              <div class="cert-badge">LC</div>
-              <div class="cert-body">
-                <div class="cert-title">Functions, Tools &amp; Agents &mdash; LangChain</div>
-                <div class="cert-issuer">DeepLearning.AI &middot; Jul 2025</div>
-              </div>
-            </div>
-            <div class="cert">
-              <div class="cert-badge">DB</div>
-              <div class="cert-body">
-                <div class="cert-title">Databricks Fundamentals</div>
-                <div class="cert-issuer">Databricks</div>
-              </div>
-            </div>
-            <div class="cert">
-              <div class="cert-badge">AZ</div>
-              <div class="cert-body">
-                <div class="cert-title">Azure AI-900</div>
-                <div class="cert-issuer">Microsoft</div>
-              </div>
-            </div>
-            <div class="cert">
-              <div class="cert-badge">MS</div>
-              <div class="cert-body">
-                <div class="cert-title">Microsoft Learn Student Ambassador</div>
-                <div class="cert-issuer">Microsoft &middot; Nov 2021</div>
-              </div>
-            </div>
-          </div>
-        </section>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ CONTACT PANEL ============ -->
-    <section class="overlay" id="panel-contact" data-panel="contact" role="dialog" aria-modal="true" aria-labelledby="contact-title" hidden>
-      <div class="overlay-backdrop" aria-hidden="true"></div>
-      <button class="overlay-close" aria-label="Close" data-close>&times;</button>
-      <div class="overlay-inner overlay-inner--contact">
-        <div class="overlay-scroll">
-        <header class="overlay-head">
-          <span class="overlay-tag">CONTACT</span>
-          <h2 class="overlay-title" id="contact-title">The channel is open.</h2>
-          <p class="overlay-lede">
-            Working on something with messy data or a pipeline that keeps breaking?
-            Send a note. I&rsquo;m listening.
-          </p>
-        </header>
-        <div class="contact-links">
-          <a href="mailto:sjkholood@gmail.com" data-magnetic>
-            <span class="cl-k">Email</span>
-            <span class="cl-v">sjkholood@gmail.com</span>
-          </a>
-          <a href="https://www.linkedin.com/in/kholood-jenan-sajid" target="_blank" rel="noopener" data-magnetic>
-            <span class="cl-k">LinkedIn</span>
-            <span class="cl-v">/in/kholood-jenan-sajid</span>
-          </a>
-          <a href="https://github.com/KholoodJenanSajid" target="_blank" rel="noopener" data-magnetic>
-            <span class="cl-k">GitHub</span>
-            <span class="cl-v">/KholoodJenanSajid</span>
-          </a>
-          <a href="tel:+918299819282" data-magnetic>
-            <span class="cl-k">Phone</span>
-            <span class="cl-v">+91 82998 19282</span>
-          </a>
-        </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Custom magnetic cursor -->
-  <div class="cursor-dot" aria-hidden="true"></div>
-  <div class="cursor-ring" aria-hidden="true"></div>
-
-  <!-- Loader shroud (fades out once frames are decoded) -->
-  <div id="loader" aria-hidden="true"></div>
-
-  <script src="portal.js?v6c" defer></script>
-  <script src="hero.js?v6" defer></script>
-</body>
-</html>
+function mv(d){const nx=P.tx+d[0],ny=P.ty+d[1];if(nx<0||ny<0||nx>=W||ny>=H||solid.has(K(nx,ny)))return;P.m=true;P.sx=P.tx;P.sy=P.ty;P.tx=nx;P.ty=ny;P.t=0;}
+function up(dt){if(mode!='play')return;
+ if(P.m){P.t+=dt/120;if(P.t>=1){P.t=1;P.m=false;const p=POI.find(q=>q.dx==P.tx&&q.dy==P.ty);if(p)open(p);}}
+ if(!P.m&&held){rt=[];mv(view3?rot(held):held);}else if(!P.m&&rt.length)mv(rt.shift());
+ P.px=(P.m?P.sx+(P.tx-P.sx)*P.t:P.tx)*T;P.py=(P.m?P.sy+(P.ty-P.sy)*P.t:P.ty)*T;
+ acc+=dt;if(acc>650){acc=0;pk.push({x:-4,y:100+(Math.random()*22|0)});}
+ pk.forEach(q=>q.x+=dt*.045);const n=pk.length;pk=pk.filter(q=>q.x<W*T);if(pk.length<n){loaded+=n-pk.length;hud();}
+}
+function bld(p,t){const a=p.bx*T,b=p.by*T;
+ if(p.k=='castle'){R('#7c869c',a,b+2,10,30);R('#7c869c',a+38,b+2,10,30);R('#9aa3b5',a+10,b+8,28,24);for(let i=0;i<6;i++)R('#aab3c6',a+i*8+1,b+(i<1||i>4?-2:4),5,4);R('#ddd',a+4,b-8,1,7);R('#ff5f57',a+5,b-8,5,3);R('#3b2a1a',a+20,b+18,8,14);R('#3b2a1a',a+21,b+16,6,2);R('#ffd86b',a+14,b+12,3,4);R('#ffd86b',a+31,b+12,3,4);}
+ else if(p.k=='village'){[2,26].forEach(o=>{const h=a+o;R('#c98b4e',h,b+14,20,18);R('#b13e3e',h-2,b+8,24,6);R('#b13e3e',h+2,b+4,16,4);R('#4a2d17',h+8,b+22,5,10);R('#ffd86b',h+3,b+18,3,3);});}
+ else if(p.k=='lab'){R('#1f6f68',a,b+4,48,5);R('#3fb6a8',a+2,b+9,44,23);R('#555',a+36,b-2,6,7);R('#aaf5ff',a+8,b+14,10,8);R('#2a3f4a',a+30,b+18,8,14);R('rgba(230,230,230,.6)',a+38+Math.sin(t/250)*2,b-6-((t/80)%12),3,3);}
+ else if(p.k=='lib'){R('#5a3a85',a+8,b,32,5);R('#5a3a85',a,b+4,48,4);R('#8a5fb5',a+2,b+8,44,24);for(let i=0;i<5;i++)R('#e9dff7',a+6+i*8,b+9,3,23);R('#2c1a45',a+20,b+20,8,12);}
+ else{R('#888',a+14,b+28,20,4);for(let i=0;i<5;i++)R(i%2?'#e04848':'#fff',a+18,b+4+i*5,12,5);R('#ffd23f',a+17,b,14,4);const s=Math.sin(t/700),L=Math.abs(s)*50;R('rgba(255,230,120,.3)',s>0?a+32:a+16-L,b+1,L,4);}
+ const dx=p.dx*T,dy=p.dy*T,g=.3+.25*Math.sin(t/250);x.fillStyle='rgba(255,210,63,'+g+')';x.fillRect(dx+2,dy+2,12,12);R('#ffd23f',dx+2,dy+2,12,1);R('#ffd23f',dx+2,dy+13,12,1);R('#ffd23f',dx+2,dy+2,1,12);R('#ffd23f',dx+13,dy+2,1,12);}
+function pl(px,py,w){const b=w&&Math.sin(performance.now()/60)>0?1:0;py-=b;R('rgba(0,0,0,.25)',px+3,py+b+14,10,2);R('#24142e',px+4,py+1,8,6);R('#24142e',px+3,py+3,1,7);R('#24142e',px+12,py+3,1,7);R('#e3ae8c',px+5,py+3,6,5);R('#222',px+5,py+5,6,1);R('#9fd8ff',px+5,py+4,2,2);R('#9fd8ff',px+9,py+4,2,2);R('#fff',px+4,py+8,8,2);R('#2fb7ff',px+7,py+8,2,2);R('#1d3a6e',px+5,py+10,6,3);R('#2a2a40',px+5,py+13,2,2);R('#2a2a40',px+9,py+13,2,2);}
+function draw(t){
+ for(let j=0;j<H;j++)for(let i=0;i<W;i++){R((i+j)%2?'#5fae4f':'#58a64a',i*T,j*T,T,T);const h=hs(i,j);if(h%7==0)R(h%2?'#ffd1e8':'#fff3a0',i*T+(h>>3)%12+2,j*T+(h>>5)%12+2,2,2);}
+ path.forEach(p=>{R('#d9b779',p[0]*T,p[1]*T,T,T);R('#c4a05f',p[0]*T+hs(p[0],p[1])%10+2,p[1]*T+hs(p[1],p[0])%10+2,2,2);});
+ R('#2563c9',0,96,320,32);R('#1b4a9c',0,96,320,2);R('#1b4a9c',0,126,320,2);
+ for(let i=0;i<40;i++)R('#6fa8ff',(i*8+t/40)%328-4,100+(i%2)*8+(i%3)*3,5,1);
+ R('#8a5a2b',144,96,16,32);for(let k=0;k<8;k++)R('#6b4423',144,98+k*4,16,1);
+ x.font='6px "Press Start 2P"';x.textAlign='left';x.fillStyle='rgba(255,255,255,.65)';x.fillText('RAW',6,106);x.fillText('TRANSFORM',118,106);x.fillText('LOAD',270,106);
+ trees.forEach(p=>{const a=p[0]*T,b=p[1]*T;R('#6b4423',a+6,b+10,4,5);R('#2d7a3a',a+2,b+2,12,9);R('#3c9a4c',a+4,b+3,5,3);});
+ POI.forEach(p=>bld(p,t));
+ pk.forEach(q=>{const c=q.x<107?'#ff5f57':q.x<213?'#ffbd2e':'#3ddc97';R(c,q.x,q.y,3,3);R(c,q.x-4,q.y+1,3,1);});
+ pl(P.px,P.py,P.m);
+ POI.forEach(p=>{const l=p.lab,al=l[2],a=p.bx*T+l[0],b=p.by*T+l[1];x.textAlign=al||'center';x.fillStyle='#000';x.fillText(p.n,a+1,b+1);x.fillStyle='#fff';x.fillText(p.n,a,b);const sx=al?a-8:a-2,g=seen.has(p.id)?'#ffd23f':'#8a93ad';R(g,sx+2,b-13,1,5);R(g,sx,b-11,5,1);});
+}
+// ── NEURAL FIELD: an MLP learns the world map from (x,y); solving it unlocks the portfolio ──
+const KIND={castle:5,village:6,lab:7,lib:8,light:9},COL=['#5fae4f','#d9b779','#2563c9','#8a5a2b','#2d7a3a','#9aa3b5','#c98b4e','#3fb6a8','#8a5fb5','#e04848'];
+const tset=new Set(trees.map(p=>K(p[0],p[1]))),Y=[],X=[],NC=10,F=10,IN=4*F,H1=48,H2=48;
+for(let j=0;j<H;j++)for(let i=0;i<W;i++){let c=0;const k=K(i,j);if(j==6||j==7)c=i==9?3:2;else if(pset.has(k))c=1;else if(tset.has(k))c=4;POI.forEach(p=>{if(i>=p.bx&&i<p.bx+3&&j>=p.by&&j<p.by+2)c=KIND[p.k];});Y.push(c);const f=new Float32Array(IN);for(let q=1;q<=F;q++){const a=6.2832*q*i/W,b=6.2832*q*j/H;f[4*q-4]=Math.sin(a);f[4*q-3]=Math.cos(a);f[4*q-2]=Math.sin(b);f[4*q-1]=Math.cos(b);}X.push(f);}
+const N=Y.length,rnd=(n,s)=>Float32Array.from({length:n},()=>(Math.random()*2-1)*s);
+const Ws=[rnd(IN*H1,Math.sqrt(6/(IN+H1))),new Float32Array(H1),rnd(H1*H2,Math.sqrt(6/(H1+H2))),new Float32Array(H2),rnd(H2*NC,Math.sqrt(6/(H2+NC))),new Float32Array(NC)];
+const Gs=Ws.map(w=>new Float32Array(w.length)),Ms=Ws.map(w=>new Float32Array(w.length)),Vs=Ws.map(w=>new Float32Array(w.length));
+const [W1,b1,W2,b2,W3,b3]=Ws,[g1,gb1,g2,gb2,g3,gb3]=Gs;
+const a1=new Float32Array(H1),a2=new Float32Array(H2),z=new Float32Array(NC),d2=new Float32Array(H2),d1=new Float32Array(H1);
+const pred=new Array(N).fill(0),conf=new Array(N).fill(0),lh=[];
+let ep=0,loss=9,ac=0,mode='cluster',fade=0;
+function step(){
+ Gs.forEach(g=>g.fill(0));let L=0,ok=0;
+ for(let n=0;n<N;n++){const f=X[n],y=Y[n];
+  for(let h=0;h<H1;h++){let s=b1[h];for(let k=0;k<IN;k++)s+=f[k]*W1[k*H1+h];a1[h]=Math.tanh(s);}
+  for(let h=0;h<H2;h++){let s=b2[h];for(let k=0;k<H1;k++)s+=a1[k]*W2[k*H2+h];a2[h]=Math.tanh(s);}
+  let mx=-1e9,am=0;for(let c=0;c<NC;c++){let s=b3[c];for(let k=0;k<H2;k++)s+=a2[k]*W3[k*NC+c];z[c]=s;if(s>mx){mx=s;am=c;}}
+  let sm=0;for(let c=0;c<NC;c++){z[c]=Math.exp(z[c]-mx);sm+=z[c];}
+  for(let c=0;c<NC;c++)z[c]/=sm;
+  L-=Math.log(z[y]+1e-9);if(am==y)ok++;pred[n]=am;conf[n]=z[am];z[y]-=1;
+  for(let k=0;k<H2;k++){let s=0;for(let c=0;c<NC;c++){s+=W3[k*NC+c]*z[c];g3[k*NC+c]+=a2[k]*z[c];}d2[k]=s*(1-a2[k]*a2[k]);}
+  for(let c=0;c<NC;c++)gb3[c]+=z[c];
+  for(let k=0;k<H1;k++){let s=0;for(let h=0;h<H2;h++){s+=W2[k*H2+h]*d2[h];g2[k*H2+h]+=a1[k]*d2[h];}d1[k]=s*(1-a1[k]*a1[k]);}
+  for(let h=0;h<H2;h++)gb2[h]+=d2[h];
+  for(let k=0;k<IN;k++)for(let h=0;h<H1;h++)g1[k*H1+h]+=f[k]*d1[h];
+  for(let h=0;h<H1;h++)gb1[h]+=d1[h];
+ }
+ ep++;const c1=1-Math.pow(.9,ep),c2=1-Math.pow(.999,ep);
+ Ws.forEach((w,q)=>{const g=Gs[q],m=Ms[q],v=Vs[q];for(let i=0;i<w.length;i++){const gi=g[i]/N;m[i]=.9*m[i]+.1*gi;v[i]=.999*v[i]+.001*gi*gi;w[i]-=.0006*(m[i]/c1)/(Math.sqrt(v[i]/c2)+1e-8);}});
+ loss=L/N;ac=ok/N;
+}
+const lcx=$('lc').getContext('2d');
+function spark(){lcx.clearRect(0,0,120,20);lcx.strokeStyle='#4dffb0';lcx.beginPath();lh.forEach((v,i)=>{const px=i*120/Math.max(lh.length-1,1),py=19-Math.min(1,Math.max(0,(Math.log10(v)+2.5)/3.3))*18;i?lcx.lineTo(px,py):lcx.moveTo(px,py);});lcx.stroke();}
+function hudm(){$('mep').textContent=ep;$('mls').textContent=loss.toFixed(3);$('mac').textContent=(ac*100|0)+'%';spark();}
+function unlock(){if(mode!='train')return;mode='play';fade=1;hudm();$('sk').parentNode.hidden=true;document.querySelector('.quest').classList.add('on');document.querySelector('.mini').classList.add('on');{const b=document.createElement('button');b.textContent='▶ SKILLS';b.onclick=()=>{pn.innerHTML=skHTML;};$('ft').appendChild(b);}{const b=document.createElement('button');b.textContent='◉ LIVE PUNE';b.onclick=()=>{location.href='pune.html';};$('ft').appendChild(b);}document.querySelectorAll('#ft button').forEach(b=>b.disabled=false);$('hs').textContent='WALK: ARROWS / WASD · STEP ON GOLD TILES';intro();if(typeof THREE!='undefined'){const b=document.createElement('button');b.textContent='◈ 2D / 3D';b.onclick=()=>set3(!view3);$('ft').appendChild(b);set3(true);}}
+function skip(){if(mode=='cluster'){let g=0;while(kstep()&&g++<60);kdone=true;finishK();}mode='train';for(let n=0;n<N;n++){pred[n]=Y[n];conf[n]=1;}ac=1;unlock();}
+function train(){for(let n=0;n<1&&mode=='train';n++){step();if(ep%4==0){lh.push(loss);if(lh.length>120)lh.shift();}if((ac==1&&loss<.08)||ep>5000)unlock();}hudm();}
+function tv(){for(let n=0;n<N;n++){const i=n%W,j=n/W|0,q=Math.round((1-conf[n])*22);R(COL[pred[n]],i*T,j*T,T,T);for(let k=0;k<q;k++){const g=100+(Math.random()*155|0);R('rgb('+g+','+g+','+g+')',i*T+(Math.random()*14|0),j*T+(Math.random()*14|0),2,2);}}}
+// ── STAGE 1 (measured): TF-IDF over my real resume text → spherical k-means → silhouette picks k → PCA map ──
+const CC=['#ff5f57','#ffbd2e','#3ddc97','#4da3ff','#c77dff','#ff8fd1','#8fe3ff'];
+const DOCS=['Designed and maintained reusable data processing pipelines in Python, SQL and Snowflake supporting high-volume transactional workloads in production','Engineered 20+ automated data quality and risk validation checks reducing data defects and improving production data reliability','Optimized ETL and transformation logic for high-throughput data processing improving pipeline performance and reducing latency','Built an event-driven backend system simulating real-time data flow aligned with streaming concepts similar to Event Hub and Kafka','Designed end-to-end ingestion pipelines for 10+ upstream feeds payments tax inventory revenue using Azure Blob and SFTP into Snowflake staging layers','Managed secure credential handling and role-based access for data ingestion workflows across environments','Optimized complex SQL queries and joins to improve performance on large datasets','Handled cross-schema data integration mapping customer and account GUID identifiers across multiple data sources','Configured Service Principal SPN authentication to securely access cloud storage and data platforms enabling automated scalable pipeline execution','Collaborated with cross-functional stakeholders in Agile sprints with clear technical communication','Built scalable scraping systems handling multi-category product datasets with 95% data accuracy using Scrapy and Pandas','Automated workflow pipelines to reduce manual intervention and improve data ingestion efficiency','Optimized MongoDB storage design for improved query performance and reduced data duplication','Applied data structures algorithms and OOP principles to improve maintainability and performance of backend components','Developed project management tracking and communication software using PHP CodeIgniter and MySQL','Research assistant on AWS CloudFront technology during software internship','Designed an event-driven backend system simulating order workflows with REST APIs and asynchronous task execution for order lifecycle management','Integrated Stripe payment gateway for secure online transactions enabling reliable transaction data capture and analysis','Real-time analytics platform in C++ using multi-threading and performance optimization for scalable data processing','officeSlang tool bridging corporate jargon and plain language built in a one-month sprint','Solved 250+ LeetCode problems strengthening algorithmic and data structures proficiency','Ranked 3 of 50+ in the 2024 Coding Challenge for scalable backend solution design','Completed AI Fluency Framework and Foundations from Anthropic','Completed Functions Tools and Agents with LangChain from DeepLearning.AI','Certified in Databricks Fundamentals and Microsoft Azure AI-900','B.Tech in Information Technology CGPA 9.64 with coursework in machine learning databases and distributed computing'];
+const STOP=new Set('and the for with using into from that this such across multiple while than over also are was its their has have had can per via during'.split(' '));
+const stem=w=>w.length>4&&w.endsWith('s')&&!w.endsWith('ss')?w.slice(0,-1):w,disp={};
+const toks=DOCS.map(d=>d.toLowerCase().replace(/[^a-z0-9+# ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!/^\d/.test(w)&&!STOP.has(w)).map(w=>{const t=stem(w);disp[t]=disp[t]||w;return t;}));
+const df={};toks.forEach(t=>new Set(t).forEach(w=>df[w]=(df[w]||0)+1));
+const vocab=Object.keys(df).filter(w=>df[w]>=2),nD=DOCS.length,idf=vocab.map(w=>Math.log((1+nD)/(1+df[w]))+1);
+const dot=(a,b)=>{let q=0;for(let i=0;i<a.length;i++)q+=a[i]*b[i];return q;},nrm=v=>{const n=Math.hypot(...v)||1;return v.map(a=>a/n);};
+const V=toks.map(t=>{const c={};t.forEach(w=>c[w]=(c[w]||0)+1);return nrm(vocab.map((w,i)=>(c[w]||0)*idf[i]));});
+function seedC(k){const idx=[Math.random()*nD|0];while(idx.length<k){const ds=V.map((v,i)=>idx.includes(i)?0:Math.pow(Math.min(...idx.map(j=>1-dot(v,V[j]))),2));let r=Math.random()*ds.reduce((a,b)=>a+b,0),i=0;while(r>ds[i]&&i<nD-1){r-=ds[i];i++;}idx.push(i);}return idx;}
+function lloyd(idx){let cen=idx.map(i=>V[i].slice()),asg=V.map(()=>-1),it=0,ch=true;while(ch&&it<50){ch=false;V.forEach((v,i)=>{let bi=0,bs=-9;cen.forEach((c,k)=>{const q=dot(v,c);if(q>bs){bs=q;bi=k;}});if(asg[i]!=bi){asg[i]=bi;ch=true;}});cen=cen.map((c,k)=>{const m=V.filter((v,i)=>asg[i]==k);return m.length?nrm(c.map((_,d)=>m.reduce((a,v)=>a+v[d],0))):c;});it++;}return{asg,sse:V.reduce((a,v,i)=>a+1-dot(v,cen[asg[i]]),0)};}
+function sil(asg,k){let tot=0;V.forEach((v,i)=>{const ds=new Array(k).fill(0),cn=new Array(k).fill(0);V.forEach((u,j)=>{if(j!=i){ds[asg[j]]+=1-dot(v,u);cn[asg[j]]++;}});const a=cn[asg[i]]?ds[asg[i]]/cn[asg[i]]:0;let b=1e9;for(let c=0;c<k;c++)if(c!=asg[i]&&cn[c])b=Math.min(b,ds[c]/cn[c]);if(cn[asg[i]])tot+=(b-a)/Math.max(a,b);});return tot/nD;}
+let best=null;const scores=[];
+for(let k=3;k<=7;k++){let b=null;for(let r=0;r<10;r++){const idx=seedC(k),res=lloyd(idx);if(!b||res.sse<b.sse){b=res;b.idx=idx;}}b.k=k;b.s=sil(b.asg,k);scores.push(k+'→'+b.s.toFixed(2));if(!best||b.s>best.s)best=b;}
+const KK=best.k,mu=vocab.map((_,d)=>V.reduce((a,v)=>a+v[d],0)/nD),Xc=V.map(v=>v.map((a,d)=>a-mu[d])),Gm=Xc.map(a=>Xc.map(b=>dot(a,b)));
+function eig(ex){let v=Gm.map((_,i)=>Math.sin(i*1.7+1+ex.length)),l=0;for(let it=0;it<200;it++){let w=Gm.map(r=>dot(r,v));ex.forEach(e=>{const q=dot(w,e);w=w.map((a,i)=>a-q*e[i]);});l=Math.hypot(...w);if(!l)break;v=w.map(a=>a/l);}return[v,l];}
+const[e1,l1]=eig([]),[e2,l2]=eig([e1]),ex=e1.map(a=>a*Math.sqrt(l1)),ey=e2.map(a=>a*Math.sqrt(l2));
+const x0=Math.min(...ex),x1=Math.max(...ex),y0=Math.min(...ey),y1=Math.max(...ey);
+const sp=ex.map((a,i)=>[24+(a-x0)/(x1-x0||1)*272,26+(ey[i]-y0)/(y1-y0||1)*158]);
+let cen=best.idx.map(i=>V[i].slice()),c2=best.idx.map(i=>sp[i].slice()),asg=V.map(()=>-1),kit=0,kdone=false,kt=0,skHTML='',kn=[],kcur=c2.map(q=>q.slice());
+function kstep(){let ch=false;V.forEach((v,i)=>{let bi=0,bs=-9;cen.forEach((c,k)=>{const q=dot(v,c);if(q>bs){bs=q;bi=k;}});if(asg[i]!=bi){asg[i]=bi;ch=true;}});
+ cen=cen.map((c,k)=>{const ids=V.map((v,i)=>i).filter(i=>asg[i]==k);if(!ids.length)return c;c2[k]=[ids.reduce((a,i)=>a+sp[i][0],0)/ids.length,ids.reduce((a,i)=>a+sp[i][1],0)/ids.length];return nrm(c.map((_,d)=>ids.reduce((a,i)=>a+V[i][d],0)));});kit++;return ch;}
+function finishK(){kn=cen.map(c=>c.map((w,d)=>[w,d]).sort((a,b)=>b[0]-a[0]).slice(0,3).map(q=>disp[vocab[q[1]]].toUpperCase()).join(' · '));
+ skHTML='<h2>Resume clusters — TF-IDF + k-means</h2><p class="s">Silhouette-selected k='+KK+' · converged in '+kit+' iterations · '+nD+' resume statements · '+vocab.length+' terms</p><ul>'+cen.map((c,k)=>{const m=DOCS.filter((d,i)=>asg[i]==k);return'<li><b style="color:'+CC[k]+'">■ '+kn[k]+'</b> ('+m.length+') — '+m.map(d=>d.split(' ').slice(0,6).join(' ')+'…').join(' | ')+'</li>';}).join('')+'</ul>';pn.innerHTML=skHTML;}
+pn.innerHTML='<h2>Stage 1 — Clustering my resume</h2><p class="s">'+nD+' real statements from my resume → TF-IDF vectors over '+vocab.length+' terms. A silhouette search over k=3–7 ('+scores.join(' · ')+') picked k='+KK+'.</p><ul><li>Dots = statements (PCA-projected), squares = centroids.</li><li>Clusters and their top terms are measured from the text, not hand-set, and become the Skills panel. Or hit SKIP.</li></ul>';
+function clus(dt){kt+=dt;if(!kdone&&kt>900){kt=0;if(!kstep()){kdone=true;finishK();}}
+ kcur=kcur.map((q,k)=>[q[0]+(c2[k][0]-q[0])*.18,q[1]+(c2[k][1]-q[1])*.18]);
+ if(kdone&&kt>3500){mode='train';$('hs').textContent='STAGE 2/2 · TRAINING NEURAL FIELD…';pn.innerHTML='<h2>Stage 2 — Decoding the world</h2><p class="s">A small neural field (MLP, Fourier features, Adam) is learning this map from raw (x, y) coordinates.</p><ul><li>Watch the static resolve as the loss falls.</li><li>At 100% accuracy the portfolio unlocks — or hit SKIP.</li></ul>';}}
+function cv(){R('#0b1020',0,0,320,208);for(let i=0;i<20;i++)for(let j=0;j<13;j++)R('#1a2242',i*16+8,j*16+8,1,1);
+ V.forEach((v,i)=>{if(asg[i]<0)return;x.globalAlpha=.3;x.strokeStyle=CC[asg[i]];x.beginPath();x.moveTo(sp[i][0],sp[i][1]);x.lineTo(kcur[asg[i]][0],kcur[asg[i]][1]);x.stroke();x.globalAlpha=1;});
+ sp.forEach((q,i)=>R(asg[i]<0?'#8a93ad':CC[asg[i]],q[0]-1,q[1]-1,3,3));
+ kcur.forEach((q,k)=>{R(CC[k],q[0]-4,q[1]-4,9,9);R('#0b1020',q[0]-2,q[1]-2,5,5);R(CC[k],q[0]-1,q[1]-1,3,3);});
+ x.font='6px "Press Start 2P"';x.textAlign='left';x.fillStyle='#fff';x.fillText('TF-IDF · SPHERICAL K-MEANS · K='+KK+' · ITER '+kit+(kdone?' · CONVERGED':''),6,10);x.fillStyle='#6f7bb0';x.fillText(nD+' STATEMENTS · '+vocab.length+' TERMS · SILHOUETTE '+best.s.toFixed(2),6,202);}
+// ── 3D WORLD (three.js): the resolved tile map (Y) becomes a walkable voxel island; same player, collisions and panels ──
+let view3=false,scene,cam3,ren,pl3,water;const c3=$('c3'),pkM=[],labs=[],anim=[],wv=[],mtl={},bmt={},cm={yaw:0,pitch:.95,dist:14,cy:0,cp:.95,cd:14};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rot=d=>{const sn=Math.sin(cm.cy),cs=Math.cos(cm.cy),mx=d[0]*cs+d[1]*sn,mz=-d[0]*sn+d[1]*cs;return Math.abs(mx)>Math.abs(mz)?[Math.sign(mx),0]:[0,Math.sign(mz)];};
+const cz=f=>{cm.dist=clamp(cm.dist*f,4,40);},cr=a=>{cm.yaw+=a;},bird=()=>{cm.dist=32;cm.pitch=1.3;},follow=()=>{cm.dist=14;cm.pitch=.95;};
+const M=c=>mtl[c]||(mtl[c]=new THREE.MeshLambertMaterial({color:c})),BM=c=>bmt[c]||(bmt[c]=new THREE.MeshBasicMaterial({color:c}));
+function bx(g,w,h,d,px,py,pz,c){const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),M(c));m.scale.set(w,h,d);m.position.set(px,py,pz);g.add(m);return m;}
+function inst(list){const m=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),list.length),o=new THREE.Object3D();list.forEach((q,i)=>{o.position.set(q[0],q[1],q[2]);o.scale.set(q[3],q[4],q[5]);o.updateMatrix();m.setMatrixAt(i,o.matrix);m.setColorAt(i,new THREE.Color(q[6]));});if(m.instanceColor)m.instanceColor.needsUpdate=true;scene.add(m);}
+function paint(o){const c=o.cv.getContext('2d');c.clearRect(0,0,256,64);c.fillStyle='rgba(5,8,20,.85)';c.fillRect(0,8,256,48);c.strokeStyle=o.vis?'#ffd23f':'#8a93ad';c.lineWidth=3;c.strokeRect(1.5,9.5,253,45);c.font='18px "Press Start 2P",monospace';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#fff';c.fillText((o.vis?'★ ':'')+o.n,128,33);o.tex.needsUpdate=true;}
+function lab(o,px,py,pz,w){o.cv=document.createElement('canvas');o.cv.width=256;o.cv.height=64;o.tex=new THREE.CanvasTexture(o.cv);o.tex.minFilter=o.tex.magFilter=THREE.NearestFilter;const sp3=new THREE.Sprite(new THREE.SpriteMaterial({map:o.tex,depthTest:false}));sp3.scale.set(w,w/4,1);sp3.position.set(px,py,pz);scene.add(sp3);labs.push(o);paint(o);}
+function mk3(p){const G=new THREE.Group(),k=p.k;G.position.set(p.bx+1.5,.5,p.by+1);scene.add(G);
+ if(k=='castle'){bx(G,1.8,1.4,1.3,0,.7,0,'#9aa3b5');[-1.1,1.1].forEach(o=>{bx(G,.7,2,.7,o,1,0,'#7c869c');for(let t=0;t<3;t++)bx(G,.18,.2,.18,o-.2+t*.2,2.1,0,'#aab3c6');});for(let t=0;t<5;t++)bx(G,.22,.2,.22,-.8+t*.4,1.5,.45,'#aab3c6');bx(G,.05,.8,.05,-1.1,2.4,0,'#ddd');bx(G,.35,.22,.05,-.92,2.65,0,'#ff5f57');bx(G,.4,.7,.06,0,.35,.66,'#3b2a1a');bx(G,.18,.22,.06,-.5,.95,.66,'#ffd86b');bx(G,.18,.22,.06,.5,.95,.66,'#ffd86b');}
+ else if(k=='village'){[-.85,.85].forEach(o=>{bx(G,1.1,.8,1,o,.4,0,'#c98b4e');bx(G,1.35,.16,1.25,o,.88,0,'#b13e3e');bx(G,.95,.16,1,o,1.02,0,'#b13e3e');bx(G,.28,.5,.06,o,.25,.52,'#4a2d17');bx(G,.2,.2,.06,o-.35,.55,.52,'#ffd86b');});}
+ else if(k=='lab'){bx(G,2.6,1,1.5,0,.5,0,'#3fb6a8');bx(G,2.8,.16,1.7,0,1.08,0,'#1f6f68');bx(G,.3,.7,.3,.9,1.35,-.3,'#555');bx(G,.7,.45,.06,-.6,.6,.76,'#aaf5ff');bx(G,.4,.7,.06,.7,.35,.76,'#2a3f4a');for(let t=0;t<3;t++){const m=bx(G,.2,.2,.2,.9,1.8,-.3,'#e6e6e6');m.userData.sm=t;anim.push(m);}}
+ else if(k=='lib'){bx(G,2.6,1,1.5,0,.5,0,'#8a5fb5');bx(G,2.8,.2,1.7,0,1.1,0,'#5a3a85');bx(G,1.8,.3,1.4,0,1.35,0,'#5a3a85');for(let t=0;t<5;t++)bx(G,.15,1,.15,-1+t*.5,.5,.85,'#e9dff7');bx(G,.4,.7,.06,0,.35,.76,'#2c1a45');}
+ else{bx(G,1.2,.3,1.2,0,.15,0,'#888');for(let t=0;t<5;t++)bx(G,.7-t*.04,.38,.7-t*.04,0,.5+t*.38,0,t%2?'#e04848':'#fff');bx(G,.8,.3,.8,0,2.55,0,'#ffd23f');const pv=new THREE.Group();pv.position.y=2.55;pv.userData.beam=1;G.add(pv);const b=bx(pv,2.4,.12,.3,1.3,0,0,'#fff3a0');b.material=new THREE.MeshBasicMaterial({color:'#fff3a0',transparent:true,opacity:.45});anim.push(pv);}
+ const mt=bx(scene,.9,.05,.9,p.dx+.5,.53,p.dy+.5,'#ffd23f');mt.material=new THREE.MeshBasicMaterial({color:'#ffd23f',transparent:true,opacity:.7});mt.userData.mat=1;anim.push(mt);
+ p.vis=null;lab(p,p.bx+1.5,k=='castle'||k=='light'?3.6:2.7,p.by+1,3.2);}
+function build3(){
+ scene=new THREE.Scene();scene.background=new THREE.Color('#8ecdf0');scene.fog=new THREE.Fog('#8ecdf0',45,120);
+ scene.add(new THREE.AmbientLight(0xffffff,.65));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(8,20,6);scene.add(dl);
+ cam3=new THREE.PerspectiveCamera(40,1.6,.1,200);ren=new THREE.WebGLRenderer({canvas:c3,antialias:false});
+ bx(scene,300,.1,300,10,0,6.5,'#2563c9');water=bx(scene,20,.3,2,10,.15,7,'#3b7be0');
+ const g=[],tr=[],fl=[];
+ for(let j=0;j<H;j++)for(let i=0;i<W;i++){const c=Y[j*W+i],h=hs(i,j);if(c==2)continue;
+  if(c==3){bx(scene,1,.12,1,i+.5,.44,j+.5,'#8a5a2b');continue;}
+  g.push([i+.5,.25,j+.5,1,.5,1,c==1?'#d9b779':(i+j)%2?'#5fae4f':'#58a64a']);
+  if(c==4){tr.push([i+.5,.75,j+.5,.2,.5,.2,'#6b4423'],[i+.5,1.25,j+.5,.75,.7,.75,h%2?'#2d7a3a':'#287034'],[i+.5,1.7,j+.5,.45,.3,.45,'#3c9a4c']);}
+  else if(c==0&&h%7==0)fl.push([i+.15+((h>>3)%7)*.1,.53,j+.15+((h>>5)%7)*.1,.1,.06,.1,h%2?'#ffd1e8':'#fff3a0']);}
+ inst(g);inst(tr);inst(fl);
+ for(let i=0;i<14;i++){const w=bx(scene,.5,.04,.08,0,.32,6.2+((i*7)%16)*.1,'#9cc4ff');w.userData={x0:(i*1.5)%20,s:.5+(i%3)*.3};wv.push(w);}
+ for(let i=0;i<16;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),BM('#ff5f57'));m.scale.set(.22,.22,.22);m.visible=false;scene.add(m);pkM.push(m);}
+ POI.forEach(mk3);[['RAW',3],['TRANSFORM',10],['LOAD',17]].forEach(a=>lab({n:a[0],vis:null},a[1],1.4,7,2.6));
+ pl3=new THREE.Group();scene.add(pl3);const sh=bx(pl3,.45,.02,.45,0,.02,0,'#000');sh.material=new THREE.MeshBasicMaterial({color:'#000',transparent:true,opacity:.25});
+ bx(pl3,.14,.28,.14,-.1,.14,0,'#2a2a40');bx(pl3,.14,.28,.14,.1,.14,0,'#2a2a40');bx(pl3,.4,.3,.25,0,.43,0,'#1d3a6e');bx(pl3,.44,.1,.28,0,.6,0,'#fff');bx(pl3,.1,.1,.3,0,.6,.01,'#2fb7ff');bx(pl3,.32,.3,.3,0,.8,0,'#e3ae8c');bx(pl3,.36,.2,.34,0,.97,0,'#24142e');bx(pl3,.36,.4,.1,0,.82,-.17,'#24142e');bx(pl3,.3,.06,.04,0,.83,.16,'#222');
+ if(document.fonts)document.fonts.load('18px "Press Start 2P"').then(()=>labs.forEach(paint));
+ c3.addEventListener('wheel',e=>{e.preventDefault();cz(e.deltaY>0?1.1:.9);},{passive:false});
+ const ptr=new Map();let pd=0,mv0=0;
+ c3.addEventListener('pointerdown',e=>{mv0=0;c3.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);});
+ c3.addEventListener('pointermove',e=>{const o=ptr.get(e.pointerId);if(!o)return;mv0+=Math.abs(e.clientX-o[0])+Math.abs(e.clientY-o[1]);if(ptr.size==1){cm.yaw-=(e.clientX-o[0])*.008;cm.pitch=clamp(cm.pitch+(e.clientY-o[1])*.005,.3,1.45);ptr.set(e.pointerId,[e.clientX,e.clientY]);}else{ptr.set(e.pointerId,[e.clientX,e.clientY]);const q=[...ptr.values()],nd=Math.hypot(q[0][0]-q[1][0],q[0][1]-q[1][1]);if(pd)cm.dist=clamp(cm.dist*pd/nd,4,40);pd=nd;}});
+ const up3=e=>{const was=ptr.size==1&&ptr.has(e.pointerId);ptr.delete(e.pointerId);pd=0;if(was&&e.type=='pointerup'&&mv0<8)pick3(e);};c3.addEventListener('pointerup',up3);c3.addEventListener('pointercancel',up3);
+ addEventListener('keydown',e=>{if(!view3)return;const k=e.key;if(k=='q')cr(.785);else if(k=='e')cr(-.785);else if(k=='+'||k=='=')cz(.85);else if(k=='-')cz(1.18);});}
+function set3(on){if(on&&!scene){try{build3();}catch(e){scene=null;return;}}view3=on;C.style.display=on?'none':'block';c3.style.display=on?'block':'none';$('cam').hidden=!on;if(on)fit3();}
+function r3(dt,ts){
+ const wx=P.px/T+.5,wz=P.py/T+.5;
+ pl3.position.set(wx,.5+(P.m?Math.abs(Math.sin(ts/90))*.08:0),wz);if(P.m)pl3.rotation.y=Math.atan2(P.tx-P.sx,P.ty-P.sy);
+ cm.cy+=(cm.yaw-cm.cy)*.12;cm.cp+=(cm.pitch-cm.cp)*.12;cm.cd+=(cm.dist-cm.cd)*.12;
+ const k=clamp((cm.cd-14)/14,0,1),tx=wx+(10-wx)*k,tz=wz+(6.5-wz)*k,cp=Math.cos(cm.cp);
+ cam3.position.set(tx+Math.sin(cm.cy)*cp*cm.cd,.5+Math.sin(cm.cp)*cm.cd,tz+Math.cos(cm.cy)*cp*cm.cd);cam3.lookAt(tx,.6,tz);
+ wv.forEach(w=>{w.position.x=(w.userData.x0+ts*.0015*w.userData.s)%20;});
+ pkM.forEach((m,i)=>{const q=pk[i];m.visible=!!q;if(q){m.position.set(q.x/T,.6,q.y/T);m.material=BM(q.x<107?'#ff5f57':q.x<213?'#ffbd2e':'#3ddc97');}});
+ anim.forEach(a=>{const u=a.userData;if(u.sm!==undefined)a.position.y=1.8+((ts/1000+u.sm*.33)%1)*1.2;else if(u.beam)a.rotation.y=ts/700;else if(u.mat)a.material.opacity=.45+.3*Math.sin(ts/250);});
+ POI.forEach(p=>{const v=seen.has(p.id);if(p.vis!==v){p.vis=v;paint(p);}});
+ ren.render(scene,cam3);}
+// ── UI + MAP: click-to-walk (BFS), minimap, quest list, responsive 3D fit ──
+let rt=[];const card=document.querySelector('.card'),mmx=$('mm').getContext('2d');
+new MutationObserver(()=>card.classList.remove('off')).observe(pn,{childList:true});
+function goTo(i,j){const p=POI.find(q=>i>=q.bx&&i<q.bx+3&&j>=q.by&&j<q.by+2);if(p){i=p.dx;j=p.dy;}if(solid.has(K(i,j)))return;if(i==P.tx&&j==P.ty){if(p)open(p);return;}
+ const prev=new Map([[K(P.tx,P.ty),null]]),q=[[P.tx,P.ty]],ds=[[1,0],[-1,0],[0,1],[0,-1]];
+ while(q.length){const[a,b]=q.shift();if(a==i&&b==j)break;ds.forEach(d=>{const n=[a+d[0],b+d[1]],k=K(n[0],n[1]);if(n[0]<0||n[1]<0||n[0]>=W||n[1]>=H||solid.has(k)||prev.has(k))return;prev.set(k,[a,b,d]);q.push(n);});}
+ if(!prev.has(K(i,j)))return;const out=[];let c=[i,j],e;while((e=prev.get(K(c[0],c[1])))){out.unshift(e[2]);c=[e[0],e[1]];}rt=out;}
+function mini(){for(let n=0;n<N;n++){mmx.fillStyle=COL[Y[n]];mmx.fillRect((n%W)*8,(n/W|0)*8,8,8);}
+ const t=performance.now();POI.forEach(p=>{const v=seen.has(p.id),a=v?1:.5+.5*Math.sin(t/220);mmx.fillStyle='rgba(255,210,63,'+a+')';mmx.fillRect(p.dx*8-1,p.dy*8-1,10,10);mmx.fillStyle='#050814';mmx.fillRect(p.dx*8+2,p.dy*8+2,4,4);});
+ mmx.fillStyle='#050814';mmx.fillRect(P.px/T*8,P.py/T*8,8,8);mmx.fillStyle='#fff';mmx.fillRect(P.px/T*8+1,P.py/T*8+1,6,6);}
+$('mm').addEventListener('click',e=>{const r=$('mm').getBoundingClientRect();goTo(Math.floor((e.clientX-r.left)/r.width*W),Math.floor((e.clientY-r.top)/r.height*H));});
+C.addEventListener('click',e=>{if(mode!='play'||view3)return;const r=C.getBoundingClientRect(),s=Math.min(r.width/320,r.height/208),ox=(r.width-320*s)/2,oy=(r.height-208*s)/2,i=Math.floor((e.clientX-r.left-ox)/s/T),j=Math.floor((e.clientY-r.top-oy)/s/T);if(i>=0&&j>=0&&i<W&&j<H)goTo(i,j);});
+function pick3(e){if(mode!='play')return;const r=c3.getBoundingClientRect(),rc=new THREE.Raycaster(),t=new THREE.Vector3();rc.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1)),cam3);if(rc.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),-.5),t))goTo(Math.floor(t.x),Math.floor(t.z));}
+function fit3(){if(!ren)return;const r=c3.getBoundingClientRect(),ps=Math.max(2,Math.round(Math.max(r.width,r.height)/420));ren.setSize(Math.max(160,Math.round(r.width/ps)),Math.max(100,Math.round(r.height/ps)),false);cam3.aspect=r.width/r.height;cam3.updateProjectionMatrix();}
+addEventListener('resize',()=>{if(view3)fit3();});
+let last=0;(function loop(ts){const dt=Math.min(50,ts-last);last=ts;if(mode=='cluster'){clus(dt);cv();}else if(mode=='train'){train();tv();}else{up(dt);if(view3)r3(dt,ts);else{draw(ts);if(fade>0){x.globalAlpha=fade;tv();x.globalAlpha=1;fade-=dt/800;}}}if(mode=='play')mini();requestAnimationFrame(loop);})(0);
+</script></body></html>

@@ -84,6 +84,7 @@
         if (closeBtn) closeBtn.focus({ preventScroll: true });
         history.replaceState(null, '', `#${name}`);
         setActiveNav(name);
+        window.dispatchEvent(new CustomEvent('mission-chapter', { detail: { chapter: name } }));
         transitioning = false;
       }));
     });
@@ -106,6 +107,7 @@
       body.classList.remove('portal-open', 'singularity-exit');
       history.replaceState(null, '', '#');
       setActiveNav('');
+      window.dispatchEvent(new CustomEvent('mission-chapter', { detail: { chapter: 'home' } }));
       transitioning = false;
     }, 580);
   }

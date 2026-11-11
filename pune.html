@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KJS Live — Pune</title>
+<meta name="description" content="Where is Kholood right now? A live pixel map of Pune, drawn from real OpenStreetMap streets.">
+<meta name="theme-color" content="#050814">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%23050814'/%3E%3Crect x='1' y='1' width='6' height='6' fill='%235fae4f'/%3E%3Crect x='1' y='4' width='6' height='1' fill='%232563c9'/%3E%3Crect x='3' y='2' width='2' height='1' fill='%23ffd23f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--panel:rgba(9,13,32,.9);--line:#2e3a70;--line-hi:#6f7bb0;--ok:#4dffb0;--gold:#ffd23f;--bad:#ff5f57;--hi:#e6ecff;--mute:#8f9bc7;--gap:10px;color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#050814;overflow:hidden}
+body{color:var(--hi);font:19px/1.3 'VT323',monospace}
+.app{position:fixed;inset:0;overflow:hidden;background:#0b1020}
+#c{position:absolute;left:0;top:0;display:block;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}#c:active{cursor:grabbing}
+#c.px{image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;image-rendering:pixelated}
+.app::after{content:'';position:absolute;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 140px rgba(0,0,0,.6);background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.05) 2px 3px)}
+
+.hud{position:absolute;inset:0;z-index:5;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto minmax(0,1fr) auto;gap:var(--gap);padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));pointer-events:none}
+.hud>*{pointer-events:auto}
+
+.gl{position:relative;background:var(--panel);border:2px solid var(--line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035),4px 4px 0 rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.gl::before{content:'';position:absolute;inset:-2px;pointer-events:none;--c:var(--line-hi);background:
+ linear-gradient(var(--c) 0 0) 0 0/10px 2px,linear-gradient(var(--c) 0 0) 0 0/2px 10px,
+ linear-gradient(var(--c) 0 0) 100% 0/10px 2px,linear-gradient(var(--c) 0 0) 100% 0/2px 10px,
+ linear-gradient(var(--c) 0 0) 0 100%/10px 2px,linear-gradient(var(--c) 0 0) 0 100%/2px 10px,
+ linear-gradient(var(--c) 0 0) 100% 100%/10px 2px,linear-gradient(var(--c) 0 0) 100% 100%/2px 10px;background-repeat:no-repeat}
+
+.top{grid-column:1/-1;grid-row:1;display:flex;flex-wrap:wrap;gap:var(--gap);align-items:stretch;pointer-events:none}.top>*{pointer-events:auto}
+.brand{padding:10px 14px;display:flex;flex-direction:column;justify-content:center}
+.brand h1{font:11px/1.4 'Press Start 2P',monospace;margin:0;color:var(--ok);letter-spacing:1px;text-shadow:2px 2px 0 #0a3a28}
+.brand p{margin:4px 0 0;color:var(--mute);font-size:18px}
+.stats{display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px;padding:10px 14px;font-size:18px;color:var(--mute)}
+.stats b{color:var(--ok);font-weight:400}
+.st{font:9px 'Press Start 2P',monospace;color:var(--mute)}
+.st.live{color:var(--ok);animation:blink 1.6s steps(2) infinite}.st.off{color:var(--bad)}.st.demo{color:var(--gold)}
+@keyframes blink{50%{opacity:.45}}
+
+button,.btn{font:9px/1 'Press Start 2P',monospace;background:#0e1530;color:var(--hi);border:2px solid var(--line-hi);padding:9px 12px;cursor:pointer;touch-action:manipulation;box-shadow:2px 2px 0 rgba(0,0,0,.55);transition:transform .08s,box-shadow .08s,border-color .12s,color .12s;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{color:var(--ok);border-color:var(--ok);transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(0,0,0,.55)}
+button:active,.btn:active{transform:translate(1px,1px);box-shadow:none}
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+button.on{color:#04140c;background:var(--ok);border-color:var(--ok)}
+
+.card{grid-column:3;grid-row:2;align-self:start;width:min(380px,calc(100vw - 24px));max-height:100%;overflow:auto;padding:16px 18px 14px;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
+.card.off{display:none}
+.card .x{position:sticky;top:0;float:right;margin:-6px -8px 4px 10px;padding:6px 7px;font-size:8px}
+#pn h2{font:11px/1.6 'Press Start 2P',monospace;margin:0 0 6px;color:var(--ok)}
+#pn .s{color:var(--mute);margin:0 0 10px}
+#pn ul{list-style:none;margin:0;padding:0}
+#pn li{position:relative;padding-left:18px;margin:7px 0}
+#pn li::before{content:'';position:absolute;left:2px;top:.5em;width:6px;height:6px;background:var(--gold)}
+#pn .demo{color:var(--gold)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;color:var(--mute);font-size:17px}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}
+
+.cam{grid-column:2;grid-row:3;justify-self:center;align-self:end;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;padding:8px}
+.attr{grid-column:3;grid-row:3;justify-self:end;align-self:end;margin:0;padding:4px 8px;font-size:15px;color:var(--mute);background:rgba(5,8,20,.75)}
+.attr a{color:var(--hi)}
+
+@media(max-width:720px){
+ :root{--gap:8px}
+ .hud{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto auto}
+ .hud>*{min-width:0;grid-column:1}
+ .brand p{display:none}
+ .stats{gap:2px 12px;padding:8px 10px;font-size:16px}
+ .attr{grid-row:2;align-self:end}
+ .cam{grid-row:3;padding:6px;gap:4px}.cam button,.cam .btn{padding:8px 9px}
+ .card{grid-row:4;width:auto;max-height:34dvh}
+}
+@media(prefers-reduced-motion:reduce){button,.btn{transition:none}.st.live{animation:none}}
+</style></head><body>
+<div class="app">
+<canvas id="c" role="img" aria-label="Live pixel map of Pune showing where Kholood is right now. Drag to pan, scroll to zoom."></canvas>
+<div class="hud">
+<header class="top">
+<div class="brand gl"><h1>KJS LIVE · PUNE</h1><p>Where's Kholood right now?</p></div>
+<div class="stats gl" aria-live="polite"><span class="st" id="st">● CONNECTING…</span><span>AREA <b id="ar">–</b></span><span>SPEED <b id="sp">–</b></span><span>ACCURACY <b id="ac">–</b></span><span>UPDATED <b id="up">–</b></span></div>
+</header>
+<aside class="card gl"><button class="x" onclick="this.parentNode.classList.add('off')" aria-label="Close">✕</button><div id="pn"></div></aside>
+<div class="cam gl"><button id="zi" aria-label="Zoom in">＋</button><button id="zo" aria-label="Zoom out">－</button><button id="fl" class="on">FOLLOW</button><button id="me">◎ MY SPOT</button><button id="md">PIXEL VIEW</button><button id="inf">INFO</button><a class="btn" href="index.html">◀ WORLD MAP</a></div>
+<p class="attr gl">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
+</div>
+</div>
+<script src="live-config.js"></script>
+<script src="live.js"></script>
+<script>
+const DEMO=KJSLive.DEMO;
+const $=i=>document.getElementById(i),cv=$('c'),x=cv.getContext('2d');
+const ZMIN=12,ZMAX=19,PUNE=[18.5204,73.8567];
+// MAP = OpenStreetMap tiles as-is; PIXEL = the same tiles redrawn in the world-map palette at 2×2 blocks.
+const MODES={map:{PS:1,B:1},pixel:{PS:2,B:2}};
+let mode=[new URLSearchParams(location.search).get('view'),localStorage.getItem('kjs-live-mode')].find(m=>MODES[m])||'map',PS,B,TP,SS;
+const R=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a|0,b|0,w,h)};
+const hs=(i,j)=>((i*73856093)^(j*19349663))>>>0;
+const merc=(lat,lng)=>{const s=Math.sin(lat*Math.PI/180);return[(lng+180)/360,.5-Math.log((1+s)/(1-s))/(4*Math.PI)];};
+const hav=(a,b)=>{const r=Math.PI/180,dl=(b[0]-a[0])*r,dn=(b[1]-a[1])*r,q=Math.sin(dl/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dn/2)**2;return 12742000*Math.asin(Math.sqrt(q));};
+
+// ── OSM tile → game palette: classify each pixel, then pick a class per B×B block (roads weighted so thin streets survive) ──
+const LAND=0,BLD=1,WATER=2,MAJOR=3,MINOR=4,PARK=5,RAIL=6,WT=[.8,1,1.1,2.6,1.4,1,1.6];
+const REF=[[LAND,'f2efe9 e0dfdf ececec f2dad9 e2ddda ebdbe8 ffd6d1 f5e9c6 eeeeee dddddd'],[BLD,'d9d1ca c4b6aa c7bcb4 ccc2b9 d5ccc6 d4d4d3 bca9a1'],[WATER,'aad3df 9fc6d3 b5d0d0'],[MAJOR,'f9b29c fcd6a4 f7fabf e892a2 e4a3a3 fdbf6f'],[MINOR,'fefefe ffffff'],[PARK,'c8facc add19e cdebb0 aedfa3 def6c0 b5e3b5 88e0be aae0cb aacbaf c8d7ab'],[RAIL,'999999 707070 bbbbbb']]
+ .flatMap(([c,s])=>s.split(' ').map(h=>[c,parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4),16)]));
+const memo=new Map();
+function cls(r,g,b){if(.3*r+.59*g+.11*b<120)return -1;const k=r<<16|g<<8|b;let c=memo.get(k);if(c!==undefined)return c;let bd=1e9;c=-1;for(const q of REF){const d=(r-q[1])**2+(g-q[2])**2+(b-q[3])**2;if(d<bd){bd=d;c=q[0];}}if(bd>2025)c=-1;memo.set(k,c);return c;}
+const rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5),16)];
+const C={g1:rgb('#5fae4f'),g2:rgb('#58a64a'),fl1:rgb('#ffd1e8'),fl2:rgb('#fff3a0'),bhi:rgb('#aab3c6'),bmid:rgb('#9aa3b5'),blo:rgb('#7c869c'),water:rgb('#2563c9'),wsp:rgb('#6fa8ff'),major:rgb('#d9b779'),minor:rgb('#e8d6aa'),thi:rgb('#3c9a4c'),tmid:rgb('#2d7a3a'),tlo:rgb('#24622e'),rail:rgb('#8a5a2b')};
+const scratch=document.createElement('canvas');scratch.width=scratch.height=256;const sg=scratch.getContext('2d',{willReadFrequently:true});
+function pixelate(im,tx,ty,B){const N=256/B,sh=4-Math.log2(B);
+ sg.clearRect(0,0,256,256);sg.drawImage(im,0,0);const d=sg.getImageData(0,0,256,256).data,k=new Int8Array(N*N),s=new Float32Array(7);
+ for(let by=0;by<N;by++)for(let bx=0;bx<N;bx++){s.fill(0);for(let y=0;y<B;y++){let i=((by*B+y)*256+bx*B)*4;for(let q=0;q<B;q++,i+=4){const c=cls(d[i],d[i+1],d[i+2]);if(c>=0)s[c]+=WT[c];}}let b=0;for(let q=1;q<7;q++)if(s[q]>s[b])b=q;k[by*N+bx]=b;}
+ const o=document.createElement('canvas');o.width=o.height=N;const og=o.getContext('2d'),od=og.createImageData(N,N),p=od.data;
+ for(let y=0;y<N;y++)for(let i=0;i<N;i++){const c=k[y*N+i],up=y?k[(y-1)*N+i]:c,dn=y<N-1?k[(y+1)*N+i]:c,gx=tx*N+i,gy=ty*N+y,h=hs(gx,gy);let col;
+  if(c==LAND)col=h%37==0?(h&1?C.fl1:C.fl2):((gx>>sh)+(gy>>sh))&1?C.g1:C.g2;
+  else if(c==BLD)col=up!=BLD?C.bhi:dn!=BLD?C.blo:C.bmid;
+  else if(c==PARK)col=up!=PARK?C.thi:h%5==0?C.tlo:C.tmid;
+  else if(c==WATER)col=h%23==0?C.wsp:C.water;
+  else col=c==MAJOR?C.major:c==MINOR?C.minor:C.rail;
+  const j=(y*N+i)*4;p[j]=col[0];p[j+1]=col[1];p[j+2]=col[2];p[j+3]=255;}
+ og.putImageData(od,0,0);return o;}
+
+const tiles=new Map(),queue=[];let inflight=0;
+const wrap=(t,n)=>((t%n)+n)%n;
+function tile(z,tx,ty,load){const n=1<<z;if(ty<0||ty>=n)return null;tx=wrap(tx,n);const key=mode+'/'+z+'/'+tx+'/'+ty;let t=tiles.get(key);
+ if(!t){if(!load)return null;t={c:null};tiles.set(key,t);queue.push([z,tx,ty,t,mode,B]);if(tiles.size>600)tiles.delete(tiles.keys().next().value);pump();}return t.c;}
+function pump(){while(inflight<6&&queue.length){const[z,tx,ty,t,md,b]=queue.pop(),im=new Image();inflight++;im.crossOrigin='anonymous';
+ im.onload=()=>{inflight--;try{t.c=md=='map'?im:pixelate(im,tx,ty,b);}catch(e){}pump();};im.onerror=()=>{inflight--;pump();};
+ im.src='https://tile.openstreetmap.org/'+z+'/'+tx+'/'+ty+'.png';}}
+
+// ── PIXEL VIEW detail (zoom ≥ 16): real OSM buildings/roads/water/parks from Overpass, rasterised class-by-class into
+//    a per-pixel grid, then painted in the world-map palette. One Overpass request per z15 "data tile", one at a time.
+const DZ=15,VZ=16,OVP=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+const ROOF2=7,ROOF3=8,WALL=9,PATH=10,CURB=11,MARK=12;
+const RC={motorway:[16,9,MAJOR],trunk:[14,8,MAJOR],primary:[12,7,MAJOR],secondary:[10,6,MAJOR],tertiary:[8,5,MAJOR],motorway_link:[7,4,MAJOR],trunk_link:[7,4,MAJOR],primary_link:[7,4,MAJOR],secondary_link:[6,4,MAJOR],tertiary_link:[6,4,MAJOR],
+ residential:[6,3,MINOR],unclassified:[6,3,MINOR],living_street:[5,3,MINOR],road:[5,3,MINOR],service:[4,2,MINOR],pedestrian:[5,2,PATH],footway:[2,1,PATH],path:[2,1,PATH],cycleway:[2,1,PATH],steps:[2,1,PATH],track:[3,1,PATH]};
+const t2ll=(z,x,y)=>{const n=2**z;return[Math.atan(Math.sinh(Math.PI*(1-2*y/n)))*180/Math.PI,x/n*360-180];};
+const dtiles=new Map();let dbusy=false;
+function dwant(x,y){const k=x+'/'+y;let d=dtiles.get(k);if(!d){d={st:0,x,y};dtiles.set(k,d);}d.want=performance.now();if(d.st==0)dpump();return d.st==2?d:null;}
+function dpump(){if(dbusy)return;const now=performance.now();let d=null;
+ const nd=1<<DZ,cx=cam[0]*nd-.5,cy=cam[1]*nd-.5,dist=v=>(v.x-cx)**2+(v.y-cy)**2;
+ for(const [k,v] of dtiles)if(v.st==0){if(now-v.want>2000)dtiles.delete(k);else if(!d||dist(v)<dist(d))d=v;}
+ if(!d)return;dbusy=true;d.st=1;
+ const[n,w]=t2ll(DZ,d.x,d.y),[s,e]=t2ll(DZ,d.x+1,d.y+1),bb='('+s+','+w+','+n+','+e+')';
+ const q='[out:json][timeout:90];(way["building"]'+bb+';way["highway"]'+bb+';way["railway"~"^(rail|subway|light_rail|narrow_gauge)$"]'+bb+';way["natural"~"^(water|wood|scrub)$"]'+bb+';relation["natural"="water"]'+bb+';way["waterway"~"^(riverbank|river|canal|stream|drain)$"]'+bb+';way["leisure"~"^(park|garden|pitch|playground|stadium)$"]'+bb+';way["landuse"~"^(grass|forest|recreation_ground|meadow|village_green|cemetery|orchard)$"]'+bb+';);out geom;';
+ const key='https://kjs.local/ovp/v1/'+DZ+'/'+d.x+'/'+d.y,store=window.caches?caches.open('kjs-ovp').catch(()=>null):Promise.resolve(null);
+ const done=j=>{prep(d,j);d.st=2;dbusy=false;if(fix&&mode=='pixel')tgt=snap(fix.lat,fix.lng)||tgt;dpump();};
+ let tries=0;const go=()=>{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),100000);
+  fetch(OVP[tries%OVP.length],{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)})
+  .then(r=>{if(!r.ok)throw r.status;return r.text();}).then(t=>{clearTimeout(to);const j=JSON.parse(t);store.then(c=>c&&c.put(key,new Response(t))).catch(()=>{});done(j);})
+  .catch(()=>{clearTimeout(to);if(++tries<4)setTimeout(go,2500*tries);else{d.st=-1;dbusy=false;dpump();}});};
+ store.then(c=>c&&c.match(key)).then(r=>r?r.json():null).then(j=>j?done(j):go(),go);}
+function feat(g){const a=new Float64Array(g.length*2),b=[1,1,0,0];g.forEach((p,i)=>{const m=merc(p.lat,p.lon);a[2*i]=m[0];a[2*i+1]=m[1];if(m[0]<b[0])b[0]=m[0];if(m[1]<b[1])b[1]=m[1];if(m[0]>b[2])b[2]=m[0];if(m[1]>b[3])b[3]=m[1];});return{a,b};}
+function prep(d,j){const B=[],R=[],W=[],WL=[],P=[],RL=[];
+ for(const el of j.elements||[]){const t=el.tags||{},gs=el.type=='way'?[el.geometry]:(el.members||[]).filter(m=>m.role!='inner'&&m.geometry).map(m=>m.geometry);
+  for(const g of gs){if(!g||g.length<2)continue;const f=feat(g);
+   if(t.building){f.h=hs(el.id%1000003,Math.floor(el.id/1000003));B.push(f);}
+   else if(t.highway){const c=RC[t.highway];if(c){f.w=c[0];f.r=c[1];f.k=c[2];R.push(f);}}
+   else if(t.railway)RL.push(f);
+   else if(t.waterway&&t.waterway!='riverbank'){f.w=t.waterway=='river'?25:t.waterway=='canal'?10:4;WL.push(f);}
+   else if(t.natural=='water'||t.waterway=='riverbank')W.push(f);
+   else P.push(f);}}
+ R.sort((p,q)=>p.r-q.r);Object.assign(d,{B,R,W,WL,P,RL});}
+
+const vt=new Map(),vs=document.createElement('canvas'),vx=vs.getContext('2d',{willReadFrequently:true});let vbudget=0;
+function vtile(z,tx,ty){const n=1<<z;if(ty<0||ty>=n)return null;tx=wrap(tx,n);const k=z+'/'+tx+'/'+ty,c=vt.get(k);if(c)return c;
+ const s=1<<(z-DZ),d=dwant(Math.floor(tx/s),Math.floor(ty/s));if(!d||vbudget<=0)return null;vbudget--;
+ const o=vrender(d,z,tx,ty);vt.set(k,o);if(vt.size>400)vt.delete(vt.keys().next().value);return o;}
+const V={...C,curb:rgb('#a88a55'),path:rgb('#cdb07a'),path2:rgb('#b8975c'),mark:rgb('#fff6dc'),tie:rgb('#5e3d1d'),wall:rgb('#5c6478'),win:rgb('#ffe9a0'),shore:rgb('#3b7be0'),
+ r2:[rgb('#e0a070'),rgb('#c98b4e'),rgb('#a06a38')],r3:[rgb('#d65a5a'),rgb('#b13e3e'),rgb('#8a2e2e')],r1:[rgb('#aab3c6'),rgb('#9aa3b5'),rgb('#7c869c')]};
+function vrender(d,z,tx,ty){const N=TP,S=N*(1<<z),ox=tx*N,oy=ty*N,g=new Uint8Array(N*N);vs.width=vs.height=N;
+ const lat=t2ll(z,tx+.5,ty+.5)[0],C0=40075016.686*Math.cos(lat*Math.PI/180),mp=C0/S,px=m=>Math.max(1,m/mp);
+ const u0=tx/(1<<z),v0=ty/(1<<z),u1=(tx+1)/(1<<z),v1=(ty+1)/(1<<z),pd=40/C0,vis=f=>!(f.b[2]<u0-pd||f.b[0]>u1+pd||f.b[3]<v0-pd||f.b[1]>v1+pd);
+ const path=(a,dy)=>{vx.moveTo(a[0]*S-ox,a[1]*S-oy+dy);for(let i=2;i<a.length;i+=2)vx.lineTo(a[i]*S-ox,a[i+1]*S-oy+dy);};
+ const layer=(cls,fn)=>{vx.clearRect(0,0,N,N);vx.fillStyle=vx.strokeStyle='#fff';vx.lineCap=vx.lineJoin='round';vx.setLineDash([]);fn();
+  const p=vx.getImageData(0,0,N,N).data;for(let i=0,j=3;i<g.length;i++,j+=4)if(p[j]>=128)g[i]=cls;};
+ const fill=(fs,dy=0)=>{vx.beginPath();fs.forEach(f=>{if(vis(f))path(f.a,dy);});vx.fill();};
+ const line=(f,w)=>{if(!vis(f))return;vx.lineWidth=w;vx.beginPath();path(f.a,0);vx.stroke();};
+ const wh=z>=19?4:z>=18?3:z>=17?2:1,roofs=[[BLD,f=>f.h%10<6],[ROOF2,f=>f.h%10>=6&&f.h%10<9],[ROOF3,f=>f.h%10==9]];
+ layer(PARK,()=>fill(d.P));
+ layer(WATER,()=>{fill(d.W);d.WL.forEach(f=>line(f,px(f.w)));});
+ layer(RAIL,()=>d.RL.forEach(f=>line(f,px(4))));
+ layer(CURB,()=>d.R.forEach(f=>{if(f.k!=PATH&&px(f.w)>=3)line(f,px(f.w)+2);}));
+ layer(PATH,()=>d.R.forEach(f=>{if(f.k==PATH)line(f,px(f.w));}));
+ layer(MINOR,()=>d.R.forEach(f=>{if(f.k==MINOR)line(f,px(f.w));}));
+ layer(MAJOR,()=>d.R.forEach(f=>{if(f.k==MAJOR)line(f,px(f.w));}));
+ if(z>=18)layer(MARK,()=>{vx.setLineDash([3,4]);d.R.forEach(f=>{if(f.k==MAJOR&&f.r>=5)line(f,1);});});
+ layer(WALL,()=>fill(d.B,wh));
+ roofs.forEach(([c,t])=>layer(c,()=>fill(d.B.filter(t))));
+ const o=document.createElement('canvas');o.width=o.height=N;const og=o.getContext('2d'),od=og.createImageData(N,N),p=od.data;
+ for(let y=0;y<N;y++)for(let i=0;i<N;i++){const k=y*N+i,c=g[k],up=y?g[k-N]:c,dn=y<N-1?g[k+N]:c,lf=i?g[k-1]:c,rt=i<N-1?g[k+1]:c,gx=ox+i,gy=oy+y,h=hs(gx,gy);let col;
+  if(c==LAND)col=h%173==0?(h&1?V.fl1:V.fl2):((gx>>3)+(gy>>3))&1?V.g1:V.g2;
+  else if(c==BLD||c==ROOF2||c==ROOF3){const r=c==BLD?V.r1:c==ROOF2?V.r2:V.r3;col=up!=c?r[0]:(dn!=c||lf!=c||rt!=c)?r[2]:r[1];}
+  else if(c==WALL)col=z>=18&&up!=WALL&&dn==WALL&&gx%3==1?V.win:V.wall;
+  else if(c==PARK)col=up!=PARK?V.thi:h%5==0?V.tlo:V.tmid;
+  else if(c==WATER)col=up!=WATER?V.shore:h%23==0?V.wsp:V.water;
+  else if(c==RAIL)col=gx%3==0?V.tie:V.rail;
+  else if(c==PATH)col=(gx+gy)%4==0?V.path2:V.path;
+  else col=c==MAJOR?V.major:c==MINOR?V.minor:c==CURB?V.curb:V.mark;
+  const j=k*4;p[j]=col[0];p[j+1]=col[1];p[j+2]=col[2];p[j+3]=255;}
+ og.putImageData(od,0,0);
+ if(z>=17){const ts=z>=19?8:z>=18?6:4;for(let y=1;y<N-ts;y+=ts+1)for(let i=1;i<N-ts;i+=ts+1){const h=hs(ox+i,oy+y);if(h%3||g[(y+(ts>>1))*N+i+(ts>>1)]!=PARK)continue;
+  og.fillStyle='#6b4423';og.fillRect(i+(ts>>1)-1,y+ts-2,2,2);og.fillStyle='#2d7a3a';og.fillRect(i,y,ts,ts-2);og.fillStyle='#3c9a4c';og.fillRect(i+1,y,ts-3,Math.max(1,ts>>2));}}
+ return o;}
+
+// snap a fix onto the nearest loaded road (within 40 m) so the traveller walks the streets, not through buildings
+function snap(lat,lng){const m=merc(lat,lng),n=1<<DZ,X=Math.floor(m[0]*n),Y=Math.floor(m[1]*n);let best=null,bd=Infinity;
+ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const d=dtiles.get((X+dx)+'/'+(Y+dy));if(!d||d.st!=2)continue;
+  for(const f of d.R){const a=f.a;for(let i=0;i+3<a.length;i+=2){const ax=a[i],ay=a[i+1],ex=a[i+2]-ax,ey=a[i+3]-ay,l=ex*ex+ey*ey,t=l?Math.max(0,Math.min(1,((m[0]-ax)*ex+(m[1]-ay)*ey)/l)):0,qx=ax+ex*t,qy=ay+ey*t,dd=(qx-m[0])**2+(qy-m[1])**2;if(dd<bd){bd=dd;best=[qx,qy];}}}}
+ return best&&Math.sqrt(bd)*40075016.686*Math.cos(lat*Math.PI/180)<40?best:null;}
+
+// ── traveller sprite (same as the world map) ──
+function pl(px,py,w,dim){x.globalAlpha=dim?.55:1;const b=w&&Math.sin(performance.now()/60)>0?1:0;py-=b;R('rgba(0,0,0,.25)',px+3,py+b+14,10,2);R('#24142e',px+4,py+1,8,6);R('#24142e',px+3,py+3,1,7);R('#24142e',px+12,py+3,1,7);R('#e3ae8c',px+5,py+3,6,5);R('#222',px+5,py+5,6,1);R('#9fd8ff',px+5,py+4,2,2);R('#9fd8ff',px+9,py+4,2,2);R('#fff',px+4,py+8,8,2);R('#2fb7ff',px+7,py+8,2,2);R('#1d3a6e',px+5,py+10,6,3);R('#2a2a40',px+5,py+13,2,2);R('#2a2a40',px+9,py+13,2,2);x.globalAlpha=1;}
+
+// ── state (fed by live.js) ──
+let z=16,follow=true,me=null,meWatch=null,fix=null,tgt=null,disp=null,cam=merc(PUNE[0],PUNE[1]),trail=[],last=0,cur=null;
+function setFix(d){const first=!fix;fix=d;tgt=(mode=='pixel'&&snap(d.lat,d.lng))||merc(d.lat,d.lng);
+ if(!disp||hav(unm(disp),[d.lat,d.lng])>3000)disp=tgt.slice();
+ const lt=trail[trail.length-1];if(!lt||hav(lt,[d.lat,d.lng])>15){trail.push([d.lat,d.lng]);if(trail.length>240)trail.shift();}
+ if(first){cam=tgt.slice();follow=true;$('fl').classList.add('on');}}
+const unm=m=>[Math.atan(Math.sinh(Math.PI*(1-2*m[1])))*180/Math.PI,m[0]*360-180];
+const isLive=()=>!!(cur&&cur.live);
+const WHY={1:'location permission was denied',2:'the device couldn\'t find a position',3:'GPS timed out',insecure:'this page isn\'t on an https:// link',unsupported:'this browser has no location access'};
+function source(s){const p=$('src');if(!p)return;
+ p.textContent=s.source=='device'?(s.fix?'Showing THIS device\'s live GPS. Visitors on other devices will see my phone once live tracking is set up.':'Waiting for this device\'s GPS… allow location when asked.'):
+  s.source=='demo'?'DEMO route, not a real location: '+(s.deviceErr!=null?'this device\'s location isn\'t available ('+(WHY[s.deviceErr]||'error')+'). ':'')+'Live tracking isn\'t set up yet.':'';
+ p.hidden=s.source=='firebase';}
+function hud(s){const st=$('st');source(s);
+ if(!s.fix){st.textContent=s.source=='device'?'● FINDING YOU…':DEMO?'● DEMO':'● WAITING FOR SIGNAL';st.className='st'+(DEMO?' demo':'');return;}
+ st.textContent=s.source=='device'?'● THIS DEVICE':s.source=='demo'?'● DEMO ROUTE':s.live?'● LIVE':s.paused?'○ PAUSED':'○ OFFLINE';
+ st.className='st '+(s.source=='demo'?'demo':s.live?'live':'off');
+ $('ar').textContent=s.area||'–';$('up').textContent=KJSLive.ago(s.age);
+ $('sp').textContent=s.live&&typeof s.fix.spd=='number'?Math.round(s.fix.spd*3.6)+' KM/H':'–';
+ $('ac').textContent=typeof s.fix.acc=='number'?'±'+Math.round(s.fix.acc)+' M':'–';}
+KJSLive.subscribe(s=>{cur=s;if(s.fix&&s.fix!==fix)setFix(s.fix);hud(s);},{area:true,device:true});
+
+// ── card ──
+const pn=$('pn'),card=document.querySelector('.card');
+const sw=(c,n)=>'<span><i style="background:'+c+'"></i>'+n+'</span>';
+pn.innerHTML='<h2>Live from Pune</h2><p class="s">The traveller is my phone. Its GPS streams here in real time over real OpenStreetMap streets.</p>'+
+ '<p class="s demo" id="src" hidden></p>'+
+ '<ul><li>Drag to pan, scroll or ＋/－ to zoom, FOLLOW to re-centre.</li><li>◎ MY SPOT shows where the device you\'re holding is (blue dot).</li><li>PIXEL VIEW redraws the streets in the world-map palette.</li><li>When I\'m offline the map shows where I was last seen.</li></ul>'+
+ '<p class="s demo" id="mesg" hidden></p>'+
+ '<div class="legend" id="lg">'+sw('#d9b779','MAIN ROAD')+sw('#e8d6aa','STREET')+sw('#9aa3b5','BUILDING')+sw('#2d7a3a','PARK')+sw('#2563c9','WATER')+sw('#8a5a2b','RAIL')+'</div>';
+$('inf').onclick=()=>card.classList.toggle('off');
+if(cur)source(cur);
+const say=t=>{const m=$('mesg');m.textContent=t;m.hidden=!t;card.classList.remove('off');};
+
+$('me').onclick=()=>{
+ if(meWatch!=null){navigator.geolocation.clearWatch(meWatch);meWatch=null;me=null;$('me').classList.remove('on');say('');return;}
+ if(!navigator.geolocation)return say('This browser can\'t share its location.');
+ if(!window.isSecureContext)return say('Phones only share location over HTTPS. Open this page from an https:// link (or allow this address in Chrome flags).');
+ $('me').classList.add('on');say('Finding you…');
+ meWatch=navigator.geolocation.watchPosition(p=>{const first=!me,c=p.coords;me={lat:c.latitude,lng:c.longitude,acc:c.accuracy};
+  if(first){cam=merc(me.lat,me.lng);follow=false;$('fl').classList.remove('on');z=Math.max(z,c.accuracy<200?18:15);}
+  say('Blue dot = this device, ±'+Math.round(c.accuracy)+' m.'+(c.accuracy>500?' That\'s rough (Wi-Fi/IP based); a phone with GPS is much closer.':''));},
+  e=>{navigator.geolocation.clearWatch(meWatch);meWatch=null;me=null;$('me').classList.remove('on');
+   say(e.code==1?'Location blocked (code 1). Check: phone Location is ON, the browser app has location permission, and this site is allowed (lock icon → Permissions). An untrusted certificate also blocks it.':
+       e.code==2?'Position unavailable (code 2): turn on phone Location / GPS and try again.':
+       'Location timed out (code 3): move near a window or try again.');},
+  {enableHighAccuracy:true,maximumAge:5000,timeout:20000});};
+
+function setMode(m){mode=m;({PS,B}=MODES[m]);TP=256/B;SS=4/PS;localStorage.setItem('kjs-live-mode',m);
+ $('md').textContent=m=='map'?'PIXEL VIEW':'MAP VIEW';$('lg').hidden=m=='map';cv.classList.toggle('px',m!='map');fit();}
+$('md').onclick=()=>{setMode(mode=='map'?'pixel':'map');if(mode=='pixel')z=Math.max(z,17);if(fix)tgt=(mode=='pixel'&&snap(fix.lat,fix.lng))||merc(fix.lat,fix.lng);};
+
+// ── input ──
+function zoom(dz){z=Math.max(ZMIN,Math.min(ZMAX,z+dz));}
+$('zi').onclick=()=>zoom(1);$('zo').onclick=()=>zoom(-1);
+$('fl').onclick=()=>{follow=true;$('fl').classList.add('on');if(disp)cam=disp.slice();};
+let wt=0;cv.addEventListener('wheel',e=>{e.preventDefault();const n=performance.now();if(n-wt<180)return;wt=n;zoom(e.deltaY<0?1:-1);},{passive:false});
+const ptr=new Map();let pd=0;
+cv.addEventListener('pointerdown',e=>{if(innerWidth<=720)card.classList.add('off');cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);});
+cv.addEventListener('pointermove',e=>{const o=ptr.get(e.pointerId);if(!o)return;const S=TP*(1<<z)*PS;
+ if(ptr.size==1){cam[0]-=(e.clientX-o[0])/S;cam[1]-=(e.clientY-o[1])/S;if(follow&&Math.abs(e.clientX-o[0])+Math.abs(e.clientY-o[1])>1){follow=false;$('fl').classList.remove('on');}ptr.set(e.pointerId,[e.clientX,e.clientY]);}
+ else{ptr.set(e.pointerId,[e.clientX,e.clientY]);const q=[...ptr.values()],nd=Math.hypot(q[0][0]-q[1][0],q[0][1]-q[1][1]);if(pd&&Math.abs(nd/pd-1)>.35){zoom(nd>pd?1:-1);pd=nd;}else if(!pd)pd=nd;}});
+const end=e=>{ptr.delete(e.pointerId);pd=0;};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+addEventListener('keydown',e=>{if(e.key=='+'||e.key=='=')zoom(1);else if(e.key=='-')zoom(-1);else if(e.key=='f')$('fl').click();});
+function fit(){cv.width=Math.ceil(innerWidth/PS);cv.height=Math.ceil(innerHeight/PS);cv.style.width=cv.width*PS+'px';cv.style.height=cv.height*PS+'px';x.imageSmoothingEnabled=mode=='map';}
+addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,250));if(window.visualViewport)visualViewport.addEventListener('resize',fit);setMode(mode);
+
+// ── render ──
+function frame(ts){const dt=Math.min(50,ts-last);last=ts;const W=cv.width,H=cv.height,S=TP*(1<<z);vbudget=1;
+ let moving=false;
+ if(tgt&&disp){const k=1-Math.pow(.02,dt/1000);disp[0]+=(tgt[0]-disp[0])*k;disp[1]+=(tgt[1]-disp[1])*k;moving=Math.hypot(tgt[0]-disp[0],tgt[1]-disp[1])*S>.25||(isLive()&&fix.spd>.7);}
+ if(follow&&disp){cam[0]+=(disp[0]-cam[0])*.08;cam[1]+=(disp[1]-cam[1])*.08;}
+ cam[1]=Math.max(0,Math.min(1,cam[1]));
+ const ox=Math.round(cam[0]*S-W/2),oy=Math.round(cam[1]*S-H/2);
+ R('#0b1020',0,0,W,H);
+ for(let ty=Math.floor(oy/TP);ty<=Math.floor((oy+H)/TP);ty++)for(let tx=Math.floor(ox/TP);tx<=Math.floor((ox+W)/TP);tx++){
+  const c=(mode=='pixel'&&z>=VZ&&vtile(z,tx,ty))||tile(z,tx,ty,true),dx=tx*TP-ox,dy=ty*TP-oy;if(c){x.drawImage(c,dx,dy);continue;}
+  const p=z>ZMIN&&tile(z-1,tx>>1,ty>>1,false),hf=TP/2;
+  if(p)x.drawImage(p,(tx&1)*hf,(ty&1)*hf,hf,hf,dx,dy,TP,TP);
+  else{R('#10173a',dx,dy,TP,TP);for(let i=4;i<TP;i+=8)for(let j=4;j<TP;j+=8)R('#1a2242',dx+i,dy+j,1,1);}}
+ const mpp=lat=>40075016.686*Math.cos(lat*Math.PI/180)/S,lw=Math.max(1,SS/2);
+ if(z>=14){const d=Math.max(1,SS/2|0);trail.forEach((p,i)=>{const m=merc(p[0],p[1]);x.globalAlpha=.25+.6*i/trail.length;R('#ffd23f',Math.round(m[0]*S-ox)-(d>>1),Math.round(m[1]*S-oy)-(d>>1),d,d);});x.globalAlpha=1;}
+ if(me){const m=merc(me.lat,me.lng),px=Math.round(m[0]*S-ox),py=Math.round(m[1]*S-oy),r=me.acc/mpp(me.lat);
+  if(r>3){x.fillStyle='rgba(47,140,255,.14)';x.beginPath();x.arc(px,py,r,0,7);x.fill();x.strokeStyle='rgba(47,140,255,.6)';x.lineWidth=lw;x.stroke();}
+  x.fillStyle='#fff';x.beginPath();x.arc(px,py,2.2*SS,0,7);x.fill();x.fillStyle='#2f8cff';x.beginPath();x.arc(px,py,1.5*SS,0,7);x.fill();}
+ if(disp){const px=Math.round(disp[0]*S-ox),py=Math.round(disp[1]*S-oy),live=isLive();
+  const r=fix&&fix.acc?fix.acc/mpp(unm(disp)[0]):0;
+  if(r>3){x.fillStyle='rgba(255,210,63,.12)';x.beginPath();x.arc(px,py,r,0,7);x.fill();x.strokeStyle='rgba(255,210,63,.5)';x.lineWidth=lw;x.stroke();}
+  if(live){const k=(ts%1600)/1600;x.strokeStyle='rgba(77,255,176,'+(1-k)*.8+')';x.lineWidth=lw;x.beginPath();x.arc(px,py,(3+k*16)*SS,0,7);x.stroke();}
+  x.save();x.translate(px,py);x.scale(SS,SS);pl(-8,-15,moving,!live);
+  const b=Math.round(Math.sin(ts/300)*1.5),c=live?'#4dffb0':'#8a93ad';R(c,-2,-22+b,5,1);R(c,-1,-21+b,3,1);R(c,0,-20+b,1,1);
+  if(!live){x.font='8px "Press Start 2P"';x.fillStyle='#e6ecff';x.fillText('z',7,-14+b);}x.restore();}
+ requestAnimationFrame(frame);}
+requestAnimationFrame(frame);
+</script></body></html>
