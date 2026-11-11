@@ -3,5 +3,5 @@
 // These values are public by design: the database rules decide who may write.
 window.LIVE_CONFIG = {
   apiKey: '',
-  databaseURL: ''
+  databaseURL: 'https://kjs-live-default-rtdb.asia-southeast1.firebasedatabase.app'
 };
